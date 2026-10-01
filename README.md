@@ -147,6 +147,8 @@ O cronômetro não usa `ForegroundService`. Ao marcar uma série, o repositório
 | Onboarding e Home (plano ativo, divisões, aviso de rascunho) | ✅ Funcionais |
 | Exercícios, Planos/Editor, Sessão, Histórico | 🚧 Telas provisórias que listam os RFs pendentes |
 
+O planejamento das próximas entregas está em [`docs/SPRINTS.md`](docs/SPRINTS.md).
+
 ## Decisões de produto pendentes (seção 17)
 
 1. Conteúdo definitivo da biblioteca nativa. O conteúdo atual é provisório, em `data/seed/NativeExercises.kt`.
