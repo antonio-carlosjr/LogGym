@@ -2,6 +2,8 @@
 
 O ponto de partida é a estrutura inicial: domínio, banco Room, repositórios, onboarding e home. A partir dela, o restante da [especificação funcional](../especifica_o_funcional_loggym.md) (RF-01 a RF-129) fica dividido em três sprints de **2 semanas**. A ordem segue o fluxo da seção 15: **prescrever → executar → consultar**.
 
+A divisão das tarefas entre os integrantes está em [`TAREFAS.md`](TAREFAS.md).
+
 ## Já concluído (estrutura inicial)
 
 - Carga inicial dos exercícios nativos e onboarding com templates (RF-01 a RF-08).
