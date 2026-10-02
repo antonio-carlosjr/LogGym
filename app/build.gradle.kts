@@ -39,6 +39,11 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        // Robolectric precisa dos recursos Android nos testes da JVM.
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 kotlin {
@@ -80,6 +85,9 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core.ktx)
+    testImplementation(libs.androidx.junit)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.test.runner)
