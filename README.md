@@ -1,5 +1,7 @@
 # LogGym
 
+[![Android CI](https://github.com/antonio-carlosjr/LogGym/actions/workflows/android.yml/badge.svg)](https://github.com/antonio-carlosjr/LogGym/actions/workflows/android.yml)
+
 Aplicativo Android para registrar treinos de musculação. Funciona **localmente**, com **um único usuário** e **offline-first**: não tem login, backend nem sincronização no MVP.
 
 A especificação funcional completa (RF-01 a RF-129) está em [`especifica_o_funcional_loggym.md`](especifica_o_funcional_loggym.md). Os comentários do código citam os RFs que cada trecho implementa.
