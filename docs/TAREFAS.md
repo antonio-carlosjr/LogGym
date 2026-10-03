@@ -32,7 +32,7 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 | :--- | :--- | :--- | :---: | :---: | :--- |
 | S1-01 | Abrir no Android Studio, corrigir erros de compilação, versionar `gradlew` e `gradle-wrapper.jar`, atualizar as versões das libs | — | Dev 1 | 3 | — |
 | S1-02 | CI no GitHub Actions: `testDebugUnitTest` + `assembleDebug` em cada PR | — | Dev 1 | 2 | S1-01 |
-| S1-03 | Testes instrumentados dos DAOs com Room em memória: seed sem duplicatas, plano ativo único, cascade de divisões e prescrições | RF-01, RF-02, RF-21, RF-28, RF-29 | Dev 1 | 5 | S1-01 |
+| S1-03 | Testes de persistência com Room em memória via Robolectric (rodam na JVM e na CI, sem emulador): seed sem duplicatas, plano ativo único, cascade de divisões e prescrições | RF-01, RF-02, RF-21, RF-28, RF-29 | Dev 1 | 5 | S1-01 |
 | S1-04 | Reunião de decisão e ajuste do seed: lista final de exercícios nativos, exercícios dos templates, unidade kg | seção 17 | Dev 1 (conduz), todos | 2 | — |
 | S1-05 | `ExerciseLibraryViewModel` + lista com busca e indicação de nativo/personalizado | RF-09 a RF-12 | Dev 2 | 3 | S1-01 |
 | S1-06 | Diálogo de criar/editar exercício personalizado, com nome obrigatório e grupo muscular opcional; nativos bloqueados | RF-13 a RF-15, RF-18 | Dev 2 | 3 | S1-05 |
