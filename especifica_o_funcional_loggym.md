@@ -324,12 +324,12 @@ Primeiro Acesso
 
 ## 17. Lacunas Pendentes (Decisões de Produto)
 
-Itens que não possuem resposta óbvia por senso comum e dependem de diretrizes de escopo:
+Itens que não possuem resposta óbvia por senso comum e dependem de diretrizes de escopo. Os itens 1 a 3 foram decididos na reunião da S1-04 ([registro da decisão](docs/decisoes/S1-04.md)); os requisitos resultantes estão na seção 20.
 
-1. **Conteúdo da biblioteca nativa [P]:** Quais exercícios nativos incluir, quantidade exata, se terão grupos musculares associados, equipamentos e instruções. (*Recomendação para o MVP: manter simples com ID, Nome, flag `isCustom` e opcionalmente `muscleGroup`*).
-2. **Conteúdo exato dos planos pré-definidos [P]:** A estrutura PPL ou Upper/Lower genérica não define quais exercícios específicos compõem cada dia, quantidade de séries e faixas de repetições de fábrica.
-3. **Unidade de carga padrão [P]:** Utilizar quilogramas (**kg**) para o contexto nacional (recomendado).
-4. **Alertas de descanso fora do app [P]:** Decidir se o celular deve vibrar/tocar exatamente ao fim do descanso caso o usuário feche o aplicativo (o que exigiria `AlarmManager` ou permissões adicionais). *Recomendado manter fora do MVP*.
+1. **Conteúdo da biblioteca nativa [D]:** cerca de 60 exercícios nativos. Grupos musculares vêm de uma lista fixa, e cada exercício pode ter um ou mais. Cada exercício tem descrição/instrução e uma observação curta do usuário; os nativos também têm foto. Não há campo de equipamento: o nome segue o padrão "Movimento + variação + equipamento". Exercícios por tempo ou distância passam a fazer parte do MVP.
+2. **Conteúdo exato dos planos pré-definidos [D]:** PPL, Upper/Lower, Bro Split e Full Body 3x, para público iniciante a intermediário, com 4 a 6 exercícios e 12 a 20 séries por treino. O conteúdo é definido pela equipe.
+3. **Unidade de carga padrão [D]:** kg como padrão, com opção de lb escolhida pelo usuário.
+4. **Alertas de descanso fora do app [P]:** Decidir se o celular deve vibrar/tocar exatamente ao fim do descanso caso o usuário feche o aplicativo (o que exigiria `AlarmManager` ou permissões adicionais). *Recomendado manter fora do MVP*. Não foi discutido na S1-04.
 
 ---
 
@@ -341,10 +341,9 @@ Para evitar o crescimento descontrolado do projeto, os seguintes itens estão de
 * Gráficos complexos de progresso, cálculo de $1\text{RM}$ e rastreio de recordes pessoais (PRs)
 * Volume semanal, estatísticas musculares e calendário/agenda semanal obrigatória
 * Notificações push de "hora de treinar"
-* Importação/exportação de dados, fotos e vídeos de exercícios
+* Importação/exportação de dados; vídeos de exercícios; fotos em exercícios personalizados (as fotos dos exercícios nativos foram incluídas pela decisão S1-04)
 * Integração com smartwatches ou Google Fit / Health Connect
 * Métodos avançados (Supersets, Drop sets, RPE/RIR, notas por série)
-* Exercícios baseados em tempo ou distância
 * Edição retroativa de histórico
 
 ---
@@ -358,3 +357,31 @@ O domínio do LogGym resume-se a três conceitos fundamentais que **jamais** dev
 3. `PerformedExercise` / `SessionExercise` $\rightarrow$ Fotografia histórica (*snapshot*) da prescrição unida à execução real.
 
 > **Por que isso importa?** Essa separação arquitetural resolve de forma nativa e elegante a imutabilidade do histórico, o pré-preenchimento inteligente, a exclusão/renomeação segura de exercícios e a integridade de rascunhos sem acoplamento indevido.
+
+---
+
+## 20. Requisitos Adicionados pela Decisão S1-04
+
+Origem: [registro da decisão S1-04](docs/decisoes/S1-04.md). Os itens marcados com *(pendente)* têm detalhes ainda em esclarecimento, listados na seção 3 daquele registro.
+
+| ID | Requisito | Origem |
+| :--- | :--- | :---: |
+| **RF-130** | Grupos musculares devem vir de uma lista fixa, e um exercício pode ter um ou mais grupos. *(pendente: P2)* | `[D]` |
+| **RF-131** | O grupo muscular de um exercício personalizado é opcional e escolhido na mesma lista fixa. | `[D]` |
+| **RF-132** | Não pode haver exercício personalizado com nome igual a outro exercício, ignorando maiúsculas e espaços. | `[D]` |
+| **RF-133** | O usuário pode escrever uma observação curta para um exercício. *(pendente: P3)* | `[D]` |
+| **RF-134** | Exercícios podem ter uma descrição ou instrução de execução. *(pendente: P4)* | `[D]` |
+| **RF-135** | Apenas exercícios nativos possuem foto; o usuário não pode adicionar foto a exercícios personalizados. *(pendente: P4)* | `[D]` |
+| **RF-136** | O sistema deve suportar exercícios registrados por tempo ou distância, além de carga e repetições. *(pendente: P1)* | `[D]` |
+| **RF-137** | A carga registrada é a carga externa adicional; carga negativa (exercícios assistidos) não é suportada. | `[D]` |
+| **RF-138** | Cada série possui um único campo de carga. *(pendente: P5)* | `[D]` |
+| **RF-139** | O usuário pode escolher entre kg e lb; kg é o padrão. *(pendente: P7)* | `[D]` |
+| **RF-140** | A carga aceita até 2 casas decimais, digitada com vírgula ou ponto e exibida no formato pt-BR, sem zeros à direita. | `[D]` |
+| **RF-141** | Não há limite superior de regra para carga, repetições executadas, séries ou repetições prescritas. *(pendente: P8)* | `[D]` |
+| **RF-142** | O descanso varia de 0 a 600 segundos, escolhido em passos de 15 segundos. | `[D]` |
+| **RF-143** | Ao adicionar um exercício a uma divisão, a configuração começa vazia; o padrão (3 séries, 8–12 repetições, 90 s) só é aplicado por escolha do usuário. *(pendente: P9)* | `[D]` |
+| **RF-144** | Os planos pré-definidos são PPL, Upper/Lower, Bro Split e Full Body 3x, com 4 a 6 exercícios e 12 a 20 séries por treino. | `[D]` |
+| **RF-145** | Escolher o mesmo template mais de uma vez gera instâncias distintas e totalmente editáveis. *(pendente: P6)* | `[D]` |
+| **RF-146** | Ao criar um plano a partir de template fora do onboarding, o sistema pergunta se o novo plano deve ser ativado. | `[D]` |
+| **RF-147** | O onboarding exibe um aviso de que o app não substitui orientação profissional. | `[D]` |
+| **RF-148** | Novos exercícios nativos e correções em versões futuras devem ser aplicados por migração, identificados por uma chave estável e imutável. | `[D]` |
