@@ -10,32 +10,35 @@ A especificação funcional completa (RF-01 a RF-129) está em [`especifica_o_fu
 
 | Camada | Tecnologia |
 | :--- | :--- |
-| Linguagem | Kotlin 2.1 |
+| Linguagem | Kotlin 2.4 (integrado ao AGP 9) |
+| Build | Gradle 9.8 (wrapper) + Android Gradle Plugin 9.4 |
 | UI | Jetpack Compose + Material 3 |
 | Navegação | Navigation Compose com rotas tipadas (`kotlinx.serialization`) |
-| Persistência | Room 2.6 (SQLite) |
+| Persistência | Room 2.8 (SQLite), com o esquema exportado em `app/schemas/` |
 | Preferências | DataStore Preferences (flag de onboarding) |
 | Injeção de dependência | Hilt (KSP) |
 | Assincronismo | Coroutines + Flow |
 | Testes | JUnit 4 (unitários de domínio e dados de seed) |
 
-`minSdk 26` (Android 8.0), para usar `java.time` sem desugaring. `compileSdk`/`targetSdk 35`.
+`minSdk 26` (Android 8.0), para usar `java.time` sem desugaring. `compileSdk`/`targetSdk 37`.
 
 ---
 
 ## Como abrir e executar
 
-1. Abra a pasta do projeto no **Android Studio** (Ladybug ou mais recente).
-2. Aguarde o *Gradle Sync*. O Android Studio usa o `gradle/wrapper/gradle-wrapper.properties` (Gradle 8.11.1) e o JDK embutido.
+**Pré-requisitos:** JDK 17 ou superior (testado com o 21) e Android SDK com a platform 37. O Android Studio já traz os dois.
+
+1. Abra a pasta do projeto no **Android Studio**.
+2. Aguarde o *Gradle Sync*. O wrapper baixa o Gradle 9.8.0 e confere o checksum.
 3. Execute a configuração `app` em um emulador ou dispositivo.
 
-Testes unitários:
+Pela linha de comando, crie um `local.properties` (não versionado) com o caminho do SDK, por exemplo `sdk.dir=C:/Users/<você>/AppData/Local/Android/Sdk`. Depois rode:
 
 ```bash
-./gradlew testDebugUnitTest
+./gradlew assembleDebug testDebugUnitTest
 ```
 
-> O repositório ainda não versiona os scripts `gradlew`/`gradlew.bat` nem o `gradle-wrapper.jar`. Para gerá-los, rode `gradle wrapper` com um Gradle local ou use o Android Studio, que funciona sem eles.
+O build usa *configuration cache* e *build cache* (`gradle.properties`), então as execuções seguintes levam poucos segundos.
 
 ---
 
