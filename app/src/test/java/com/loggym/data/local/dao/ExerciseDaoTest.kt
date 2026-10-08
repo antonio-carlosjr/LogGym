@@ -8,6 +8,7 @@ import com.loggym.data.local.entity.WorkoutEntity
 import com.loggym.data.local.entity.WorkoutExerciseEntity
 import com.loggym.data.local.fixedClock
 import com.loggym.data.local.inMemoryDatabase
+import com.loggym.domain.model.MuscleGroup
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -39,7 +40,7 @@ class ExerciseDaoTest {
     fun `exercicio nativo nao pode ser editado - RF-18`() = runTest {
         val native = exerciseDao.getByNativeKeys(listOf("supino_reto")).single()
 
-        val updated = exerciseDao.updateCustom(native.id, "Outro nome", null)
+        val updated = exerciseDao.updateCustom(native.id, "Outro nome", emptySet(), null)
 
         assertEquals(0, updated)
         assertEquals(native.name, exerciseDao.getByNativeKeys(listOf("supino_reto")).single().name)
@@ -59,7 +60,7 @@ class ExerciseDaoTest {
     fun `exercicio personalizado pode ser editado e excluido - RF-15 e RF-16`() = runTest {
         val id = exerciseDao.insert(customExercise("Supino na Smith"))
 
-        assertEquals(1, exerciseDao.updateCustom(id, "Supino na máquina Smith", "Peito"))
+        assertEquals(1, exerciseDao.updateCustom(id, "Supino na máquina Smith", setOf(MuscleGroup.CHEST), null))
         assertEquals("Supino na máquina Smith", findById(id)?.name)
 
         assertEquals(1, exerciseDao.deleteCustom(id))
@@ -88,7 +89,7 @@ class ExerciseDaoTest {
         exerciseDao.observeAll().first().firstOrNull { it.id == id }
 
     private fun customExercise(name: String) =
-        ExerciseEntity(name = name, muscleGroup = null, isCustom = true, nativeKey = null)
+        ExerciseEntity(name = name, isCustom = true, nativeKey = null)
 
     private fun prescription(workoutId: Long, exerciseId: Long, position: Int) = WorkoutExerciseEntity(
         workoutId = workoutId,

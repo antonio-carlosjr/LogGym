@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.loggym.domain.model.MuscleGroup
 
 /**
  * Snapshot do exercício e da prescrição no momento da sessão (RF-61, RF-129).
@@ -28,7 +29,7 @@ data class SessionExerciseEntity(
     @ColumnInfo(name = "session_id") val sessionId: Long,
     @ColumnInfo(name = "exercise_id") val exerciseId: Long?,
     @ColumnInfo(name = "exercise_name") val exerciseName: String,
-    @ColumnInfo(name = "muscle_group") val muscleGroup: String?,
+    @ColumnInfo(name = "muscle_groups") val muscleGroups: Set<MuscleGroup>,
     val position: Int,
     @ColumnInfo(name = "target_sets") val targetSets: Int,
     @ColumnInfo(name = "rep_min") val repMin: Int,

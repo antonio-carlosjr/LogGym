@@ -1,9 +1,12 @@
 package com.loggym.data.seed
 
+import com.loggym.domain.model.MuscleGroup
+
 data class NativeExercise(
     val key: String,
     val name: String,
-    val muscleGroup: String,
+    val muscleGroups: Set<MuscleGroup>,
+    val description: String? = null,
 )
 
 /**
@@ -12,15 +15,15 @@ data class NativeExercise(
  * As chaves são estáveis e referenciadas pelos templates; não renomeie uma chave já publicada.
  */
 object NativeExercises {
-    private const val PEITO = "Peito"
-    private const val COSTAS = "Costas"
-    private const val OMBROS = "Ombros"
-    private const val BICEPS = "Bíceps"
-    private const val TRICEPS = "Tríceps"
-    private const val PERNAS = "Pernas"
-    private const val GLUTEOS = "Glúteos"
-    private const val PANTURRILHAS = "Panturrilhas"
-    private const val ABDOMEN = "Abdômen"
+    private val PEITO = setOf(MuscleGroup.CHEST)
+    private val COSTAS = setOf(MuscleGroup.BACK)
+    private val OMBROS = setOf(MuscleGroup.SHOULDERS)
+    private val BICEPS = setOf(MuscleGroup.BICEPS)
+    private val TRICEPS = setOf(MuscleGroup.TRICEPS)
+    private val PERNAS = setOf(MuscleGroup.QUADS)
+    private val GLUTEOS = setOf(MuscleGroup.GLUTES)
+    private val PANTURRILHAS = setOf(MuscleGroup.CALVES)
+    private val ABDOMEN = setOf(MuscleGroup.ABS)
 
     val all: List<NativeExercise> = listOf(
         NativeExercise("supino_reto", "Supino reto com barra", PEITO),

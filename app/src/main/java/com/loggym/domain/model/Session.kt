@@ -29,7 +29,7 @@ data class SessionExercise(
     /** Referência fraca ao exercício de origem, usada só para o pré-preenchimento (RF-68). */
     val exerciseId: Long?,
     val name: String,
-    val muscleGroup: String?,
+    val muscleGroups: Set<MuscleGroup>,
     val position: Int,
     val target: ExerciseTarget,
     val sets: List<SessionSet>,

@@ -74,7 +74,7 @@ class SessionRepositoryImpl @Inject constructor(
                         sessionId = sessionId,
                         exerciseId = item.exercise.id,
                         exerciseName = item.exercise.name,
-                        muscleGroup = item.exercise.muscleGroup,
+                        muscleGroups = item.exercise.muscleGroups,
                         position = position,
                         targetSets = prescription.targetSets,
                         repMin = prescription.repMin,

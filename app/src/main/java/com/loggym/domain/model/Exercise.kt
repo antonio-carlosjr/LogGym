@@ -7,7 +7,10 @@ package com.loggym.domain.model
 data class Exercise(
     val id: Long,
     val name: String,
-    val muscleGroup: String?,
+    val muscleGroups: Set<MuscleGroup>,
+    val description: String?,
+    /** RF-133: observação curta do usuário. */
+    val userNote: String?,
     /** RF-12: distingue exercícios personalizados dos nativos. */
     val isCustom: Boolean,
 )
