@@ -40,6 +40,12 @@ Pela linha de comando, crie um `local.properties` (não versionado) com o caminh
 ./gradlew assembleDebug testDebugUnitTest
 ```
 
+Os testes de ponta a ponta no dispositivo precisam de um emulador ou aparelho conectado:
+
+```bash
+./gradlew connectedDebugAndroidTest
+```
+
 O build usa *configuration cache* e *build cache* (`gradle.properties`), então as execuções seguintes levam poucos segundos.
 
 ---
@@ -146,11 +152,12 @@ O cronômetro não usa `ForegroundService`. Ao marcar uma série, o repositório
 
 | Área | Situação |
 | :--- | :--- |
-| Build, DI, banco, entidades, DAOs, seed | ✅ Estruturado |
-| Repositórios (exercícios, planos, sessões, preferências) | ✅ Implementados |
-| Regras de domínio + testes unitários | ✅ Pré-preenchimento, cronômetro, validação de metas, seed |
-| Onboarding e Home (plano ativo, divisões, aviso de rascunho) | ✅ Funcionais |
-| Exercícios, Planos/Editor, Sessão, Histórico | 🚧 Telas provisórias que listam os RFs pendentes |
+| Build (AGP 9.4, Kotlin 2.4, Gradle 9.8) e CI (build, testes da JVM e emulador) | ✅ Sprint 1 |
+| Banco, seed de 60 exercícios nativos e 4 planos prontos, regras de entrada (decisão S1-04) | ✅ Sprint 1 |
+| Onboarding, Home, biblioteca de exercícios, planos e editor de plano | ✅ Sprint 1 |
+| Testes: unidade, persistência e ViewModels (Robolectric), ponta a ponta na JVM e no emulador | ✅ Sprint 1 |
+| Execução do treino (sessão, cronômetro, rascunho, finalização) | 🚧 Sprint 2, com tela provisória |
+| Histórico, polimento e release | 🚧 Sprint 3, com tela provisória |
 
 O planejamento das próximas entregas está em [`docs/SPRINTS.md`](docs/SPRINTS.md).
 

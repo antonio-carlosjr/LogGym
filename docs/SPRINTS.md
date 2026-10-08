@@ -13,7 +13,7 @@ A divisão das tarefas entre os integrantes está em [`TAREFAS.md`](TAREFAS.md).
 
 ---
 
-## Sprint 1: Fundação validada, biblioteca e planos
+## Sprint 1: Fundação validada, biblioteca e planos ✅ concluída
 
 **Objetivo:** o usuário monta e mantém seus planos de ponta a ponta.
 
