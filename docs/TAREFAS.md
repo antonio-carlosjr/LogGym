@@ -26,24 +26,26 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 
 ---
 
-## Sprint 1: Fundação e prescrição
+## Sprint 1: Fundação e prescrição ✅ concluída
+
+> Entregue nos PRs #1 a #10. O critério de pronto foi validado pela interface no emulador (`Sprint1DefinitionOfDoneTest`) e na JVM (`Sprint1FlowTest`).
 
 | ID | Tarefa | RFs | Responsável | Pts | Depende de |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| S1-01 | Abrir no Android Studio, corrigir erros de compilação, versionar `gradlew` e `gradle-wrapper.jar`, atualizar as versões das libs | — | Dev 1 | 3 | — |
-| S1-02 | CI no GitHub Actions: `testDebugUnitTest` + `assembleDebug` em cada PR | — | Dev 1 | 2 | S1-01 |
-| S1-03 | Testes de persistência com Room em memória via Robolectric (rodam na JVM e na CI, sem emulador): seed sem duplicatas, plano ativo único, cascade de divisões e prescrições | RF-01, RF-02, RF-21, RF-28, RF-29 | Dev 1 | 5 | S1-01 |
+| S1-01 | ✅ Abrir no Android Studio, corrigir erros de compilação, versionar `gradlew` e `gradle-wrapper.jar`, atualizar as versões das libs | — | Dev 1 | 3 | — |
+| S1-02 | ✅ CI no GitHub Actions: `testDebugUnitTest` + `assembleDebug` em cada PR | — | Dev 1 | 2 | S1-01 |
+| S1-03 | ✅ Testes de persistência com Room em memória via Robolectric (rodam na JVM e na CI, sem emulador): seed sem duplicatas, plano ativo único, cascade de divisões e prescrições | RF-01, RF-02, RF-21, RF-28, RF-29 | Dev 1 | 5 | S1-01 |
 | S1-04a | ✅ Reunião de decisão e registro em [`decisoes/S1-04.md`](decisoes/S1-04.md); seção 17 da especificação marcada como [D] | seção 17 | Dev 1 (conduz), todos | 1 | — |
 | S1-04b | ✅ Código: `enum MuscleGroup`, `NativeExercises` (60) e `PlanTemplates` (4) finais, regras de entrada em `domain/`, nome único, observação e descrição. Adota as recomendações P2, P3, P4, P6, P8, P9 e P10 | RF-130 a RF-148 | Dev 1 | 2 | S1-04a |
 | S1-04c | ✅ Testes do seed (grupos válidos, nomes únicos, templates dentro das regras) e das regras de entrada | RF-130 a RF-148 | Dev 1 | 1 | S1-04b |
-| S1-05 | `ExerciseLibraryViewModel` + lista com busca e indicação de nativo/personalizado | RF-09 a RF-12 | Dev 2 | 3 | S1-01, S1-04b |
-| S1-06 | Diálogo de criar/editar exercício personalizado, com nome obrigatório e grupo muscular opcional; nativos bloqueados | RF-13 a RF-15, RF-18 | Dev 2 | 3 | S1-05 |
-| S1-07 | Excluir personalizado com confirmação e aviso quando usado em planos (`countPlanUsages`) | RF-16, RF-17, RF-19 a RF-21 | Dev 2 | 2 | S1-05 |
-| S1-08 | No editor: seletor de exercício da biblioteca e formulário de séries, faixa de repetições e descanso (validação via `ExerciseTarget`) | RF-46, RF-49 a RF-57 | Dev 2 | 5 | S1-04b, S1-05, S1-11 |
-| S1-09 | `PlansViewModel` + lista de planos com o ativo destacado; ativar e trocar o plano ativo | RF-22, RF-28 a RF-31 | Dev 3 | 3 | S1-01 |
-| S1-10 | Criar plano personalizado (nome), criar a partir de template, excluir com confirmação | RF-23, RF-24, RF-26, RF-27, RF-33, RF-35 a RF-38 | Dev 3 | 3 | S1-09 |
-| S1-11 | `PlanEditorViewModel` + editor: renomear plano; adicionar, renomear e excluir divisões | RF-25, RF-39 a RF-43 | Dev 3 | 5 | S1-09 |
-| S1-12 | Reordenar divisões e exercícios da divisão; remover exercício da divisão | RF-44, RF-45, RF-47, RF-48 | Dev 3 | 3 | S1-11 |
+| S1-05 | ✅ `ExerciseLibraryViewModel` + lista com busca e indicação de nativo/personalizado | RF-09 a RF-12 | Dev 2 | 3 | S1-01, S1-04b |
+| S1-06 | ✅ Diálogo de criar/editar exercício personalizado, com nome obrigatório e grupo muscular opcional; nativos bloqueados | RF-13 a RF-15, RF-18 | Dev 2 | 3 | S1-05 |
+| S1-07 | ✅ Excluir personalizado com confirmação e aviso quando usado em planos (`countPlanUsages`) | RF-16, RF-17, RF-19 a RF-21 | Dev 2 | 2 | S1-05 |
+| S1-08 | ✅ No editor: seletor de exercício da biblioteca e formulário de séries, faixa de repetições e descanso (validação via `ExerciseTarget`) | RF-46, RF-49 a RF-57 | Dev 2 | 5 | S1-04b, S1-05, S1-11 |
+| S1-09 | ✅ `PlansViewModel` + lista de planos com o ativo destacado; ativar e trocar o plano ativo | RF-22, RF-28 a RF-31 | Dev 3 | 3 | S1-01 |
+| S1-10 | ✅ Criar plano personalizado (nome), criar a partir de template, excluir com confirmação | RF-23, RF-24, RF-26, RF-27, RF-33, RF-35 a RF-38 | Dev 3 | 3 | S1-09 |
+| S1-11 | ✅ `PlanEditorViewModel` + editor: renomear plano; adicionar, renomear e excluir divisões | RF-25, RF-39 a RF-43 | Dev 3 | 5 | S1-09 |
+| S1-12 | ✅ Reordenar divisões e exercícios da divisão; remover exercício da divisão | RF-44, RF-45, RF-47, RF-48 | Dev 3 | 3 | S1-11 |
 
 **Carga:** Dev 1 = 14 · Dev 2 = 13 · Dev 3 = 14
 
