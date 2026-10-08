@@ -48,7 +48,10 @@ fun LogGymNavHost(
             ExerciseLibraryScreen(onBack = navigateBack)
         }
         composable<PlansRoute> {
-            PlansScreen(onBack = navigateBack)
+            PlansScreen(
+                onBack = navigateBack,
+                onOpenPlan = { planId -> navController.navigate(PlanEditorRoute(planId)) },
+            )
         }
         composable<PlanEditorRoute> { entry ->
             PlanEditorScreen(planId = entry.toRoute<PlanEditorRoute>().planId, onBack = navigateBack)
