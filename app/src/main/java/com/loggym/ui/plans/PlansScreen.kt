@@ -39,6 +39,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -71,6 +73,8 @@ fun PlansScreen(
                 onClick = viewModel::openCreatePlan,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text("Novo plano") },
+                // O FAB estendido limpa a semântica do rótulo; sem isto o leitor de tela não anuncia a ação.
+                modifier = Modifier.semantics { contentDescription = "Novo plano" },
             )
         },
     ) { padding ->
