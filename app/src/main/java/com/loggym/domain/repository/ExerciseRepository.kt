@@ -17,6 +17,9 @@ sealed interface SaveExerciseResult {
     /** RF-14: todo exercício precisa de nome. */
     data object BlankName : SaveExerciseResult
 
+    /** RF-132: já existe exercício com o mesmo nome, ignorando maiúsculas e espaços. */
+    data object DuplicateName : SaveExerciseResult
+
     /** Exercício inexistente ou nativo (RF-18). */
     data object NotEditable : SaveExerciseResult
 }
