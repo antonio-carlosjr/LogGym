@@ -1,5 +1,6 @@
 package com.loggym.domain.logic
 
+import java.text.Normalizer
 import java.util.Locale
 
 /** RF-132: nomes de exercícios comparados sem diferenciar maiúsculas e espaços. */
@@ -12,4 +13,10 @@ object ExerciseNames {
 
     /** Chave de comparação usada para detectar duplicatas. */
     fun comparisonKey(name: String): String = clean(name).lowercase(ptBr)
+
+    /** Chave de busca: também ignora acentos ("triceps" encontra "Tríceps"). */
+    fun searchKey(text: String): String =
+        Normalizer.normalize(comparisonKey(text), Normalizer.Form.NFD).replace(diacritics, "")
+
+    private val diacritics = Regex("\\p{Mn}+")
 }
