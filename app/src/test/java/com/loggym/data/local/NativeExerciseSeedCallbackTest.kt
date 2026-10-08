@@ -24,6 +24,20 @@ class NativeExerciseSeedCallbackTest {
     }
 
     @Test
+    fun `carga inicial grava grupos e descricao de cada nativo - RF-130 e RF-134`() = runTest {
+        val database = inMemoryDatabase()
+
+        val byKey = database.exerciseDao().observeAll().first().associateBy { it.nativeKey }
+
+        NativeExercises.all.forEach { native ->
+            val stored = byKey.getValue(native.key)
+            assertEquals(native.muscleGroups, stored.muscleGroups)
+            assertEquals(native.description, stored.description)
+        }
+        database.close()
+    }
+
+    @Test
     fun `reabrir o banco nao duplica os nativos - RF-02`() = runTest {
         val name = "seed-reopen.db"
         testContext.deleteDatabase(name)
