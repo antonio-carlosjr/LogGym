@@ -53,8 +53,8 @@ fun LogGymNavHost(
                 onOpenPlan = { planId -> navController.navigate(PlanEditorRoute(planId)) },
             )
         }
-        composable<PlanEditorRoute> { entry ->
-            PlanEditorScreen(planId = entry.toRoute<PlanEditorRoute>().planId, onBack = navigateBack)
+        composable<PlanEditorRoute> {
+            PlanEditorScreen(onBack = navigateBack)
         }
         composable<SessionRoute> {
             SessionScreen(onBack = navigateBack)
