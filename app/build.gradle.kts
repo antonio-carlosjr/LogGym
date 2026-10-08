@@ -18,7 +18,7 @@ android {
         versionCode = 1
         versionName = "0.1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.loggym.HiltTestRunner"
     }
 
     buildTypes {
@@ -43,6 +43,13 @@ android {
     testOptions {
         // Robolectric precisa dos recursos Android nos testes da JVM.
         unitTests.isIncludeAndroidResources = true
+        animationsDisabled = true
+    }
+
+    // Código de teste usado tanto na JVM (Robolectric) quanto no dispositivo.
+    sourceSets {
+        getByName("test").kotlin.srcDir("src/sharedTest/java")
+        getByName("androidTest").kotlin.srcDir("src/sharedTest/java")
     }
 }
 
@@ -99,6 +106,8 @@ dependencies {
     androidTestImplementation(libs.androidx.room.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
