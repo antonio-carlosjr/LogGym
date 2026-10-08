@@ -47,7 +47,7 @@ class PlanRepositoryImpl @Inject constructor(
                 .associate { exercise -> exercise.nativeKey to exercise.id }
 
             val planId = planDao.insertPlan(
-                PlanEntity(name = template.name, templateKey = template.key, createdAt = clock.instant()),
+                PlanEntity(name = uniquePlanName(template.name), templateKey = template.key, createdAt = clock.instant()),
             )
             for ((workoutPosition, workout) in template.workouts.withIndex()) {
                 val workoutId = planDao.insertWorkout(
@@ -103,6 +103,13 @@ class PlanRepositoryImpl @Inject constructor(
 
     override suspend fun reorderWorkoutExercises(orderedWorkoutExerciseIds: List<Long>) = database.withTransaction {
         orderedWorkoutExerciseIds.forEachIndexed { position, id -> planDao.updateWorkoutExercisePosition(id, position) }
+    }
+
+    /** RF-145: "Nome", "Nome (2)", "Nome (3)"… para distinguir instâncias do mesmo template. */
+    private suspend fun uniquePlanName(baseName: String): String {
+        val taken = planDao.getPlanNames().toSet()
+        if (baseName !in taken) return baseName
+        return generateSequence(2) { it + 1 }.map { "$baseName ($it)" }.first { it !in taken }
     }
 
     /** RF-28/RF-29: deve ser chamada dentro de uma transação. */
