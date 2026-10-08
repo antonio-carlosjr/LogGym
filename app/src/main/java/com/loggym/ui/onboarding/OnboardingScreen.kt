@@ -44,6 +44,13 @@ fun OnboardingScreen(
                     "Escolha um plano pronto para começar. Você poderá personalizá-lo depois.",
                     style = MaterialTheme.typography.bodyLarge,
                 )
+                // RF-147: aviso de saúde.
+                Text(
+                    "O LogGym não substitui a orientação de um profissional de educação física ou de saúde.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
             }
             items(viewModel.templates, key = { it.key }) { template ->
                 ElevatedCard(

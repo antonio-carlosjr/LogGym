@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "feeb794b778a93e58b88a0dff4473e89",
+    "identityHash": "cfc2325ef2db1327cd0dc4b078cd27f5",
     "entities": [
       {
         "tableName": "exercises",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `muscle_group` TEXT, `is_custom` INTEGER NOT NULL, `native_key` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `muscle_groups` TEXT NOT NULL, `description` TEXT, `user_note` TEXT, `is_custom` INTEGER NOT NULL, `native_key` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -21,8 +21,19 @@
             "notNull": true
           },
           {
-            "fieldPath": "muscleGroup",
-            "columnName": "muscle_group",
+            "fieldPath": "muscleGroups",
+            "columnName": "muscle_groups",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userNote",
+            "columnName": "user_note",
             "affinity": "TEXT"
           },
           {
@@ -360,7 +371,7 @@
       },
       {
         "tableName": "session_exercises",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `session_id` INTEGER NOT NULL, `exercise_id` INTEGER, `exercise_name` TEXT NOT NULL, `muscle_group` TEXT, `position` INTEGER NOT NULL, `target_sets` INTEGER NOT NULL, `rep_min` INTEGER NOT NULL, `rep_max` INTEGER NOT NULL, `rest_seconds` INTEGER NOT NULL, FOREIGN KEY(`session_id`) REFERENCES `sessions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `session_id` INTEGER NOT NULL, `exercise_id` INTEGER, `exercise_name` TEXT NOT NULL, `muscle_groups` TEXT NOT NULL, `position` INTEGER NOT NULL, `target_sets` INTEGER NOT NULL, `rep_min` INTEGER NOT NULL, `rep_max` INTEGER NOT NULL, `rest_seconds` INTEGER NOT NULL, FOREIGN KEY(`session_id`) REFERENCES `sessions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -386,9 +397,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "muscleGroup",
-            "columnName": "muscle_group",
-            "affinity": "TEXT"
+            "fieldPath": "muscleGroups",
+            "columnName": "muscle_groups",
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "position",
@@ -534,7 +546,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'feeb794b778a93e58b88a0dff4473e89')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cfc2325ef2db1327cd0dc4b078cd27f5')"
     ]
   }
 }

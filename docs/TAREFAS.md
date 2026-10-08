@@ -34,8 +34,8 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 | S1-02 | CI no GitHub Actions: `testDebugUnitTest` + `assembleDebug` em cada PR | — | Dev 1 | 2 | S1-01 |
 | S1-03 | Testes de persistência com Room em memória via Robolectric (rodam na JVM e na CI, sem emulador): seed sem duplicatas, plano ativo único, cascade de divisões e prescrições | RF-01, RF-02, RF-21, RF-28, RF-29 | Dev 1 | 5 | S1-01 |
 | S1-04a | ✅ Reunião de decisão e registro em [`decisoes/S1-04.md`](decisoes/S1-04.md); seção 17 da especificação marcada como [D] | seção 17 | Dev 1 (conduz), todos | 1 | — |
-| S1-04b | Código: `enum MuscleGroup`, `NativeExercises` e `PlanTemplates` finais, regras de entrada em `domain/`. **Bloqueada** pelas pendências P1 a P10 | RF-130 a RF-148 | Dev 1 | 2 | S1-04a |
-| S1-04c | Testes do seed (grupos válidos, nomes únicos, templates dentro das regras) e das regras de entrada | RF-130 a RF-148 | Dev 1 | 1 | S1-04b |
+| S1-04b | ✅ Código: `enum MuscleGroup`, `NativeExercises` (60) e `PlanTemplates` (4) finais, regras de entrada em `domain/`, nome único, observação e descrição. Adota as recomendações P2, P3, P4, P6, P8, P9 e P10 | RF-130 a RF-148 | Dev 1 | 2 | S1-04a |
+| S1-04c | ✅ Testes do seed (grupos válidos, nomes únicos, templates dentro das regras) e das regras de entrada | RF-130 a RF-148 | Dev 1 | 1 | S1-04b |
 | S1-05 | `ExerciseLibraryViewModel` + lista com busca e indicação de nativo/personalizado | RF-09 a RF-12 | Dev 2 | 3 | S1-01, S1-04b |
 | S1-06 | Diálogo de criar/editar exercício personalizado, com nome obrigatório e grupo muscular opcional; nativos bloqueados | RF-13 a RF-15, RF-18 | Dev 2 | 3 | S1-05 |
 | S1-07 | Excluir personalizado com confirmação e aviso quando usado em planos (`countPlanUsages`) | RF-16, RF-17, RF-19 a RF-21 | Dev 2 | 2 | S1-05 |

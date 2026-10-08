@@ -23,6 +23,9 @@ interface PlanDao {
     @Query("SELECT * FROM plans WHERE is_active = 1 LIMIT 1")
     suspend fun getActivePlan(): PlanEntity?
 
+    @Query("SELECT name FROM plans")
+    suspend fun getPlanNames(): List<String>
+
     @Transaction
     @Query("SELECT * FROM plans WHERE id = :planId")
     fun observePlan(planId: Long): Flow<PlanWithWorkouts?>

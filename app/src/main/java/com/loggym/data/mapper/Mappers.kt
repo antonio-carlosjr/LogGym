@@ -24,7 +24,9 @@ import java.time.Duration
 fun ExerciseEntity.toDomain() = Exercise(
     id = id,
     name = name,
-    muscleGroup = muscleGroup,
+    muscleGroups = muscleGroups,
+    description = description,
+    userNote = userNote,
     isCustom = isCustom,
 )
 
@@ -78,7 +80,7 @@ private fun SessionExerciseWithSets.toDomain() = SessionExercise(
     id = exercise.id,
     exerciseId = exercise.exerciseId,
     name = exercise.exerciseName,
-    muscleGroup = exercise.muscleGroup,
+    muscleGroups = exercise.muscleGroups,
     position = exercise.position,
     target = exerciseTarget(exercise.targetSets, exercise.repMin, exercise.repMax, exercise.restSeconds),
     sets = sets.map { it.toDomain() }.sortedBy { it.position },

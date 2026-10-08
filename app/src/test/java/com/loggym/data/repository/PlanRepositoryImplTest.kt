@@ -78,9 +78,19 @@ class PlanRepositoryImplTest {
         repository.deleteWorkout(repository.observePlan(first).first()!!.workouts.first().id)
 
         val untouched = repository.observePlan(second).first()!!
-        assertEquals(PlanTemplates.byKey("ppl")!!.name, untouched.name)
+        assertEquals("${PlanTemplates.byKey("ppl")!!.name} (2)", untouched.name)
         assertEquals(3, untouched.workouts.size)
         assertTrue(repository.observePlans().first().none { it.isActive })
+    }
+
+    @Test
+    fun `mesmo template repetido recebe sufixo numerado - RF-145`() = runTest {
+        val name = PlanTemplates.byKey("full_body")!!.name
+
+        val ids = List(3) { repository.createFromTemplate("full_body", activate = false) }
+
+        val names = ids.map { repository.observePlan(it).first()!!.name }
+        assertEquals(listOf(name, "$name (2)", "$name (3)"), names)
     }
 
     @Test

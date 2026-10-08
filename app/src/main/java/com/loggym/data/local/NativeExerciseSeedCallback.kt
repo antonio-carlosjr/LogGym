@@ -14,8 +14,16 @@ class NativeExerciseSeedCallback : RoomDatabase.Callback() {
         super.onCreate(db)
         NativeExercises.all.forEach { exercise ->
             db.execSQL(
-                "INSERT OR IGNORE INTO exercises (name, muscle_group, is_custom, native_key) VALUES (?, ?, 0, ?)",
-                arrayOf<Any?>(exercise.name, exercise.muscleGroup, exercise.key),
+                """
+                INSERT OR IGNORE INTO exercises (name, muscle_groups, description, is_custom, native_key)
+                VALUES (?, ?, ?, 0, ?)
+                """.trimIndent(),
+                arrayOf<Any?>(
+                    exercise.name,
+                    Converters.encodeMuscleGroups(exercise.muscleGroups),
+                    exercise.description,
+                    exercise.key,
+                ),
             )
         }
     }
