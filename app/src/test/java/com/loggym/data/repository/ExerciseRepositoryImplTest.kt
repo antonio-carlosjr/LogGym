@@ -34,12 +34,12 @@ class ExerciseRepositoryImplTest {
     @Test
     fun `cria personalizado com nome limpo, grupos e descricao - RF-13 e RF-130`() = runTest {
         val result = repository.createCustom(
-            ExerciseDraft("  Remada   cavalinho ", setOf(MuscleGroup.BACK, MuscleGroup.BICEPS), "  Peito apoiado  "),
+            ExerciseDraft("  Remada   articulada ", setOf(MuscleGroup.BACK, MuscleGroup.BICEPS), "  Peito apoiado  "),
         )
 
         val id = (result as SaveExerciseResult.Saved).exerciseId
         val saved = repository.observeAll().first().single { it.id == id }
-        assertEquals("Remada cavalinho", saved.name)
+        assertEquals("Remada articulada", saved.name)
         assertEquals(setOf(MuscleGroup.BACK, MuscleGroup.BICEPS), saved.muscleGroups)
         assertEquals("Peito apoiado", saved.description)
         assertTrue(saved.isCustom)
@@ -59,21 +59,21 @@ class ExerciseRepositoryImplTest {
 
     @Test
     fun `nome igual a outro personalizado e recusado - RF-132`() = runTest {
-        repository.createCustom(ExerciseDraft("Remada cavalinho"))
+        repository.createCustom(ExerciseDraft("Remada articulada"))
         val other = repository.createCustom(ExerciseDraft("Outro exercício")) as SaveExerciseResult.Saved
 
-        assertEquals(SaveExerciseResult.DuplicateName, repository.createCustom(ExerciseDraft("remada cavalinho")))
+        assertEquals(SaveExerciseResult.DuplicateName, repository.createCustom(ExerciseDraft("remada articulada")))
         assertEquals(
             SaveExerciseResult.DuplicateName,
-            repository.updateCustom(other.exerciseId, ExerciseDraft("Remada Cavalinho")),
+            repository.updateCustom(other.exerciseId, ExerciseDraft("Remada Articulada")),
         )
     }
 
     @Test
     fun `editar mantendo o proprio nome e permitido`() = runTest {
-        val id = (repository.createCustom(ExerciseDraft("Remada cavalinho")) as SaveExerciseResult.Saved).exerciseId
+        val id = (repository.createCustom(ExerciseDraft("Remada articulada")) as SaveExerciseResult.Saved).exerciseId
 
-        val result = repository.updateCustom(id, ExerciseDraft("remada cavalinho", setOf(MuscleGroup.BACK)))
+        val result = repository.updateCustom(id, ExerciseDraft("remada articulada", setOf(MuscleGroup.BACK)))
 
         assertEquals(SaveExerciseResult.Saved(id), result)
     }
