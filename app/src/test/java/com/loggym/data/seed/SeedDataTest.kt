@@ -26,8 +26,8 @@ class SeedDataTest {
     }
 
     @Test
-    fun `oferece as estruturas exigidas pelo RF-36`() {
-        assertEquals(setOf("ppl", "upper_lower", "bro_split"), PlanTemplates.all.map { it.key }.toSet())
+    fun `oferece as estruturas decididas - RF-36 e RF-144`() {
+        assertEquals(setOf("full_body", "ppl", "upper_lower", "bro_split"), PlanTemplates.all.map { it.key }.toSet())
     }
 
     @Test

@@ -7,8 +7,9 @@ import com.loggym.domain.model.WorkoutTemplate
 import java.time.Duration
 
 /**
- * Planos pré-definidos (RF-35, RF-36).
- * PROVISÓRIO: exercícios, séries e faixas de fábrica são decisão de produto pendente (seção 17, item 2).
+ * Planos pré-definidos (RF-35, RF-36, RF-144): público iniciante a intermediário,
+ * com 4 a 6 exercícios e 12 a 20 séries por treino. Compostos primeiro.
+ * Conteúdo definido pela equipe (decisão S1-04, itens 2.1 a 2.3).
  */
 object PlanTemplates {
 
@@ -128,6 +129,7 @@ object PlanTemplates {
                     ex("desenvolvimento_halteres", 4, 8, 12, 120),
                     ex("elevacao_lateral", 4, 12, 15, 60),
                     ex("crucifixo_inverso", 3, 12, 15, 60),
+                    ex("encolhimento_halteres", 3, 10, 12, 90),
                 ),
             ),
             WorkoutTemplate(
@@ -153,7 +155,45 @@ object PlanTemplates {
         ),
     )
 
-    val all: List<PlanTemplate> = listOf(pushPullLegs, upperLower, broSplit)
+    private val fullBody = PlanTemplate(
+        key = "full_body",
+        name = "Full Body 3x",
+        description = "Corpo inteiro em três treinos alternados, ideal para iniciantes.",
+        workouts = listOf(
+            WorkoutTemplate(
+                "Full Body A",
+                listOf(
+                    ex("agachamento_livre", 3, 6, 10, 180),
+                    ex("supino_reto", 3, 6, 10, 180),
+                    ex("remada_curvada", 3, 8, 12, 120),
+                    ex("desenvolvimento_halteres", 3, 8, 12, 120),
+                    ex("abdominal_crunch", 3, 12, 15, 60),
+                ),
+            ),
+            WorkoutTemplate(
+                "Full Body B",
+                listOf(
+                    ex("levantamento_terra", 3, 5, 8, 180),
+                    ex("supino_inclinado_halteres", 3, 8, 12, 120),
+                    ex("puxada_frontal", 3, 8, 12, 120),
+                    ex("elevacao_lateral", 3, 12, 15, 60),
+                    ex("panturrilha_em_pe", 3, 10, 15, 60),
+                ),
+            ),
+            WorkoutTemplate(
+                "Full Body C",
+                listOf(
+                    ex("leg_press", 3, 10, 12, 120),
+                    ex("paralelas", 3, 6, 12, 120),
+                    ex("remada_unilateral", 3, 8, 12, 90),
+                    ex("rosca_direta", 3, 8, 12, 60),
+                    ex("triceps_corda", 3, 10, 15, 60),
+                ),
+            ),
+        ),
+    )
+
+    val all: List<PlanTemplate> = listOf(fullBody, pushPullLegs, upperLower, broSplit)
 
     fun byKey(key: String): PlanTemplate? = all.firstOrNull { it.key == key }
 }
