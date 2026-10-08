@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">LogGym</string>
+
+    <!-- Grupos musculares (RF-130) -->
+    <string name="muscle_group_chest">Peito</string>
+    <string name="muscle_group_back">Costas</string>
+    <string name="muscle_group_traps">Trapézio</string>
+    <string name="muscle_group_shoulders">Ombros</string>
+    <string name="muscle_group_biceps">Bíceps</string>
+    <string name="muscle_group_triceps">Tríceps</string>
+    <string name="muscle_group_forearms">Antebraços</string>
+    <string name="muscle_group_abs">Abdômen</string>
+    <string name="muscle_group_quads">Quadríceps</string>
+    <string name="muscle_group_hamstrings">Posteriores de coxa</string>
+    <string name="muscle_group_glutes">Glúteos</string>
+    <string name="muscle_group_calves">Panturrilhas</string>
+    <string name="muscle_group_adductors">Adutores</string>
+    <string name="muscle_group_abductors">Abdutores</string>
 </resources>
