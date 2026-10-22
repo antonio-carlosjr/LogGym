@@ -70,7 +70,7 @@ fun HomeScreen(
         ) {
             state.draft?.let { draft ->
                 item(key = "draft") {
-                    DraftCard(draft = draft, onResume = onOpenSession, onDiscard = { draftToDiscard = draft.id })
+                    DraftCard(draft = draft, enabled = !state.isBusy, onResume = onOpenSession, onDiscard = { draftToDiscard = draft.id })
                 }
             }
 
@@ -88,7 +88,7 @@ fun HomeScreen(
                 items(plan.workouts, key = { it.id }) { workout ->
                     WorkoutCard(
                         workout = workout,
-                        canStart = state.draft == null,
+                        canStart = state.draft == null && !state.isBusy,
                         onStart = { viewModel.startWorkout(workout.id, onOpenSession) },
                     )
                 }
@@ -111,7 +111,7 @@ fun HomeScreen(
             title = { Text("Descartar treino?") },
             text = { Text("O treino em andamento será apagado e não aparecerá no histórico.") },
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(enabled = !state.isBusy, onClick = {
                     viewModel.discardDraft(sessionId)
                     draftToDiscard = null
                 }) { Text("Descartar") }
@@ -125,7 +125,7 @@ fun HomeScreen(
 
 /** RF-101 a RF-103: avisa sobre a sessão em andamento e permite retomar ou descartar. */
 @Composable
-private fun DraftCard(draft: Session, onResume: () -> Unit, onDiscard: () -> Unit) {
+private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, onDiscard: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
         modifier = Modifier.fillMaxWidth(),
@@ -134,8 +134,8 @@ private fun DraftCard(draft: Session, onResume: () -> Unit, onDiscard: () -> Uni
             Text("Treino em andamento", style = MaterialTheme.typography.titleMedium)
             Text("${draft.workoutName} · iniciado às ${draft.startedAt.formatTime()}")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onResume) { Text("Retomar") }
-                TextButton(onClick = onDiscard) { Text("Descartar") }
+                Button(onClick = onResume, enabled = enabled) { Text("Retomar") }
+                TextButton(onClick = onDiscard, enabled = enabled) { Text("Descartar") }
             }
         }
     }

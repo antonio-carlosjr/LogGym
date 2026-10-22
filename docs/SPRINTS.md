@@ -34,7 +34,9 @@ A divisão das tarefas entre os integrantes está em [`TAREFAS.md`](TAREFAS.md).
 
 ---
 
-## Sprint 2: Execução do treino
+## Sprint 2: Execução do treino — implementada, aguardando homologação
+
+Escopo fechado: S2-01 a S2-09 e **tempo manual**, sem distância/fotos. Contratos, rastreabilidade e critérios estão em [S2-IMPLEMENTACAO.md](S2-IMPLEMENTACAO.md). Build local aprovado, com 103 testes JVM e 14 instrumentados. S2-06 executada localmente, com evidências no roteiro de recuperação. A homologação em equipe e o CI remoto seguem pendentes.
 
 **Objetivo:** registrar um treino completo que resista a interrupções.
 
@@ -81,4 +83,4 @@ Seção 18 da especificação, mais a decisão pendente 4: alarme de descanso co
 ## Riscos
 
 - **O Sprint 1 é o mais pesado.** Se apertar, a reordenação de divisões e exercícios (RF-44, RF-48) passa para o início do Sprint 2.
-- **O build nunca foi compilado.** Por isso a validação é o primeiro item do Sprint 1, para revelar cedo incompatibilidades de versão ou de KSP.
+- **Interrupções antes do commit:** a última digitação pode não sobreviver à janela de debounce. Validar recuperação conforme o roteiro S2-06.

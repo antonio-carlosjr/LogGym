@@ -49,7 +49,9 @@ android {
     // Código de teste usado tanto na JVM (Robolectric) quanto no dispositivo.
     sourceSets {
         getByName("test").kotlin.srcDir("src/sharedTest/java")
+        getByName("test").resources.srcDir("schemas")
         getByName("androidTest").kotlin.srcDir("src/sharedTest/java")
+        getByName("androidTest").assets.srcDir("schemas")
     }
 }
 

@@ -1,6 +1,17 @@
 package com.loggym.domain.logic
 
-data class SetValues(val weightKg: Double?, val reps: Int?) {
+data class SetValues(val weightKg: Double? = null, val reps: Int? = null, val durationSeconds: Int? = null) {
+    fun validate(type: com.loggym.domain.model.TrackingType) {
+        require(weightKg == null || (weightKg.isFinite() && weightKg >= 0))
+        require(reps == null || reps >= 0)
+        require(durationSeconds == null || durationSeconds > 0)
+        if (type == com.loggym.domain.model.TrackingType.TIME) require(weightKg == null && reps == null)
+        else require(durationSeconds == null)
+    }
+    fun isIncomplete(type: com.loggym.domain.model.TrackingType): Boolean =
+        if (type == com.loggym.domain.model.TrackingType.TIME) durationSeconds == null
+        else weightKg == null || reps == null
+
     companion object {
         val EMPTY = SetValues(weightKg = null, reps = null)
     }

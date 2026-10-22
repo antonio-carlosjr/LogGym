@@ -33,6 +33,7 @@ data class SessionExercise(
     val position: Int,
     val target: ExerciseTarget,
     val sets: List<SessionSet>,
+    val trackingType: TrackingType = target.trackingType,
 )
 
 data class SessionSet(
@@ -41,6 +42,7 @@ data class SessionSet(
     val weightKg: Double?,
     val reps: Int?,
     val isCompleted: Boolean,
+    val durationSeconds: Int? = null,
 )
 
 data class SessionSummary(

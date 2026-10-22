@@ -57,6 +57,8 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 
 ## Sprint 2: Execução do treino
 
+Implementação detalhada e rastreabilidade: [S2-IMPLEMENTACAO.md](S2-IMPLEMENTACAO.md). S2-10 foi reduzida a tempo manual; distância segue pendente. Código S2-01 a S2-09 e S2-10 parcial implementado; build e 103 testes JVM/14 instrumentados aprovados localmente. S2-06 executada localmente com evidências em [roteiro de recuperação](reunioes/S2-06-recuperacao.md). A sprint aguarda homologação em equipe/CI remoto.
+
 | ID | Tarefa | RFs | Responsável | Pts | Depende de |
 | :--- | :--- | :--- | :---: | :---: | :--- |
 | S2-01 | `SessionViewModel`: contrato do estado da tela (`SessionUiState`) e ações. Primeira tarefa da sprint, desbloqueia Dev 2 e Dev 3 | — | Dev 2 | 3 | — |
@@ -69,7 +71,11 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 | S2-08 | Finalizar treino: confirmação com séries pendentes, bloqueio de sessão vazia, volta à home | RF-86, RF-107 a RF-114 | Dev 3 | 3 | S2-01 |
 | S2-09 | Descartar dentro da sessão com confirmação; "Retomar" na home abre a sessão; voltar sem finalizar | RF-102 a RF-104, RF-108 | Dev 3 | 2 | S2-08 |
 
+| S2-10 (parcial) | Tipo fixo na criação, metas e execução por tempo manual em segundos, banco v2/migração e pré-preenchimento | RF-136 parcial | Dev 1 + Dev 2 | Reestimar | S2-01 (contrato integrado) |
+
 **Carga:** Dev 1 = 10 · Dev 2 = 11 · Dev 3 = 10
+
+A carga acima é a estimativa original, sem a ampliação de tempo. Não representa a capacidade reestimada.
 
 > A folga da sprint vai para revisão de PRs e pareamento na integração entre a tela e o cronômetro, que é o ponto mais arriscado.
 

@@ -372,9 +372,9 @@ Origem: [registro da decisão S1-04](docs/decisoes/S1-04.md). Os itens marcados 
 | **RF-133** | O usuário pode escrever uma observação curta para um exercício. *(pendente: P3)* | `[D]` |
 | **RF-134** | Exercícios podem ter uma descrição ou instrução de execução. *(pendente: P4)* | `[D]` |
 | **RF-135** | Apenas exercícios nativos possuem foto; o usuário não pode adicionar foto a exercícios personalizados. *(pendente: P4)* | `[D]` |
-| **RF-136** | O sistema deve suportar exercícios registrados por tempo ou distância, além de carga e repetições. *(pendente: P1)* | `[D]` |
+| **RF-136** | O sistema deve suportar exercícios registrados por tempo ou distância, além de carga e repetições. *(S2 parcial: tempo manual entregue; distância pendente)* | `[D]` |
 | **RF-137** | A carga registrada é a carga externa adicional; carga negativa (exercícios assistidos) não é suportada. | `[D]` |
-| **RF-138** | Cada série possui um único campo de carga. *(pendente: P5)* | `[D]` |
+| **RF-138** | Cada série possui um único campo de carga, por halter/lado conforme o equipamento (P5 fechada na S2). | `[D]` |
 | **RF-139** | O usuário pode escolher entre kg e lb; kg é o padrão. *(pendente: P7)* | `[D]` |
 | **RF-140** | A carga aceita até 2 casas decimais, digitada com vírgula ou ponto e exibida no formato pt-BR, sem zeros à direita. | `[D]` |
 | **RF-141** | Não há limite superior de regra para carga, repetições executadas, séries ou repetições prescritas. *(pendente: P8)* | `[D]` |
@@ -385,3 +385,13 @@ Origem: [registro da decisão S1-04](docs/decisoes/S1-04.md). Os itens marcados 
 | **RF-146** | Ao criar um plano a partir de template fora do onboarding, o sistema pergunta se o novo plano deve ser ativado. | `[D]` |
 | **RF-147** | O onboarding exibe um aviso de que o app não substitui orientação profissional. | `[D]` |
 | **RF-148** | Novos exercícios nativos e correções em versões futuras devem ser aplicados por migração, identificados por uma chave estável e imutável. | `[D]` |
+
+## 21. Refinamento da Sprint 2
+
+O escopo de RF-136 está **parcialmente implementado**: carga/repetições e tempo manual em segundos. Distância permanece pendente. Tipo definido na criação do personalizado e imutável; nativos existentes preservam carga/repetições. A prescrição por tempo tem séries e segundos positivos, com descanso de 0 a 600 s em passos de 15. O padrão opcional é 3 × 30 s, descanso 90 s.
+
+RF-73/RF-74 descrevem os campos disponíveis para carga/repetições; exercícios por tempo apresentam duração em seu lugar. RF-65 a RF-72 também se aplicam à duração, por identidade e tipo compatível do exercício.
+
+Marcar campos incompletos é permitido com aviso persistente na série e snackbar. Nulos são preservados; zero não representa ausência. Duração preenchida deve ser positiva; carga/repetições preenchidas seguem ≥ 0. Finalização confirma tanto séries pendentes quanto marcadas incompletas. Entrada inválida impede check e saída/finalização até correção ou descarte.
+
+Carga continua em kg na S2 e significa peso de um halter/lado conforme o equipamento. RF-139/kg-lb segue pendente para S3. Recuperação garante dados já persistidos; digitação interrompida antes de debounce/commit pode não ser recuperada. Contratos e testes estão em [docs/S2-IMPLEMENTACAO.md](docs/S2-IMPLEMENTACAO.md).

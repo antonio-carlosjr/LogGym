@@ -80,16 +80,19 @@ class SessionRepositoryImpl @Inject constructor(
                         repMin = prescription.repMin,
                         repMax = prescription.repMax,
                         restSeconds = prescription.restSeconds,
+                        targetDurationSeconds = prescription.targetDurationSeconds,
+                        trackingType = item.exercise.trackingType,
                     ),
                 )
-                val previous = sessionDao.getLastCompletedSets(item.exercise.id)
-                    .map { SetValues(weightKg = it.weightKg, reps = it.reps) }
+                val previous = sessionDao.getLastCompletedSets(item.exercise.id, item.exercise.trackingType)
+                    .map { SetValues(weightKg = it.weightKg, reps = it.reps, durationSeconds = it.durationSeconds) }
                 val sets = SetPrefill.build(prescription.targetSets, previous).mapIndexed { setPosition, values ->
                     SessionSetEntity(
                         sessionExerciseId = sessionExerciseId,
                         position = setPosition,
                         weightKg = values.weightKg,
                         reps = values.reps,
+                        durationSeconds = values.durationSeconds,
                         isCompleted = false,
                     )
                 }
@@ -98,22 +101,26 @@ class SessionRepositoryImpl @Inject constructor(
         return sessionId
     }
 
-    override suspend fun updateSetValues(setId: Long, weightKg: Double?, reps: Int?) {
-        require(weightKg == null || weightKg >= 0.0) { "A carga não pode ser negativa (RF-75)." }
-        require(reps == null || reps >= 0) { "Repetições devem ser um inteiro não negativo (RF-77)." }
-        sessionDao.updateSetValues(setId, weightKg, reps)
+    override suspend fun updateSetValues(setId: Long, values: SetValues) = database.withTransaction {
+        val exercise = sessionDao.getExerciseOfSet(setId) ?: return@withTransaction
+        check(sessionDao.countDraftExercise(exercise.id) > 0) { "O treino não está em andamento." }
+        check(sessionDao.getSet(setId)?.isCompleted == false) { "Desmarque a série para editar." }
+        values.validate(exercise.trackingType)
+        sessionDao.updateSetValues(setId, values.weightKg, values.reps, values.durationSeconds)
+        Unit
     }
 
-    override suspend fun setSetCompleted(setId: Long, completed: Boolean) = database.withTransaction {
-        val updated = sessionDao.updateSetCompleted(setId, completed) > 0
-        if (updated && completed) {
-            val exercise = sessionDao.getExerciseOfSet(setId)
-            if (exercise != null) {
-                // RF-90/RF-91: um único cronômetro por sessão, reiniciado com o descanso da série recém-concluída.
-                // Com descanso zero (RF-89) o cronômetro anterior é encerrado e nenhum novo é iniciado.
-                val timer = RestTimer.start(clock.instant(), Duration.ofSeconds(exercise.restSeconds.toLong()))
-                sessionDao.updateRest(exercise.sessionId, timer?.startedAt, timer?.endsAt)
-            }
+    override suspend fun saveSetAndSetCompleted(setId: Long, values: SetValues, completed: Boolean) = database.withTransaction {
+        val exercise = requireNotNull(sessionDao.getExerciseOfSet(setId))
+        check(sessionDao.countDraftExercise(exercise.id) > 0) { "O treino não está em andamento." }
+        val before = requireNotNull(sessionDao.getSet(setId))
+        values.validate(exercise.trackingType)
+        if (before.isCompleted == completed) return@withTransaction
+        sessionDao.updateSetValues(setId, values.weightKg, values.reps, values.durationSeconds)
+        check(sessionDao.updateSetCompleted(setId, completed) > 0)
+        if (completed) {
+            val timer = RestTimer.start(clock.instant(), Duration.ofSeconds(exercise.restSeconds.toLong()))
+            sessionDao.updateRest(exercise.sessionId, timer?.startedAt, timer?.endsAt)
         }
     }
 
@@ -126,6 +133,7 @@ class SessionRepositoryImpl @Inject constructor(
                 position = (lastSet?.position ?: -1) + 1,
                 weightKg = lastSet?.weightKg,
                 reps = lastSet?.reps,
+                durationSeconds = lastSet?.durationSeconds,
                 isCompleted = false,
             ),
         )

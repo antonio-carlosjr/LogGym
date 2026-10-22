@@ -1,5 +1,6 @@
 package com.loggym.domain.repository
 
+import com.loggym.domain.logic.SetValues
 import com.loggym.domain.model.FinishSessionResult
 import com.loggym.domain.model.Session
 import com.loggym.domain.model.SessionSummary
@@ -18,10 +19,10 @@ interface SessionRepository {
     /** RF-58 a RF-72: cria o rascunho com snapshot e séries pré-preenchidas. */
     suspend fun startSession(workoutId: Long): StartSessionResult
 
-    suspend fun updateSetValues(setId: Long, weightKg: Double?, reps: Int?)
+    suspend fun updateSetValues(setId: Long, values: SetValues)
 
     /** RF-80/RF-82; ao concluir, reinicia o cronômetro de descanso (RF-87, RF-91). */
-    suspend fun setSetCompleted(setId: Long, completed: Boolean)
+    suspend fun saveSetAndSetCompleted(setId: Long, values: SetValues, completed: Boolean)
 
     /** RF-83: adiciona uma série extra apenas nesta sessão. */
     suspend fun addSet(sessionExerciseId: Long)

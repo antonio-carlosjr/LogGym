@@ -169,6 +169,7 @@ class PlanEditorViewModel @Inject constructor(
             workoutExerciseId = null,
             exerciseId = exercise.id,
             exerciseName = exercise.name,
+            form = TargetForm(trackingType = exercise.trackingType),
         )
     }
 

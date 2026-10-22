@@ -35,7 +35,8 @@ data class WorkoutExerciseEntity(
     @ColumnInfo(name = "exercise_id") val exerciseId: Long,
     val position: Int,
     @ColumnInfo(name = "target_sets") val targetSets: Int,
-    @ColumnInfo(name = "rep_min") val repMin: Int,
-    @ColumnInfo(name = "rep_max") val repMax: Int,
+    @ColumnInfo(name = "rep_min") val repMin: Int?,
+    @ColumnInfo(name = "rep_max") val repMax: Int?,
+    @ColumnInfo(name = "target_duration_seconds") val targetDurationSeconds: Int? = null,
     @ColumnInfo(name = "rest_seconds") val restSeconds: Int,
 )

@@ -2,28 +2,48 @@ package com.loggym.domain.model
 
 import java.time.Duration
 
-/**
- * Prescrição de um exercício dentro de um treino (seção 6).
- * Valida as regras RF-50, RF-52, RF-53, RF-55/56 e RF-142 na construção.
- * Não há limite superior para séries e repetições (RF-141).
- */
-data class ExerciseTarget(
-    val targetSets: Int,
-    val repMin: Int,
-    val repMax: Int,
-    val rest: Duration,
-) {
-    init {
-        require(targetSets > 0) { "A meta de séries deve ser um inteiro positivo (RF-50)." }
-        require(repMin > 0 && repMax > 0) { "Repetições devem ser inteiros positivos (RF-53)." }
-        require(repMin <= repMax) { "Repetição mínima não pode exceder a máxima (RF-52)." }
-        require(!rest.isNegative) { "O descanso não pode ser negativo (RF-55)." }
-        require(rest.seconds <= InputRules.REST_MAX_SECONDS) { "O descanso máximo é de 600 s (RF-142)." }
-        require(rest.nano == 0 && rest.seconds % InputRules.REST_STEP_SECONDS == 0L) {
-            "O descanso deve variar em passos de 15 s (RF-142)."
+sealed interface ExerciseTarget {
+    val targetSets: Int
+    val rest: Duration
+    val trackingType: TrackingType
+    val repMin: Int? get() = null
+    val repMax: Int? get() = null
+    val durationSeconds: Int? get() = null
+    val isRestTimerEnabled: Boolean get() = !rest.isZero
+
+    data class Repetitions(
+        override val targetSets: Int,
+        override val repMin: Int,
+        override val repMax: Int,
+        override val rest: Duration,
+    ) : ExerciseTarget {
+        override val trackingType = TrackingType.WEIGHT_REPS
+        init {
+            validateCommon(targetSets, rest)
+            require(repMin > 0 && repMax >= repMin) { "Faixa de repetições inválida." }
         }
     }
 
-    /** RF-56: descanso zero desativa o cronômetro deste exercício. */
-    val isRestTimerEnabled: Boolean get() = !rest.isZero
+    data class Timed(
+        override val targetSets: Int,
+        override val durationSeconds: Int,
+        override val rest: Duration,
+    ) : ExerciseTarget {
+        override val trackingType = TrackingType.TIME
+        init {
+            validateCommon(targetSets, rest)
+            require(durationSeconds > 0) { "A duração deve ser positiva." }
+        }
+    }
+}
+
+private fun validateCommon(sets: Int, rest: Duration) {
+    require(sets > 0) { "A quantidade de séries deve ser positiva." }
+    require(!rest.isNegative && rest.nano == 0 && rest.seconds <= InputRules.REST_MAX_SECONDS &&
+        rest.seconds % InputRules.REST_STEP_SECONDS == 0L) { "Descanso entre 0 e 600 s em passos de 15 s." }
+}
+
+fun ExerciseTarget.summary(): String = when (this) {
+    is ExerciseTarget.Repetitions -> "$targetSets × $repMin–$repMax"
+    is ExerciseTarget.Timed -> "$targetSets × $durationSeconds s"
 }

@@ -33,7 +33,7 @@ class TargetFormTest {
     fun `aceita valores altos sem teto - RF-141`() {
         val result = TargetForm("10", "50", "100", restSeconds = 600).validate()
 
-        assertEquals(TargetFormResult.Valid(ExerciseTarget(10, 50, 100, Duration.ofSeconds(600))), result)
+        assertEquals(TargetFormResult.Valid(ExerciseTarget.Repetitions(10, 50, 100, Duration.ofSeconds(600))), result)
     }
 
     @Test

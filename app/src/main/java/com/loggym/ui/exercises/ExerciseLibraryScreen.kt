@@ -43,6 +43,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.loggym.domain.model.TrackingType
 import com.loggym.domain.model.Exercise
 import com.loggym.domain.model.InputRules
 import com.loggym.domain.model.MuscleGroup
@@ -206,6 +207,7 @@ private fun ExerciseDetailsDialog(
                 )
                 val groups = exercise.muscleGroups.labels()
                 if (groups.isNotEmpty()) Text(groups, style = MaterialTheme.typography.bodyMedium)
+                Text(if (exercise.trackingType == TrackingType.TIME) "Tempo (segundos)" else "Carga e repetições")
                 exercise.description?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
                 // RF-133: observação do usuário, inclusive em nativos.
                 OutlinedTextField(
@@ -264,6 +266,15 @@ private fun ExerciseEditorDialog(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 )
+                Text("Tipo de registro (fixo após criar)")
+                TrackingType.entries.forEach { type ->
+                    FilterChip(
+                        selected = editor.trackingType == type,
+                        enabled = editor.editingId == null,
+                        onClick = { onChange { it.copy(trackingType = type) } },
+                        label = { Text(if (type == TrackingType.TIME) "Tempo (segundos)" else "Carga e repetições") },
+                    )
+                }
                 Text("Grupos musculares (opcional)", style = MaterialTheme.typography.labelLarge)
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),

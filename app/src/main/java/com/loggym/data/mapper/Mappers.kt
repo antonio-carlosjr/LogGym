@@ -28,6 +28,7 @@ fun ExerciseEntity.toDomain() = Exercise(
     description = description,
     userNote = userNote,
     isCustom = isCustom,
+    trackingType = trackingType,
 )
 
 fun PlanEntity.toSummary() = PlanSummary(id = id, name = name, isActive = isActive)
@@ -51,7 +52,7 @@ fun WorkoutWithExercises.toDomain() = Workout(
                 id = prescription.id,
                 exercise = item.exercise.toDomain(),
                 position = prescription.position,
-                target = exerciseTarget(prescription.targetSets, prescription.repMin, prescription.repMax, prescription.restSeconds),
+                target = exerciseTarget(prescription.targetSets, prescription.repMin, prescription.repMax, prescription.restSeconds, prescription.targetDurationSeconds),
             )
         }
         .sortedBy { it.position },
@@ -82,7 +83,8 @@ private fun SessionExerciseWithSets.toDomain() = SessionExercise(
     name = exercise.exerciseName,
     muscleGroups = exercise.muscleGroups,
     position = exercise.position,
-    target = exerciseTarget(exercise.targetSets, exercise.repMin, exercise.repMax, exercise.restSeconds),
+    trackingType = exercise.trackingType,
+    target = exerciseTarget(exercise.targetSets, exercise.repMin, exercise.repMax, exercise.restSeconds, exercise.targetDurationSeconds),
     sets = sets.map { it.toDomain() }.sortedBy { it.position },
 )
 
@@ -92,6 +94,7 @@ private fun SessionSetEntity.toDomain() = SessionSet(
     weightKg = weightKg,
     reps = reps,
     isCompleted = isCompleted,
+    durationSeconds = durationSeconds,
 )
 
 private fun restTimerOf(session: SessionEntity): RestTimer? {
@@ -100,5 +103,6 @@ private fun restTimerOf(session: SessionEntity): RestTimer? {
     return RestTimer(startedAt = startedAt, endsAt = endsAt)
 }
 
-private fun exerciseTarget(targetSets: Int, repMin: Int, repMax: Int, restSeconds: Int) =
-    ExerciseTarget(targetSets, repMin, repMax, Duration.ofSeconds(restSeconds.toLong()))
+private fun exerciseTarget(targetSets: Int, repMin: Int?, repMax: Int?, restSeconds: Int, duration: Int?) =
+    if (duration != null) ExerciseTarget.Timed(targetSets, duration, Duration.ofSeconds(restSeconds.toLong()))
+    else ExerciseTarget.Repetitions(targetSets, requireNotNull(repMin), requireNotNull(repMax), Duration.ofSeconds(restSeconds.toLong()))

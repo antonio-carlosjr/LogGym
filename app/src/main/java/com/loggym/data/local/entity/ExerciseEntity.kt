@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.loggym.domain.model.TrackingType
 import com.loggym.domain.model.MuscleGroup
 
 @Entity(
@@ -22,4 +23,5 @@ data class ExerciseEntity(
     @ColumnInfo(name = "is_custom") val isCustom: Boolean,
     /** Chave estável dos exercícios nativos (usada pelos templates); nula nos personalizados. */
     @ColumnInfo(name = "native_key") val nativeKey: String?,
+    @ColumnInfo(name = "tracking_type", defaultValue = "'WEIGHT_REPS'") val trackingType: TrackingType = TrackingType.WEIGHT_REPS,
 )
