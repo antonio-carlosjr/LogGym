@@ -118,7 +118,7 @@ class PlanEditorViewModelTest {
         val updated = awaitPlan { it.workouts.single().exercises.single().target.targetSets == 4 }
         val target = updated.workouts.single().exercises.single().target
         assertEquals(4, target.targetSets)
-        assertEquals(6..10, target.repMin..target.repMax)
+        assertEquals(6..10, (target as com.loggym.domain.model.ExerciseTarget.Repetitions).repMin..target.repMax)
         assertEquals(180L, target.rest.seconds)
     }
 

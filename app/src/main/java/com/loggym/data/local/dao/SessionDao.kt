@@ -64,7 +64,7 @@ interface SessionDao {
         WHERE session_exercise_id = (
             SELECT se.id FROM session_exercises se
             INNER JOIN sessions s ON s.id = se.session_id
-            WHERE se.exercise_id = :exerciseId AND s.status = 'COMPLETED'
+            WHERE se.exercise_id = :exerciseId AND se.tracking_type = :trackingType AND s.status = 'COMPLETED'
             ORDER BY s.finished_at DESC, se.position ASC
             LIMIT 1
         )
@@ -72,7 +72,7 @@ interface SessionDao {
         ORDER BY position ASC
         """,
     )
-    suspend fun getLastCompletedSets(exerciseId: Long): List<SessionSetEntity>
+    suspend fun getLastCompletedSets(exerciseId: Long, trackingType: com.loggym.domain.model.TrackingType): List<SessionSetEntity>
 
     @Query(
         """
@@ -83,12 +83,15 @@ interface SessionDao {
     )
     suspend fun getExerciseOfSet(setId: Long): SessionExerciseEntity?
 
+    @Query("SELECT * FROM session_sets WHERE id = :setId")
+    suspend fun getSet(setId: Long): SessionSetEntity?
+
     @Query("SELECT * FROM session_sets WHERE session_exercise_id = :sessionExerciseId ORDER BY position DESC LIMIT 1")
     suspend fun getLastSet(sessionExerciseId: Long): SessionSetEntity?
 
     @Query(
         """
-        UPDATE session_sets SET weight_kg = :weightKg, reps = :reps
+        UPDATE session_sets SET weight_kg = :weightKg, reps = :reps, duration_seconds = :durationSeconds
         WHERE id = :setId AND session_exercise_id IN (
             SELECT se.id FROM session_exercises se
             INNER JOIN sessions s ON s.id = se.session_id
@@ -96,7 +99,7 @@ interface SessionDao {
         )
         """,
     )
-    suspend fun updateSetValues(setId: Long, weightKg: Double?, reps: Int?): Int
+    suspend fun updateSetValues(setId: Long, weightKg: Double?, reps: Int?, durationSeconds: Int?): Int
 
     @Query(
         """

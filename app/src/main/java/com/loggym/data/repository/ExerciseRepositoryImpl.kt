@@ -34,6 +34,7 @@ class ExerciseRepositoryImpl @Inject constructor(
                 description = draft.description.cleanOrNull(),
                 isCustom = true,
                 nativeKey = null,
+                trackingType = draft.trackingType,
             ),
         )
         SaveExerciseResult.Saved(id)
@@ -44,6 +45,8 @@ class ExerciseRepositoryImpl @Inject constructor(
             val name = ExerciseNames.clean(draft.name)
             if (name.isEmpty()) return@withTransaction SaveExerciseResult.BlankName
             if (isNameTaken(name, exceptId = exerciseId)) return@withTransaction SaveExerciseResult.DuplicateName
+            val existing = exerciseDao.getById(exerciseId)
+            if (existing?.trackingType != draft.trackingType) return@withTransaction SaveExerciseResult.NotEditable
             val updated = exerciseDao.updateCustom(
                 exerciseId = exerciseId,
                 name = name,

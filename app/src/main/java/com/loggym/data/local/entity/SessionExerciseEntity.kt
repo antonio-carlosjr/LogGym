@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.loggym.domain.model.TrackingType
 import com.loggym.domain.model.MuscleGroup
 
 /**
@@ -32,7 +33,9 @@ data class SessionExerciseEntity(
     @ColumnInfo(name = "muscle_groups") val muscleGroups: Set<MuscleGroup>,
     val position: Int,
     @ColumnInfo(name = "target_sets") val targetSets: Int,
-    @ColumnInfo(name = "rep_min") val repMin: Int,
-    @ColumnInfo(name = "rep_max") val repMax: Int,
+    @ColumnInfo(name = "rep_min") val repMin: Int?,
+    @ColumnInfo(name = "rep_max") val repMax: Int?,
+    @ColumnInfo(name = "target_duration_seconds") val targetDurationSeconds: Int? = null,
     @ColumnInfo(name = "rest_seconds") val restSeconds: Int,
+    @ColumnInfo(name = "tracking_type", defaultValue = "'WEIGHT_REPS'") val trackingType: TrackingType = TrackingType.WEIGHT_REPS,
 )

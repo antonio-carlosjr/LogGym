@@ -19,7 +19,7 @@ object InputRules {
     val TEMPLATE_SETS_PER_WORKOUT = 12..20
 
     /** RF-143: padrão aplicado apenas quando o usuário escolhe usá-lo. */
-    val DEFAULT_TARGET = ExerciseTarget(
+    val DEFAULT_TARGET = ExerciseTarget.Repetitions(
         targetSets = 3,
         repMin = 8,
         repMax = 12,

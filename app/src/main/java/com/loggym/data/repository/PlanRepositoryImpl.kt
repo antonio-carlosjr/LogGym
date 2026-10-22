@@ -85,18 +85,24 @@ class PlanRepositoryImpl @Inject constructor(
 
     override suspend fun addExerciseToWorkout(workoutId: Long, exerciseId: Long, target: ExerciseTarget): Long =
         database.withTransaction {
+            require(exerciseDao.getById(exerciseId)?.trackingType == target.trackingType)
             val position = planDao.nextWorkoutExercisePosition(workoutId)
             planDao.insertWorkoutExercise(target.toEntity(workoutId, exerciseId, position))
         }
 
-    override suspend fun updateWorkoutExercise(workoutExerciseId: Long, target: ExerciseTarget) =
+    override suspend fun updateWorkoutExercise(workoutExerciseId: Long, target: ExerciseTarget) = database.withTransaction {
+        val item = requireNotNull(planDao.getWorkoutExercise(workoutExerciseId))
+        require(exerciseDao.getById(item.exerciseId)?.trackingType == target.trackingType)
         planDao.updateWorkoutExerciseTarget(
             workoutExerciseId = workoutExerciseId,
             targetSets = target.targetSets,
             repMin = target.repMin,
             repMax = target.repMax,
             restSeconds = target.rest.seconds.toInt(),
+            durationSeconds = target.durationSeconds,
         )
+
+    }
 
     override suspend fun removeExerciseFromWorkout(workoutExerciseId: Long) =
         planDao.deleteWorkoutExercise(workoutExerciseId)
@@ -126,5 +132,6 @@ class PlanRepositoryImpl @Inject constructor(
         repMin = repMin,
         repMax = repMax,
         restSeconds = rest.seconds.toInt(),
+        targetDurationSeconds = durationSeconds,
     )
 }

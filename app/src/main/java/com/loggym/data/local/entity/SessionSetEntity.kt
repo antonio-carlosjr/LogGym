@@ -25,5 +25,6 @@ data class SessionSetEntity(
     /** RF-75/RF-76: aceita decimais e zero (sem carga externa). Unidade: kg. */
     @ColumnInfo(name = "weight_kg") val weightKg: Double?,
     val reps: Int?,
+    @ColumnInfo(name = "duration_seconds") val durationSeconds: Int? = null,
     @ColumnInfo(name = "is_completed") val isCompleted: Boolean,
 )

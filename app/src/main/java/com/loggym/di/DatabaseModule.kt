@@ -23,6 +23,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): LogGymDatabase =
         Room.databaseBuilder(context, LogGymDatabase::class.java, LogGymDatabase.NAME)
+            .addMigrations(com.loggym.data.local.MIGRATION_1_2)
             .addCallback(NativeExerciseSeedCallback())
             .build()
 

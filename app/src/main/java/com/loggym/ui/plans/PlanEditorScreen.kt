@@ -47,6 +47,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.loggym.domain.model.summary
+import com.loggym.domain.model.TrackingType
 import com.loggym.domain.model.Exercise
 import com.loggym.domain.model.Plan
 import com.loggym.domain.model.Workout
@@ -247,7 +249,7 @@ private fun WorkoutExerciseRow(
     ListItem(
         headlineContent = { Text(item.exercise.name) },
         supportingContent = {
-            Text("${target.targetSets} × ${target.repMin}–${target.repMax} · ${formatRest(target.rest.seconds)}")
+            Text("${target.summary()} · ${formatRest(target.rest.seconds)}")
         },
         trailingContent = {
             Row {
@@ -352,7 +354,9 @@ private fun TargetDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 NumberField("Séries", form.sets) { value -> onChange { it.copy(sets = value) } }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (form.trackingType == TrackingType.TIME) {
+                    NumberField("Duração por série (s)", form.durationSeconds, maxDigits = 6) { value -> onChange { it.copy(durationSeconds = value) } }
+                } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     NumberField("Rep. mín.", form.repMin, Modifier.weight(1f)) { value -> onChange { it.copy(repMin = value) } }
                     NumberField("Rep. máx.", form.repMax, Modifier.weight(1f)) { value -> onChange { it.copy(repMax = value) } }
                 }
@@ -372,7 +376,7 @@ private fun TargetDialog(
                     Text(error.message(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 }
                 // RF-143: o padrão só entra por escolha do usuário.
-                AssistChip(onClick = { onChange { it.withDefault() } }, label = { Text("Usar padrão (3 × 8–12, 1:30)") })
+                AssistChip(onClick = { onChange { it.withDefault() } }, label = { Text(if (form.trackingType == TrackingType.TIME) "Usar padrão (3 × 30 s, 1:30)" else "Usar padrão (3 × 8–12, 1:30)") })
             }
         },
         confirmButton = { TextButton(onClick = onSave) { Text("Salvar") } },
@@ -381,10 +385,10 @@ private fun TargetDialog(
 }
 
 @Composable
-private fun NumberField(label: String, value: String, modifier: Modifier = Modifier, onChange: (String) -> Unit) {
+private fun NumberField(label: String, value: String, modifier: Modifier = Modifier, maxDigits: Int = TargetForm.MAX_DIGITS, onChange: (String) -> Unit) {
     OutlinedTextField(
         value = value,
-        onValueChange = { onChange(TargetForm.digitsOnly(it)) },
+        onValueChange = { onChange(it.filter(Char::isDigit).take(maxDigits)) },
         label = { Text(label) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -393,6 +397,7 @@ private fun NumberField(label: String, value: String, modifier: Modifier = Modif
 }
 
 private fun TargetFormError.message(): String = when (this) {
+    TargetFormError.INVALID_DURATION -> "Informe uma duração em segundos maior que zero."
     TargetFormError.MISSING_SETS -> "Informe a quantidade de séries."
     TargetFormError.INVALID_SETS -> "As séries devem ser maiores que zero."
     TargetFormError.MISSING_REPS -> "Informe a faixa de repetições."

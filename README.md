@@ -4,7 +4,7 @@
 
 Aplicativo Android para registrar treinos de musculação. Funciona **localmente**, com **um único usuário** e **offline-first**: não tem login, backend nem sincronização no MVP.
 
-A especificação funcional completa (RF-01 a RF-129) está em [`especifica_o_funcional_loggym.md`](especifica_o_funcional_loggym.md). Os comentários do código citam os RFs que cada trecho implementa.
+A especificação funcional completa (RF-01 a RF-148) está em [`especifica_o_funcional_loggym.md`](especifica_o_funcional_loggym.md). Os comentários do código citam os RFs que cada trecho implementa.
 
 ---
 
@@ -20,7 +20,7 @@ A especificação funcional completa (RF-01 a RF-129) está em [`especifica_o_fu
 | Preferências | DataStore Preferences (flag de onboarding) |
 | Injeção de dependência | Hilt (KSP) |
 | Assincronismo | Coroutines + Flow |
-| Testes | JUnit 4 (unitários de domínio e dados de seed) |
+| Testes | JUnit 4, Robolectric, Compose UI Test e testes instrumentados |
 
 `minSdk 26` (Android 8.0), para usar `java.time` sem desugaring. `compileSdk`/`targetSdk 37`.
 
@@ -70,7 +70,7 @@ app/src/main/java/com/loggym/
 │   │   ├── LogGymDatabase.kt
 │   │   ├── Converters.kt       # Instant ⇄ epoch millis
 │   │   └── NativeExerciseSeedCallback.kt   # Carga inicial (RF-01/RF-02)
-│   ├── seed/                   # Exercícios nativos e templates de plano (conteúdo provisório)
+│   ├── seed/                   # Exercícios nativos e templates de plano (60 nativos e 4 templates)
 │   ├── mapper/                 # Entity → modelo de domínio
 │   ├── preferences/            # DataStore
 │   └── repository/             # Implementações com as transações
@@ -84,7 +84,8 @@ app/src/main/java/com/loggym/
     ├── components/             # Componentes compartilhados
     ├── onboarding/             # Tela + ViewModel (funcional)
     ├── home/                   # Tela + ViewModel (funcional)
-    ├── exercises/  plans/  session/  history/   # Telas provisórias com os RFs pendentes
+    ├── exercises/  plans/  session/             # Biblioteca, planos e execução
+    ├── history/                               # Telas provisórias da Sprint 3
     └── util/
 ```
 
@@ -156,14 +157,13 @@ O cronômetro não usa `ForegroundService`. Ao marcar uma série, o repositório
 | Banco, seed de 60 exercícios nativos e 4 planos prontos, regras de entrada (decisão S1-04) | ✅ Sprint 1 |
 | Onboarding, Home, biblioteca de exercícios, planos e editor de plano | ✅ Sprint 1 |
 | Testes: unidade, persistência e ViewModels (Robolectric), ponta a ponta na JVM e no emulador | ✅ Sprint 1 |
-| Execução do treino (sessão, cronômetro, rascunho, finalização) | 🚧 Sprint 2, com tela provisória |
+| Execução: carga/repetições e tempo manual, descanso, rascunho e finalização | Implementada; 103 testes JVM e 14 instrumentados aprovados ([detalhes](docs/S2-IMPLEMENTACAO.md)) |
 | Histórico, polimento e release | 🚧 Sprint 3, com tela provisória |
 
 O planejamento das próximas entregas está em [`docs/SPRINTS.md`](docs/SPRINTS.md).
 
-## Decisões de produto pendentes (seção 17)
+## Escopo posterior
 
-1. Conteúdo definitivo da biblioteca nativa. O conteúdo atual é provisório, em `data/seed/NativeExercises.kt`.
-2. Exercícios e metas de fábrica dos templates. Provisório, em `data/seed/PlanTemplates.kt`.
-3. Unidade de carga. Adotado **kg** (`weight_kg`).
-4. Alerta de fim de descanso com o app fechado. Fora do MVP, sem `AlarmManager`.
+Distância (RF-136 parcial), fotos dos nativos e kg/lb continuam pendentes. Biblioteca/templates e convenção de carga já foram decididos em [S1-04](docs/decisoes/S1-04.md). Alarme de descanso com o app fechado segue fora do MVP.
+
+O banco está na versão **2**, com migração 1→2 que preserva planos, rascunhos e histórico. A sessão aceita campos vazios com aviso e usa debounce de 500 ms: uma morte antes do commit pode perder a última digitação ainda não salva. Consulte o [roteiro de recuperação](docs/reunioes/S2-06-recuperacao.md).

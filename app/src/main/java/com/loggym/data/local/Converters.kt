@@ -6,6 +6,12 @@ import java.time.Instant
 
 class Converters {
     @TypeConverter
+    fun trackingTypeToKey(type: com.loggym.domain.model.TrackingType): String = type.key
+    @TypeConverter
+    fun keyToTrackingType(key: String): com.loggym.domain.model.TrackingType =
+        com.loggym.domain.model.TrackingType.entries.first { it.key == key }
+
+    @TypeConverter
     fun instantToEpochMillis(value: Instant?): Long? = value?.toEpochMilli()
 
     @TypeConverter

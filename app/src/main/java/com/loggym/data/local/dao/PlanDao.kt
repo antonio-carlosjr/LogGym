@@ -64,22 +64,26 @@ interface PlanDao {
     @Query("SELECT COALESCE(MAX(position) + 1, 0) FROM workouts WHERE plan_id = :planId")
     suspend fun nextWorkoutPosition(planId: Long): Int
 
+    @Query("SELECT * FROM workout_exercises WHERE id = :id")
+    suspend fun getWorkoutExercise(id: Long): WorkoutExerciseEntity?
+
     @Insert
     suspend fun insertWorkoutExercise(workoutExercise: WorkoutExerciseEntity): Long
 
     @Query(
         """
         UPDATE workout_exercises
-        SET target_sets = :targetSets, rep_min = :repMin, rep_max = :repMax, rest_seconds = :restSeconds
+        SET target_sets = :targetSets, rep_min = :repMin, rep_max = :repMax, rest_seconds = :restSeconds, target_duration_seconds = :durationSeconds
         WHERE id = :workoutExerciseId
         """,
     )
     suspend fun updateWorkoutExerciseTarget(
         workoutExerciseId: Long,
         targetSets: Int,
-        repMin: Int,
-        repMax: Int,
+        repMin: Int?,
+        repMax: Int?,
         restSeconds: Int,
+        durationSeconds: Int?,
     )
 
     @Query("DELETE FROM workout_exercises WHERE id = :workoutExerciseId")

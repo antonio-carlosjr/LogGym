@@ -13,4 +13,5 @@ data class Exercise(
     val userNote: String?,
     /** RF-12: distingue exercícios personalizados dos nativos. */
     val isCustom: Boolean,
+    val trackingType: TrackingType = TrackingType.WEIGHT_REPS,
 )

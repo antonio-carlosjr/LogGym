@@ -9,6 +9,7 @@ data class ExerciseDraft(
     val name: String,
     val muscleGroups: Set<MuscleGroup> = emptySet(),
     val description: String? = null,
+    val trackingType: com.loggym.domain.model.TrackingType = com.loggym.domain.model.TrackingType.WEIGHT_REPS,
 )
 
 sealed interface SaveExerciseResult {

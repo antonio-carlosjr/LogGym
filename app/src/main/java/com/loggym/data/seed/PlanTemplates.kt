@@ -14,7 +14,7 @@ import java.time.Duration
 object PlanTemplates {
 
     private fun ex(key: String, sets: Int, repMin: Int, repMax: Int, restSeconds: Long) =
-        ExerciseTemplate(key, ExerciseTarget(sets, repMin, repMax, Duration.ofSeconds(restSeconds)))
+        ExerciseTemplate(key, ExerciseTarget.Repetitions(sets, repMin, repMax, Duration.ofSeconds(restSeconds)))
 
     private val pushPullLegs = PlanTemplate(
         key = "ppl",

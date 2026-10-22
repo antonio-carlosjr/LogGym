@@ -2,6 +2,7 @@ package com.loggym.ui.exercises
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.loggym.domain.model.TrackingType
 import com.loggym.domain.model.Exercise
 import com.loggym.domain.model.InputRules
 import com.loggym.domain.model.MuscleGroup
@@ -36,6 +37,7 @@ sealed interface ExerciseDialog {
         val muscleGroups: Set<MuscleGroup> = emptySet(),
         val description: String = "",
         val error: EditorError? = null,
+        val trackingType: TrackingType = TrackingType.WEIGHT_REPS,
     ) : ExerciseDialog
 
     data class ConfirmDelete(val exercise: Exercise, val planUsages: Int) : ExerciseDialog
@@ -96,6 +98,7 @@ class ExerciseLibraryViewModel @Inject constructor(
             name = exercise.name,
             muscleGroups = exercise.muscleGroups,
             description = exercise.description.orEmpty(),
+            trackingType = exercise.trackingType,
         )
     }
 
@@ -108,7 +111,7 @@ class ExerciseLibraryViewModel @Inject constructor(
     fun saveEditor() {
         val editor = _dialog.value as? ExerciseDialog.Editor ?: return
         viewModelScope.launch {
-            val draft = ExerciseDraft(editor.name, editor.muscleGroups, editor.description)
+            val draft = ExerciseDraft(editor.name, editor.muscleGroups, editor.description, editor.trackingType)
             val result = editor.editingId
                 ?.let { repository.updateCustom(it, draft) }
                 ?: repository.createCustom(draft)
