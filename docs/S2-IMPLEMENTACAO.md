@@ -50,4 +50,20 @@ O encerramento da sprint depende de testes aprovados, evidências manuais e CI v
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`. A execução local não publica PR nem comprova o resultado futuro do GitHub Actions.
 
-A verificação fora da instrumentação também foi executada: kill em background, recriação de Activity, reinício do emulador, descanso expirado, perda esperada da última digitação não salva, recuperação de séries completas/incompletas/extras/removidas, finalização parcial, pré-preenchimento e descarte. Resultados em [S2-06](reunioes/S2-06-recuperacao.md#execução-local--22102026). A homologação em equipe e o CI remoto ainda precisam ser confirmados.
+A verificação fora da instrumentação também foi executada: kill em background, recriação de Activity, reinício do emulador, descanso expirado, perda esperada da última digitação não salva, recuperação de séries completas/incompletas/extras/removidas, finalização parcial, pré-preenchimento e descarte. Resultados em [S2-06](reunioes/S2-06-recuperacao.md#execução-local--22102026).
+
+### Revalidação automatizada e CI — 24/10/2026
+
+No commit `cb58fbb981646a29cdd733658b665a4d5e21ed0c`, `assembleDebug testDebugUnitTest` e `connectedDebugAndroidTest` terminaram com **BUILD SUCCESSFUL**. Os relatórios locais registraram **103 testes JVM e 14 instrumentados aprovados**, sem falhas, erros ou testes ignorados; os instrumentados rodaram no AVD Android 17/API 37. A execução [Android CI #39873546502](https://github.com/antonio-carlosjr/LogGym/actions/runs/39873546502) do mesmo commit terminou com sucesso nos jobs de build/testes JVM e testes instrumentados. A primeira tentativa local em modo offline parou antes dos testes por uma dependência ausente no cache; a execução posterior com resolução de dependências passou.
+
+### Validação manual informada pelo usuário — relato de 24/10/2026
+
+O usuário informou que **todos os 9 cenários manuais restantes passaram**: início do treino; zeros e cargas decimais; validação de exercícios por tempo; salvamento imediato ao marcar; marcação, desmarcação e séries incompletas; cronômetro de descanso; adição e remoção de séries extras; cancelamento da finalização; e descarte. Informou também que já havia confirmado persistência de cargas, repetições e marcações; recuperação de treino misto após encerramento do processo; finalização somente das séries marcadas; e pré-preenchimento correto no treino seguinte. A recuperação do treino misto complementa o [registro S2-06](reunioes/S2-06-recuperacao.md#confirmação-adicional-informada-pelo-usuário--24102026).
+
+Esta seção registra **o relato recebido em 24/10/2026**; a data exata da execução, o dispositivo e capturas/logs adicionais desses testes manuais não foram informados. Os critérios funcionais da Sprint 2 estão validados individualmente conforme esse relato, e os testes automatizados e a CI estão verdes. **O aceite formal coletivo da equipe ainda não foi confirmado; a Sprint 2 não deve ser registrada como homologada pela equipe até essa confirmação.**
+
+Melhoria observada, sem bloqueio da Sprint 2: a mensagem “Descanso concluído” permanece visível. A proposta de ocultá-la após aproximadamente 3 segundos foi encaminhada à Sprint 3, sem bloquear este aceite da Sprint 2. Sua implementação posterior está registrada em [S3-IMPLEMENTACAO.md](S3-IMPLEMENTACAO.md).
+
+### Aceite individual formalizado — 24/10/2026
+
+O usuário, responsável pela validação manual relatada acima, confirmou expressamente seu aceite dos comportamentos testados, sem defeitos bloqueantes identificados. As evidências automatizadas, CI e cenários manuais permanecem vinculados aos registros anteriores. Não foi atribuído aceite a outros integrantes. **Somente a aprovação coletiva da equipe permanece pendente; por orientação expressa do usuário, essa pendência não bloqueia o desenvolvimento local da Sprint 3.** O aceite da Sprint 3 será registrado separadamente após sua própria verificação.

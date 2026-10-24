@@ -366,22 +366,22 @@ Origem: [registro da decisão S1-04](docs/decisoes/S1-04.md). Os itens marcados 
 
 | ID | Requisito | Origem |
 | :--- | :--- | :---: |
-| **RF-130** | Grupos musculares devem vir de uma lista fixa, e um exercício pode ter um ou mais grupos. *(pendente: P2)* | `[D]` |
+| **RF-130** | Grupos musculares devem vir de uma lista fixa, e um exercício pode ter um ou mais grupos. | `[D]` |
 | **RF-131** | O grupo muscular de um exercício personalizado é opcional e escolhido na mesma lista fixa. | `[D]` |
 | **RF-132** | Não pode haver exercício personalizado com nome igual a outro exercício, ignorando maiúsculas e espaços. | `[D]` |
-| **RF-133** | O usuário pode escrever uma observação curta para um exercício. *(pendente: P3)* | `[D]` |
-| **RF-134** | Exercícios podem ter uma descrição ou instrução de execução. *(pendente: P4)* | `[D]` |
+| **RF-133** | O usuário pode escrever uma observação curta para um exercício. | `[D]` |
+| **RF-134** | Exercícios podem ter uma descrição ou instrução de execução. | `[D]` |
 | **RF-135** | Apenas exercícios nativos possuem foto; o usuário não pode adicionar foto a exercícios personalizados. *(pendente: P4)* | `[D]` |
 | **RF-136** | O sistema deve suportar exercícios registrados por tempo ou distância, além de carga e repetições. *(S2 parcial: tempo manual entregue; distância pendente)* | `[D]` |
 | **RF-137** | A carga registrada é a carga externa adicional; carga negativa (exercícios assistidos) não é suportada. | `[D]` |
 | **RF-138** | Cada série possui um único campo de carga, por halter/lado conforme o equipamento (P5 fechada na S2). | `[D]` |
 | **RF-139** | O usuário pode escolher entre kg e lb; kg é o padrão. *(pendente: P7)* | `[D]` |
 | **RF-140** | A carga aceita até 2 casas decimais, digitada com vírgula ou ponto e exibida no formato pt-BR, sem zeros à direita. | `[D]` |
-| **RF-141** | Não há limite superior de regra para carga, repetições executadas, séries ou repetições prescritas. *(pendente: P8)* | `[D]` |
+| **RF-141** | Não há limite superior de regra para carga, repetições executadas, séries ou repetições prescritas. | `[D]` |
 | **RF-142** | O descanso varia de 0 a 600 segundos, escolhido em passos de 15 segundos. | `[D]` |
-| **RF-143** | Ao adicionar um exercício a uma divisão, a configuração começa vazia; o padrão (3 séries, 8–12 repetições, 90 s) só é aplicado por escolha do usuário. *(pendente: P9)* | `[D]` |
+| **RF-143** | Ao adicionar um exercício a uma divisão, a configuração começa vazia; o padrão (3 séries, 8–12 repetições, 90 s) só é aplicado por escolha do usuário. | `[D]` |
 | **RF-144** | Os planos pré-definidos são PPL, Upper/Lower, Bro Split e Full Body 3x, com 4 a 6 exercícios e 12 a 20 séries por treino. | `[D]` |
-| **RF-145** | Escolher o mesmo template mais de uma vez gera instâncias distintas e totalmente editáveis. *(pendente: P6)* | `[D]` |
+| **RF-145** | Escolher o mesmo template mais de uma vez gera instâncias distintas e totalmente editáveis. | `[D]` |
 | **RF-146** | Ao criar um plano a partir de template fora do onboarding, o sistema pergunta se o novo plano deve ser ativado. | `[D]` |
 | **RF-147** | O onboarding exibe um aviso de que o app não substitui orientação profissional. | `[D]` |
 | **RF-148** | Novos exercícios nativos e correções em versões futuras devem ser aplicados por migração, identificados por uma chave estável e imutável. | `[D]` |
@@ -394,4 +394,10 @@ RF-73/RF-74 descrevem os campos disponíveis para carga/repetições; exercício
 
 Marcar campos incompletos é permitido com aviso persistente na série e snackbar. Nulos são preservados; zero não representa ausência. Duração preenchida deve ser positiva; carga/repetições preenchidas seguem ≥ 0. Finalização confirma tanto séries pendentes quanto marcadas incompletas. Entrada inválida impede check e saída/finalização até correção ou descarte.
 
-Carga continua em kg na S2 e significa peso de um halter/lado conforme o equipamento. RF-139/kg-lb segue pendente para S3. Recuperação garante dados já persistidos; digitação interrompida antes de debounce/commit pode não ser recuperada. Contratos e testes estão em [docs/S2-IMPLEMENTACAO.md](docs/S2-IMPLEMENTACAO.md).
+Carga continua em kg na S2 e significa peso de um halter/lado conforme o equipamento. RF-139/kg-lb segue pendente de refinamento posterior, sem inclusão automática na S3. Recuperação garante dados já persistidos; digitação interrompida antes de debounce/commit pode não ser recuperada. Contratos e testes estão em [docs/S2-IMPLEMENTACAO.md](docs/S2-IMPLEMENTACAO.md).
+
+## 22. Entrega e limites da Sprint 3
+
+O histórico usa somente sessões concluídas e seus snapshots, incluindo duração manual, com campos ausentes distintos de zero. A faixa de descanso é fixa; o aviso de conclusão é ocultado cerca de 3 segundos após o instante final, sem alterar os timestamps persistidos. O banco permanece na versão 2.
+
+As propostas de mínimo opcional, descanso livre, cadastro pela seleção, histórico individual, borracha e check automático estão no planejamento posterior em `docs/TAREFAS.md`. Não estão em vigor nesta entrega: RF-53 continua exigindo repetições prescritas positivas, RF-80 exige check manual e RF-142 mantém passos de 15 s. Fotos, distância e kg/lb continuam pendentes.

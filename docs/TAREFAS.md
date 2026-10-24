@@ -57,7 +57,7 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 
 ## Sprint 2: Execução do treino
 
-Implementação detalhada e rastreabilidade: [S2-IMPLEMENTACAO.md](S2-IMPLEMENTACAO.md). S2-10 foi reduzida a tempo manual; distância segue pendente. Código S2-01 a S2-09 e S2-10 parcial implementado; build e 103 testes JVM/14 instrumentados aprovados localmente. S2-06 executada localmente com evidências em [roteiro de recuperação](reunioes/S2-06-recuperacao.md). A sprint aguarda homologação em equipe/CI remoto.
+Implementação detalhada e rastreabilidade: [S2-IMPLEMENTACAO.md](S2-IMPLEMENTACAO.md). S2-10 foi reduzida a tempo manual; distância segue pendente. Código S2-01 a S2-09 e S2-10 parcial implementado; build e 103 testes JVM/14 instrumentados aprovados localmente em 24/10/2026, com CI remota verde para o mesmo commit. O usuário informou aprovação dos testes manuais restantes, incluindo recuperação de treino misto, finalização e pré-preenchimento; a S2-06 tem as evidências locais anteriores no [roteiro de recuperação](reunioes/S2-06-recuperacao.md). **Aceite individual formalizado pelo usuário; somente aprovação coletiva pendente, sem bloquear o desenvolvimento local da Sprint 3.**
 
 | ID | Tarefa | RFs | Responsável | Pts | Depende de |
 | :--- | :--- | :--- | :---: | :---: | :--- |
@@ -83,6 +83,8 @@ A carga acima é a estimativa original, sem a ampliação de tempo. Não represe
 
 ## Sprint 3: Histórico e entrega
 
+Implementação e situação de cada entrega em [S3-IMPLEMENTACAO.md](S3-IMPLEMENTACAO.md). Tarefas originais preservadas; melhorias leves incorporadas ao polimento e à S3-UX-01. Encerramento depende do aceite manual, CI da nova versão e assinatura definitiva sob custódia da equipe.
+
 | ID | Tarefa | RFs | Responsável | Pts | Depende de |
 | :--- | :--- | :--- | :---: | :---: | :--- |
 | S3-01 | `HistoryViewModel` + lista do histórico (data, divisão, plano, duração) | RF-116 a RF-119 | Dev 2 | 3 | — |
@@ -91,14 +93,19 @@ A carga acima é a estimativa original, sem a ampliação de tempo. Não represe
 | S3-04 | Testes de UI em Compose do fluxo principal: onboarding → iniciar → séries → finalizar → histórico | seção 15 | Dev 1 | 5 | S3-02 |
 | S3-05 | Build de release assinado: keystore fora do repositório, `signingConfig`, APK gerado | — | Dev 1 | 2 | — |
 | S3-06 | Mover todos os textos para `strings.xml`; estados vazios e mensagens de erro em todas as telas | — | Dev 3 | 3 | — |
-| S3-07 | Ícone adaptativo do app e revisão visual (tema e espaçamentos) | — | Dev 3 | 2 | — |
+| S3-07 | Ícone adaptativo/monocromático, revisão visual, superfície do seletor e estado textual/visual das séries | — | Dev 3 | 3 | — |
 | S3-08 | Acessibilidade: `contentDescription`, alvos ≥ 48 dp, contraste, teste com TalkBack | — | Dev 3 | 3 | S3-06 |
 | S3-09 | Matriz de rastreabilidade RF → código/teste e atualização do README | todos | Dev 2 | 3 | S3-02 |
 | S3-10 | Roteiro de demonstração e ensaio da apresentação | — | Dev 3 (conduz), todos | 2 | S3-04 |
+| S3-UX-01 | Descanso fixo e destacado; aviso final oculto cerca de 3 s após o timestamp final; testes de retomada | RF-87 a RF-95 | Dev 2 | 2 | Estado da sessão; S3-07 |
 
-**Carga:** Dev 1 = 10 · Dev 2 = 9 · Dev 3 = 10
+**Carga:** Dev 1 = 10 · Dev 2 = 11 · Dev 3 = 11 · Total = 32
+
+**Reserva:** 7 pontos sobre a capacidade conservadora de 39 (13 por integrante), para integração, correções e homologação.
 
 > A Sprint 3 tem folga intencional para correção de bugs encontrados nos testes e na demonstração.
+
+A melhoria do aviso “Descanso concluído” foi aprovada e incorporada à S3-UX-01; não representou defeito bloqueante da Sprint 2.
 
 ---
 
@@ -107,8 +114,8 @@ A carga acima é a estimativa original, sem a ampliação de tempo. Não represe
 | Pessoa | Sprint 1 | Sprint 2 | Sprint 3 | Total |
 | :--- | :---: | :---: | :---: | :---: |
 | Dev 1 | 14 | 10 | 10 | 34 |
-| Dev 2 | 13 | 11 | 9 | 33 |
-| Dev 3 | 14 | 10 | 10 | 34 |
+| Dev 2 | 13 | 11 | 11 | 35 |
+| Dev 3 | 14 | 10 | 11 | 35 |
 
 ## Caminho crítico
 
@@ -120,3 +127,20 @@ S3-01 → S3-02 → S3-04 → S3-10 (histórico → detalhe → teste E2E → de
 ```
 
 A **S1-01** bloqueia todo o desenvolvimento de telas. Dev 1 deve terminá-la nos primeiros 1 ou 2 dias da Sprint 1. Enquanto isso, Dev 2 e Dev 3 podem prototipar as telas no Preview do Compose.
+
+## Sprint 4 candidata — refinamento funcional
+
+Propostas aprovadas para planejamento posterior, sem implementação na Sprint 3. Total candidato de 29 pontos, a revalidar após a velocidade e o aceite da Sprint 3. Alterações de regras precisam ser registradas antes de entrar em vigor; RF-53, RF-80 e RF-142 atuais continuam valendo na Sprint 3.
+
+| ID | Entrega e limite | Divisão | Pts |
+| --- | --- | --- | ---: |
+| S4-01 | Mínimo vazio → 0; mínimo ≥0, máximo obrigatório >0, mínimo ≤máximo | Dev 3 | 3 |
+| S4-02 | Descanso inteiro livre de 0 a 600 s no editor; botões somam/subtraem 15 sem arredondar; snapshots existentes preservados | Dev 3 | 3 |
+| S4-03 | Tela própria de cadastro acessível pela seleção; formulário e repositório existentes compartilhados; retorno à seleção, sem adicionar automaticamente | Dev 2 | 5 |
+| S4-04 | Histórico do exercício por identidade/tipo em sessões concluídas, com datas e séries; salvar buffers antes de navegar | Dev 2 | 5 |
+| S4-05 | Borracha por `sessionExerciseId`, com confirmação; limpar valores e checks no rascunho; preservar séries, descanso, outros exercícios, plano e histórico | Dev 1: 3; Dev 3: 2 | 5 |
+| S4-06 | Check automático apenas após edição real válida e conclusão/saída da linha, para carga/repetições; nova edição necessária após desmarcação | Dev 1: 5; Dev 3: 3 | 8 |
+
+O check automático não deve reagir a pré-preenchimento, cópia de série extra, retomada, debounce ou ciclo de vida. Deve usar conclusão explícita e idempotente, não toggle; check manual incompleto e exercícios por tempo preservam seu funcionamento. Borracha deve cancelar gravações pendentes do exercício, serializar a transação e atualizar buffers só após sucesso, sem reaplicar pré-preenchimento.
+
+**Fila posterior:** avaliar layout compacto (3 pontos) e painel com preferência persistente de pré-preenchimento, ativada por padrão (3 pontos). A preferência deverá ser lida somente ao criar um novo rascunho; limpar ou retomar nunca deve reimportar valores antigos. Fotos, distância e kg/lb continuam nas pendências da S1-04, sem inclusão automática.
