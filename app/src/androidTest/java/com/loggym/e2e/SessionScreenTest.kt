@@ -8,6 +8,11 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.test.*
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import com.loggym.ui.theme.LogGymTheme
+import java.io.File
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -42,6 +47,9 @@ class SessionScreenTest {
     private lateinit var vm: SessionViewModel
     private val clock = Clock.fixed(Instant.parse("2026-10-22T12:00:00Z"), ZoneOffset.UTC)
     private var left = false
+    private val dark = mutableStateOf(false)
+    private val dynamic = mutableStateOf(false)
+    private val fontScale = mutableStateOf(1f)
 
     @Before fun setup() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -58,9 +66,12 @@ class SessionScreenTest {
         vm = retain(SessionViewModel(sessions, clock))
         compose.setContent {
             var open by remember { mutableStateOf(true) }
-            MaterialTheme {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale.value)) {
+            LogGymTheme(darkTheme = dark.value, dynamicColor = dynamic.value) {
                 if (open) SessionScreen(onBack = { left = true; open = false }, viewModel = vm)
                 else Button(onClick = { vm = retain(SessionViewModel(sessions, clock)); open = true }) { Text("Retomar teste") }
+            }
             }
         }
     }
@@ -77,10 +88,11 @@ class SessionScreenTest {
         waitForScreen()
         compose.onAllNodesWithText("Duração (s)")[0].performTextInput("45")
         compose.onNodeWithContentDescription("Concluir série 1 de Prancha").performClick()
+        compose.onAllNodesWithText("Duração (s)").onFirst().assertIsNotEnabled()
         compose.onNodeWithContentDescription("Concluir série 2 de Prancha").performScrollTo().performClick()
         compose.onAllNodesWithText("Série marcada com campos incompletos.").onFirst().assertIsDisplayed()
         click("Finalizar treino")
-        compose.onNodeWithText("1 séries serão salvas com campos vazios.").assertIsDisplayed()
+        compose.onNodeWithText("1 série será salva com campos vazios.").assertIsDisplayed()
         click("Finalizar")
         compose.waitUntil(10_000) { left }
         runBlocking {
@@ -108,5 +120,31 @@ class SessionScreenTest {
         compose.onAllNodesWithText("Descartar").onLast().performClick()
         compose.waitUntil(10_000) { runBlocking { sessions.observeDraft().first() == null } }
         assertTrue(runBlocking { sessions.observeHistory().first().isEmpty() })
+    }
+
+    @Test fun restAndCompletedStateRemainAccessibleAcrossThemesAndLargeText() {
+        waitForScreen()
+        compose.onNodeWithContentDescription("Concluir série 1 de Prancha").performClick()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val output = File(context.getExternalFilesDir(null), "s3-preview").apply { mkdirs() }
+        for (mode in listOf("light", "dark", "dynamic-large")) {
+            compose.runOnIdle {
+                dark.value = mode == "dark"
+                dynamic.value = mode == "dynamic-large"
+                fontScale.value = if (mode == "dynamic-large") 2f else 1f
+            }
+            compose.onNodeWithTag("rest-banner").assertIsDisplayed()
+            compose.onNodeWithText("Pular").assertIsDisplayed()
+            compose.onNodeWithContentDescription("Concluir série 2 de Prancha").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithTag("rest-banner").assertIsDisplayed()
+            val bounds = compose.onNodeWithText("Pular").fetchSemanticsNode().boundsInRoot
+            val minimum = 48 * context.resources.displayMetrics.density - 1
+            assertTrue("Pular deve ter alvo de toque de 48 dp", bounds.height >= minimum)
+            File(output, "session-$mode.png").outputStream().use {
+                compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+            }
+        }
+        click("Pular")
+        compose.onNodeWithTag("rest-banner").assertDoesNotExist()
     }
 }

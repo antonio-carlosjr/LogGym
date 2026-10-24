@@ -1,5 +1,9 @@
 package com.loggym.ui.plans
 
+import com.loggym.ui.components.LoadError
+import com.loggym.ui.components.OperationError
+import com.loggym.R
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,16 +58,18 @@ fun PlansScreen(
     onOpenPlan: (Long) -> Unit,
     viewModel: PlansViewModel = hiltViewModel(),
 ) {
+    val resources = LocalResources.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val operationFailed by viewModel.operationFailed.collectAsStateWithLifecycle()
     val dialog by viewModel.dialog.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Planos") },
+                title = { Text(resources.getString(R.string.ui_planos)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = resources.getString(R.string.back))
                     }
                 },
             )
@@ -72,9 +78,9 @@ fun PlansScreen(
             ExtendedFloatingActionButton(
                 onClick = viewModel::openCreatePlan,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("Novo plano") },
+                text = { Text(resources.getString(R.string.ui_novo_plano)) },
                 // O FAB estendido limpa a semântica do rótulo; sem isto o leitor de tela não anuncia a ação.
-                modifier = Modifier.semantics { contentDescription = "Novo plano" },
+                modifier = Modifier.semantics { contentDescription = resources.getString(R.string.ui_novo_plano) },
             )
         },
     ) { padding ->
@@ -85,15 +91,17 @@ fun PlansScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            if (operationFailed) item { OperationError(viewModel::dismissError) }
+            if (state.failed) item { LoadError(viewModel::retry) }
             item(key = "templates") {
                 OutlinedButton(onClick = viewModel::openTemplates, modifier = Modifier.fillMaxWidth()) {
-                    Text("Usar um plano pronto")
+                    Text(resources.getString(R.string.ui_usar_um_plano_pronto))
                 }
             }
-            if (!state.isLoading && state.plans.isEmpty()) {
+            if (!state.isLoading && !state.failed && state.plans.isEmpty()) {
                 item(key = "empty") {
                     Text(
-                        "Você ainda não tem planos. Crie um do zero ou use um plano pronto.",
+                        resources.getString(R.string.ui_voce_ainda_nao_tem_planos_crie_um_do_zero_ou_use_um_plano_pronto),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(vertical = 16.dp),
                     )
@@ -124,24 +132,24 @@ fun PlansScreen(
         )
         is PlansDialog.AskActivate -> AlertDialog(
             onDismissRequest = viewModel::dismissDialog,
-            title = { Text("Plano criado") },
-            text = { Text("Ativar agora? O plano ativo é o usado para iniciar treinos.") },
-            confirmButton = { TextButton(onClick = { viewModel.activate(current.planId) }) { Text("Ativar") } },
-            dismissButton = { TextButton(onClick = viewModel::dismissDialog) { Text("Agora não") } },
+            title = { Text(resources.getString(R.string.ui_plano_criado)) },
+            text = { Text(resources.getString(R.string.ui_ativar_agora_o_plano_ativo_e_o_usado_para_iniciar_treinos)) },
+            confirmButton = { TextButton(onClick = { viewModel.activate(current.planId) }) { Text(resources.getString(R.string.ui_ativar)) } },
+            dismissButton = { TextButton(onClick = viewModel::dismissDialog) { Text(resources.getString(R.string.ui_agora_nao)) } },
         )
         is PlansDialog.ConfirmDelete -> AlertDialog(
             onDismissRequest = viewModel::dismissDialog,
-            title = { Text("Excluir \"${current.plan.name}\"?") },
+            title = { Text(resources.getString(R.string.ui_excluir_1_s, current.plan.name)) },
             text = {
                 val activeWarning = if (current.plan.isActive) {
-                    "Este é o plano ativo: você ficará sem plano ativo até escolher outro. "
+                    resources.getString(R.string.ui_este_e_o_plano_ativo_voce_ficara_sem_plano_ativo_ate_escolher_outro)
                 } else {
                     ""
                 }
-                Text("${activeWarning}Os treinos já registrados no histórico não mudam.")
+                Text(resources.getString(R.string.ui_1_sos_treinos_ja_registrados_no_historico_nao_mudam, activeWarning))
             },
-            confirmButton = { TextButton(onClick = viewModel::confirmDelete) { Text("Excluir") } },
-            dismissButton = { TextButton(onClick = viewModel::dismissDialog) { Text("Cancelar") } },
+            confirmButton = { TextButton(onClick = viewModel::confirmDelete) { Text(resources.getString(R.string.ui_excluir)) } },
+            dismissButton = { TextButton(onClick = viewModel::dismissDialog) { Text(resources.getString(R.string.ui_cancelar)) } },
         )
         null -> Unit
     }
@@ -150,11 +158,12 @@ fun PlansScreen(
 /** RF-30: o plano ativo é destacado. */
 @Composable
 private fun PlanCard(plan: PlanSummary, onOpen: () -> Unit, onActivate: () -> Unit, onDelete: () -> Unit) {
+    val resources = LocalResources.current
     var menuOpen by remember { mutableStateOf(false) }
     ElevatedCard(modifier = Modifier.fillMaxWidth()) {
         ListItem(
             headlineContent = { Text(plan.name) },
-            supportingContent = { if (plan.isActive) Text("Plano ativo") },
+            supportingContent = { if (plan.isActive) Text(resources.getString(R.string.ui_plano_ativo)) },
             colors = if (plan.isActive) {
                 ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             } else {
@@ -162,12 +171,12 @@ private fun PlanCard(plan: PlanSummary, onOpen: () -> Unit, onActivate: () -> Un
             },
             trailingContent = {
                 IconButton(onClick = { menuOpen = true }) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "Ações do plano ${plan.name}")
+                    Icon(Icons.Filled.MoreVert, contentDescription = resources.getString(R.string.ui_acoes_do_plano_1_s, plan.name))
                 }
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                     if (!plan.isActive) {
                         DropdownMenuItem(
-                            text = { Text("Ativar") },
+                            text = { Text(resources.getString(R.string.ui_ativar)) },
                             onClick = {
                                 menuOpen = false
                                 onActivate()
@@ -175,7 +184,7 @@ private fun PlanCard(plan: PlanSummary, onOpen: () -> Unit, onActivate: () -> Un
                         )
                     }
                     DropdownMenuItem(
-                        text = { Text("Excluir") },
+                        text = { Text(resources.getString(R.string.ui_excluir)) },
                         onClick = {
                             menuOpen = false
                             onDelete()
@@ -195,22 +204,23 @@ private fun CreatePlanDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val resources = LocalResources.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Novo plano") },
+        title = { Text(resources.getString(R.string.ui_novo_plano)) },
         text = {
             OutlinedTextField(
                 value = dialog.name,
                 onValueChange = onNameChange,
-                label = { Text("Nome do plano") },
+                label = { Text(resources.getString(R.string.ui_nome_do_plano)) },
                 singleLine = true,
                 isError = dialog.showBlankError,
-                supportingText = { if (dialog.showBlankError) Text("Informe um nome.") },
+                supportingText = { if (dialog.showBlankError) Text(resources.getString(R.string.ui_informe_um_nome)) },
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        confirmButton = { TextButton(onClick = onConfirm) { Text("Criar") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(resources.getString(R.string.ui_criar)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(resources.getString(R.string.ui_cancelar)) } },
     )
 }
 
@@ -220,9 +230,10 @@ private fun ChooseTemplateDialog(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val resources = LocalResources.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Planos prontos") },
+        title = { Text(resources.getString(R.string.ui_planos_prontos)) },
         text = {
             Column(
                 Modifier.verticalScroll(rememberScrollState()),
@@ -247,6 +258,6 @@ private fun ChooseTemplateDialog(
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(resources.getString(R.string.ui_cancelar)) } },
     )
 }

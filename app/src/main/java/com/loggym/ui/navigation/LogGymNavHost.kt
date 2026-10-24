@@ -5,7 +5,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.loggym.ui.exercises.ExerciseLibraryScreen
 import com.loggym.ui.history.HistoryDetailScreen
 import com.loggym.ui.history.HistoryScreen
@@ -60,10 +59,10 @@ fun LogGymNavHost(
             SessionScreen(onBack = navigateBack)
         }
         composable<HistoryRoute> {
-            HistoryScreen(onBack = navigateBack)
+            HistoryScreen(onBack = navigateBack, onOpenSession = { navController.navigate(HistoryDetailRoute(it)) })
         }
-        composable<HistoryDetailRoute> { entry ->
-            HistoryDetailScreen(sessionId = entry.toRoute<HistoryDetailRoute>().sessionId, onBack = navigateBack)
+        composable<HistoryDetailRoute> {
+            HistoryDetailScreen(onBack = navigateBack)
         }
     }
 }

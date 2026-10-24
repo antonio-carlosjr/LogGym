@@ -23,7 +23,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.ExternalResource
 import org.junit.runner.RunWith
 import java.io.File
 import javax.inject.Inject
@@ -39,15 +38,6 @@ class Sprint1DefinitionOfDoneTest {
 
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
-
-    /** O onboarding depende do DataStore, que sobrevive entre execuções no dispositivo. */
-    @get:Rule(order = 1)
-    val freshPreferences = object : ExternalResource() {
-        override fun before() {
-            val filesDir = InstrumentationRegistry.getInstrumentation().targetContext.filesDir
-            File(filesDir, "datastore").deleteRecursively()
-        }
-    }
 
     @get:Rule(order = 2)
     val composeRule = createAndroidComposeRule<MainActivity>()

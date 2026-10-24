@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import com.loggym.ui.components.LoadError
+import kotlinx.coroutines.flow.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -21,23 +23,30 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class AppViewModel @Inject constructor(
     preferences: UserPreferencesRepository,
 ) : ViewModel() {
 
     /** Lido uma única vez: o destino inicial não deve mudar enquanto o NavHost está montado (RF-03, RF-08). */
-    val startDestination: StateFlow<Any?> = flow {
+    private val refresh = MutableStateFlow(0)
+    private val failure = MutableStateFlow(false)
+    val failed = failure.asStateFlow()
+    fun retry() { refresh.update { it + 1 } }
+    val startDestination: StateFlow<Any?> = refresh.flatMapLatest { flow {
+        failure.value = false
         emit(if (preferences.onboardingCompleted.first()) HomeRoute else OnboardingRoute)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    }.catch { failure.value = true } }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 }
 
 @Composable
 fun LogGymApp(viewModel: AppViewModel = hiltViewModel()) {
     val startDestination by viewModel.startDestination.collectAsStateWithLifecycle()
+    val failed by viewModel.failed.collectAsStateWithLifecycle()
 
     when (val destination = startDestination) {
-        null -> Box(Modifier.fillMaxSize())
+        null -> Box(Modifier.fillMaxSize()) { if (failed) LoadError(viewModel::retry) }
         else -> LogGymNavHost(startDestination = destination)
     }
 }

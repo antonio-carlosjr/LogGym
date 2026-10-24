@@ -23,9 +23,16 @@ class OnboardingViewModel @Inject constructor(
     private val _isWorking = MutableStateFlow(false)
     val isWorking: StateFlow<Boolean> = _isWorking.asStateFlow()
 
+    private val failure = MutableStateFlow(false)
+    val failed = failure.asStateFlow()
+    private var createdTemplateKey: String? = null
+
     /** RF-04/RF-37: cria a cópia local do template e já a ativa. */
     fun selectTemplate(templateKey: String, onDone: () -> Unit) = completeOnce(onDone) {
-        planRepository.createFromTemplate(templateKey, activate = true)
+        if (createdTemplateKey != templateKey) {
+            planRepository.createFromTemplate(templateKey, activate = true)
+            createdTemplateKey = templateKey
+        }
     }
 
     /** RF-05/RF-06: criar plano personalizado ou pular também encerram o onboarding. */
@@ -35,9 +42,15 @@ class OnboardingViewModel @Inject constructor(
         if (_isWorking.value) return
         _isWorking.value = true
         viewModelScope.launch {
-            action()
-            preferences.setOnboardingCompleted()
-            onDone()
+            failure.value = false
+            try {
+                action()
+                preferences.setOnboardingCompleted()
+                onDone()
+            } catch (error: Exception) {
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                failure.value = true
+            } finally { _isWorking.value = false }
         }
     }
 }

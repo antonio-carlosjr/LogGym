@@ -8,6 +8,11 @@ import com.loggym.data.local.dao.ExerciseDao
 import com.loggym.data.local.dao.PlanDao
 import com.loggym.data.local.dao.SessionDao
 import com.loggym.di.DatabaseModule
+import com.loggym.di.RepositoryModule
+import com.loggym.data.repository.*
+import com.loggym.domain.repository.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,8 +23,25 @@ import javax.inject.Singleton
 
 /** Mesmo grafo do app, com banco em memória e a mesma carga inicial. */
 @Module
-@TestInstallIn(components = [SingletonComponent::class], replaces = [DatabaseModule::class])
+@TestInstallIn(components = [SingletonComponent::class], replaces = [DatabaseModule::class, RepositoryModule::class])
 object TestDatabaseModule {
+
+    @Provides @Singleton
+    fun provideExercises(impl: ExerciseRepositoryImpl): ExerciseRepository = impl
+
+    @Provides @Singleton
+    fun providePlans(impl: PlanRepositoryImpl): PlanRepository = impl
+
+    @Provides @Singleton
+    fun provideSessions(impl: SessionRepositoryImpl): SessionRepository = impl
+
+    // Estado próprio de cada componente de teste: não apaga preferências do app real.
+    @Provides @Singleton
+    fun providePreferences(): UserPreferencesRepository = object : UserPreferencesRepository {
+        private val completed = MutableStateFlow(false)
+        override val onboardingCompleted = completed.asStateFlow()
+        override suspend fun setOnboardingCompleted() { completed.value = true }
+    }
 
     @Provides
     @Singleton

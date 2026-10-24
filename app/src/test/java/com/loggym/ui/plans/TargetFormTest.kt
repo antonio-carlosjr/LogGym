@@ -50,7 +50,7 @@ class TargetFormTest {
 
     @Test
     fun `descanso e exibido em minutos e segundos`() {
-        assertEquals("sem descanso", formatRest(0))
+        assertEquals("0:00", formatRest(0))
         assertEquals("1:30", formatRest(90))
         assertEquals("10:00", formatRest(600))
     }

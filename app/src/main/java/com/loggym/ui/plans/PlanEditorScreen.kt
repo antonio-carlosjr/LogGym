@@ -1,5 +1,9 @@
 package com.loggym.ui.plans
 
+import com.loggym.ui.components.LoadError
+import com.loggym.ui.components.OperationError
+import com.loggym.R
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +35,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -43,6 +48,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -55,7 +61,7 @@ import com.loggym.domain.model.Workout
 import com.loggym.domain.model.WorkoutExercise
 import com.loggym.ui.components.labels
 import com.loggym.ui.exercises.filterExercises
-import com.loggym.ui.util.formatRest
+import com.loggym.ui.util.restLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,8 +69,11 @@ fun PlanEditorScreen(
     onBack: () -> Unit,
     viewModel: PlanEditorViewModel = hiltViewModel(),
 ) {
+    val resources = LocalResources.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val operationFailed by viewModel.operationFailed.collectAsStateWithLifecycle()
     val dialog by viewModel.dialog.collectAsStateWithLifecycle()
+    val libraryFailed by viewModel.libraryFailed.collectAsStateWithLifecycle()
     val library by viewModel.library.collectAsStateWithLifecycle()
 
     LaunchedEffect(state) {
@@ -78,13 +87,13 @@ fun PlanEditorScreen(
                 title = { Text(plan?.name.orEmpty()) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = resources.getString(R.string.back))
                     }
                 },
                 actions = {
                     if (plan != null) {
                         IconButton(onClick = viewModel::openRenamePlan) {
-                            Icon(Icons.Filled.Edit, contentDescription = "Renomear plano")
+                            Icon(Icons.Filled.Edit, contentDescription = resources.getString(R.string.ui_renomear_plano))
                         }
                     }
                 },
@@ -92,22 +101,21 @@ fun PlanEditorScreen(
         },
     ) { padding ->
         if (plan == null) {
-            Box(Modifier.padding(padding))
+            Box(Modifier.padding(padding)) {
+                if (state == PlanEditorUiState.Failed) LoadError(viewModel::retry)
+            }
             return@Scaffold
         }
-        PlanContent(
-            plan = plan,
-            viewModel = viewModel,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-        )
+        Column(Modifier.padding(padding)) {
+            if (operationFailed) OperationError(viewModel::dismissError)
+            PlanContent(plan = plan, viewModel = viewModel, modifier = Modifier.fillMaxSize())
+        }
     }
 
     when (val current = dialog) {
         is PlanEditorDialog.RenamePlan -> NameDialog(
-            title = "Renomear plano",
-            label = "Nome do plano",
+            title = resources.getString(R.string.ui_renomear_plano),
+            label = resources.getString(R.string.ui_nome_do_plano),
             name = current.name,
             showBlankError = current.showBlankError,
             onNameChange = viewModel::onPlanNameChange,
@@ -115,8 +123,8 @@ fun PlanEditorScreen(
             onDismiss = viewModel::dismissDialog,
         )
         is PlanEditorDialog.WorkoutName -> NameDialog(
-            title = if (current.workoutId == null) "Nova divisão" else "Renomear divisão",
-            label = "Nome da divisão (ex.: Push, Treino A)",
+            title = if (current.workoutId == null) resources.getString(R.string.ui_nova_divisao) else resources.getString(R.string.ui_renomear_divisao),
+            label = resources.getString(R.string.ui_nome_da_divisao_ex_push_treino_a),
             name = current.name,
             showBlankError = current.showBlankError,
             onNameChange = viewModel::onWorkoutNameChange,
@@ -125,10 +133,10 @@ fun PlanEditorScreen(
         )
         is PlanEditorDialog.ConfirmDeleteWorkout -> AlertDialog(
             onDismissRequest = viewModel::dismissDialog,
-            title = { Text("Excluir \"${current.workout.name}\"?") },
-            text = { Text("A divisão e a configuração dos exercícios dela serão removidas. O histórico não muda.") },
-            confirmButton = { TextButton(onClick = viewModel::confirmDeleteWorkout) { Text("Excluir") } },
-            dismissButton = { TextButton(onClick = viewModel::dismissDialog) { Text("Cancelar") } },
+            title = { Text(resources.getString(R.string.ui_excluir_1_s, current.workout.name)) },
+            text = { Text(resources.getString(R.string.ui_a_divisao_e_a_configuracao_dos_exercicios_dela_serao_removidas_o_historico_)) },
+            confirmButton = { TextButton(onClick = viewModel::confirmDeleteWorkout) { Text(resources.getString(R.string.ui_excluir)) } },
+            dismissButton = { TextButton(onClick = viewModel::dismissDialog) { Text(resources.getString(R.string.ui_cancelar)) } },
         )
         is PlanEditorDialog.PickExercise -> {
             val alreadyAdded = plan?.workouts?.firstOrNull { it.id == current.workoutId }
@@ -139,6 +147,8 @@ fun PlanEditorScreen(
                 onQueryChange = viewModel::onPickQueryChange,
                 onPick = viewModel::pickExercise,
                 onDismiss = viewModel::dismissDialog,
+                failed = libraryFailed,
+                onRetry = viewModel::retry,
             )
         }
         is PlanEditorDialog.Target -> TargetDialog(
@@ -153,6 +163,7 @@ fun PlanEditorScreen(
 
 @Composable
 private fun PlanContent(plan: Plan, viewModel: PlanEditorViewModel, modifier: Modifier) {
+    val resources = LocalResources.current
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
@@ -160,15 +171,15 @@ private fun PlanContent(plan: Plan, viewModel: PlanEditorViewModel, modifier: Mo
     ) {
         item(key = "status") {
             if (plan.isActive) {
-                Text("Plano ativo", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                Text(resources.getString(R.string.ui_plano_ativo), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             } else {
-                OutlinedButton(onClick = viewModel::activatePlan) { Text("Ativar este plano") }
+                OutlinedButton(onClick = viewModel::activatePlan) { Text(resources.getString(R.string.ui_ativar_este_plano)) }
             }
         }
         if (plan.workouts.isEmpty()) {
             item(key = "empty") {
                 Text(
-                    "Este plano ainda não tem divisões. Adicione a primeira, como \"Push\" ou \"Treino A\".",
+                    resources.getString(R.string.ui_este_plano_ainda_nao_tem_divisoes_adicione_a_primeira_como_push_ou_treino_a),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
@@ -184,7 +195,7 @@ private fun PlanContent(plan: Plan, viewModel: PlanEditorViewModel, modifier: Mo
         item(key = "add-workout") {
             OutlinedButton(onClick = viewModel::openAddWorkout, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Filled.Add, contentDescription = null)
-                Text("Adicionar divisão", modifier = Modifier.padding(start = 8.dp))
+                Text(resources.getString(R.string.ui_adicionar_divisao), modifier = Modifier.padding(start = 8.dp))
             }
         }
     }
@@ -192,6 +203,7 @@ private fun PlanContent(plan: Plan, viewModel: PlanEditorViewModel, modifier: Mo
 
 @Composable
 private fun WorkoutCard(workout: Workout, isFirst: Boolean, isLast: Boolean, viewModel: PlanEditorViewModel) {
+    val resources = LocalResources.current
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -201,16 +213,16 @@ private fun WorkoutCard(workout: Workout, isFirst: Boolean, isLast: Boolean, vie
         ) {
             Text(workout.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
             IconButton(onClick = { viewModel.moveWorkout(workout, -1) }, enabled = !isFirst) {
-                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Mover ${workout.name} para cima")
+                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = resources.getString(R.string.ui_mover_1_s_para_cima, workout.name))
             }
             IconButton(onClick = { viewModel.moveWorkout(workout, +1) }, enabled = !isLast) {
-                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Mover ${workout.name} para baixo")
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = resources.getString(R.string.ui_mover_1_s_para_baixo, workout.name))
             }
             IconButton(onClick = { viewModel.openRenameWorkout(workout) }) {
-                Icon(Icons.Filled.Edit, contentDescription = "Renomear ${workout.name}")
+                Icon(Icons.Filled.Edit, contentDescription = resources.getString(R.string.ui_renomear_1_s, workout.name))
             }
             IconButton(onClick = { viewModel.requestDeleteWorkout(workout) }) {
-                Icon(Icons.Filled.Delete, contentDescription = "Excluir ${workout.name}")
+                Icon(Icons.Filled.Delete, contentDescription = resources.getString(R.string.ui_excluir_1_s_2, workout.name))
             }
         }
         HorizontalDivider()
@@ -230,7 +242,7 @@ private fun WorkoutCard(workout: Workout, isFirst: Boolean, isLast: Boolean, vie
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
         ) {
             Icon(Icons.Filled.Add, contentDescription = null)
-            Text("Adicionar exercício", modifier = Modifier.padding(start = 8.dp))
+            Text(resources.getString(R.string.ui_adicionar_exercicio), modifier = Modifier.padding(start = 8.dp))
         }
     }
 }
@@ -245,22 +257,23 @@ private fun WorkoutExerciseRow(
     onMoveDown: () -> Unit,
     onRemove: () -> Unit,
 ) {
+    val resources = LocalResources.current
     val target = item.target
     ListItem(
         headlineContent = { Text(item.exercise.name) },
         supportingContent = {
-            Text("${target.summary()} · ${formatRest(target.rest.seconds)}")
+            Text("${target.summary()} · ${restLabel(target.rest.seconds)}")
         },
         trailingContent = {
             Row {
                 IconButton(onClick = onMoveUp, enabled = !isFirst) {
-                    Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Mover ${item.exercise.name} para cima")
+                    Icon(Icons.Filled.KeyboardArrowUp, contentDescription = resources.getString(R.string.ui_mover_1_s_para_cima, item.exercise.name))
                 }
                 IconButton(onClick = onMoveDown, enabled = !isLast) {
-                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Mover ${item.exercise.name} para baixo")
+                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = resources.getString(R.string.ui_mover_1_s_para_baixo, item.exercise.name))
                 }
                 IconButton(onClick = onRemove) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Remover ${item.exercise.name}")
+                    Icon(Icons.Filled.Delete, contentDescription = resources.getString(R.string.ui_remover_1_s, item.exercise.name))
                 }
             }
         },
@@ -278,6 +291,7 @@ private fun NameDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val resources = LocalResources.current
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -288,12 +302,12 @@ private fun NameDialog(
                 label = { Text(label) },
                 singleLine = true,
                 isError = showBlankError,
-                supportingText = { if (showBlankError) Text("Informe um nome.") },
+                supportingText = { if (showBlankError) Text(resources.getString(R.string.ui_informe_um_nome)) },
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        confirmButton = { TextButton(onClick = onConfirm) { Text("Salvar") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(resources.getString(R.string.ui_salvar)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(resources.getString(R.string.ui_cancelar)) } },
     )
 }
 
@@ -304,24 +318,30 @@ private fun PickExerciseDialog(
     onQueryChange: (String) -> Unit,
     onPick: (Exercise) -> Unit,
     onDismiss: () -> Unit,
+    failed: Boolean,
+    onRetry: () -> Unit,
 ) {
+    val resources = LocalResources.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Adicionar exercício") },
+        title = { Text(resources.getString(R.string.ui_adicionar_exercicio)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = query,
                     onValueChange = onQueryChange,
-                    placeholder = { Text("Buscar exercício") },
+                    placeholder = { Text(resources.getString(R.string.ui_buscar_exercicio)) },
                     leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
+                if (failed) LoadError(onRetry)
+                else if (exercises.isEmpty()) Text(resources.getString(R.string.ui_nenhum_exercicio_encontrado))
                 LazyColumn(Modifier.heightIn(max = 360.dp)) {
                     items(exercises, key = { it.id }) { exercise ->
                         ListItem(
                             headlineContent = { Text(exercise.name) },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             supportingContent = {
                                 val groups = exercise.muscleGroups.labels()
                                 if (groups.isNotEmpty()) Text(groups)
@@ -333,7 +353,7 @@ private fun PickExerciseDialog(
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(resources.getString(R.string.ui_cancelar)) } },
     )
 }
 
@@ -344,6 +364,7 @@ private fun TargetDialog(
     onSave: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val resources = LocalResources.current
     val form = dialog.form
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -353,39 +374,40 @@ private fun TargetDialog(
                 Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                NumberField("Séries", form.sets) { value -> onChange { it.copy(sets = value) } }
+                NumberField(resources.getString(R.string.ui_series), form.sets) { value -> onChange { it.copy(sets = value) } }
                 if (form.trackingType == TrackingType.TIME) {
-                    NumberField("Duração por série (s)", form.durationSeconds, maxDigits = 6) { value -> onChange { it.copy(durationSeconds = value) } }
+                    NumberField(resources.getString(R.string.ui_duracao_por_serie_s), form.durationSeconds, maxDigits = 6) { value -> onChange { it.copy(durationSeconds = value) } }
                 } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    NumberField("Rep. mín.", form.repMin, Modifier.weight(1f)) { value -> onChange { it.copy(repMin = value) } }
-                    NumberField("Rep. máx.", form.repMax, Modifier.weight(1f)) { value -> onChange { it.copy(repMax = value) } }
+                    NumberField(resources.getString(R.string.ui_rep_min), form.repMin, Modifier.weight(1f)) { value -> onChange { it.copy(repMin = value) } }
+                    NumberField(resources.getString(R.string.ui_rep_max), form.repMax, Modifier.weight(1f)) { value -> onChange { it.copy(repMax = value) } }
                 }
-                Text("Descanso", style = MaterialTheme.typography.labelLarge)
+                Text(resources.getString(R.string.rest_title), style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedButton(onClick = { onChange { it.adjustRest(-1) } }) { Text("−15 s") }
+                    OutlinedButton(onClick = { onChange { it.adjustRest(-1) } }) { Text(resources.getString(R.string.ui_15_s)) }
                     Text(
-                        formatRest(form.restSeconds),
+                        restLabel(form.restSeconds),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 8.dp),
                     )
-                    OutlinedButton(onClick = { onChange { it.adjustRest(+1) } }) { Text("+15 s") }
+                    OutlinedButton(onClick = { onChange { it.adjustRest(+1) } }) { Text(resources.getString(R.string.ui_15_s_2)) }
                 }
                 dialog.error?.let { error ->
                     Text(error.message(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 }
                 // RF-143: o padrão só entra por escolha do usuário.
-                AssistChip(onClick = { onChange { it.withDefault() } }, label = { Text(if (form.trackingType == TrackingType.TIME) "Usar padrão (3 × 30 s, 1:30)" else "Usar padrão (3 × 8–12, 1:30)") })
+                AssistChip(onClick = { onChange { it.withDefault() } }, label = { Text(if (form.trackingType == TrackingType.TIME) resources.getString(R.string.ui_usar_padrao_3_30_s_1_30) else resources.getString(R.string.ui_usar_padrao_3_812_1_30)) })
             }
         },
-        confirmButton = { TextButton(onClick = onSave) { Text("Salvar") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        confirmButton = { TextButton(onClick = onSave) { Text(resources.getString(R.string.ui_salvar)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(resources.getString(R.string.ui_cancelar)) } },
     )
 }
 
 @Composable
 private fun NumberField(label: String, value: String, modifier: Modifier = Modifier, maxDigits: Int = TargetForm.MAX_DIGITS, onChange: (String) -> Unit) {
+    val resources = LocalResources.current
     OutlinedTextField(
         value = value,
         onValueChange = { onChange(it.filter(Char::isDigit).take(maxDigits)) },
@@ -396,11 +418,16 @@ private fun NumberField(label: String, value: String, modifier: Modifier = Modif
     )
 }
 
-private fun TargetFormError.message(): String = when (this) {
-    TargetFormError.INVALID_DURATION -> "Informe uma duração em segundos maior que zero."
-    TargetFormError.MISSING_SETS -> "Informe a quantidade de séries."
-    TargetFormError.INVALID_SETS -> "As séries devem ser maiores que zero."
-    TargetFormError.MISSING_REPS -> "Informe a faixa de repetições."
-    TargetFormError.INVALID_REPS -> "As repetições devem ser maiores que zero."
-    TargetFormError.MIN_GREATER_THAN_MAX -> "A repetição mínima não pode ser maior que a máxima."
+@Composable
+private fun TargetFormError.message(): String {
+    val resources = LocalResources.current
+    return when (this) {
+    TargetFormError.INVALID_DURATION -> resources.getString(R.string.ui_informe_uma_duracao_em_segundos_maior_que_zero)
+    TargetFormError.MISSING_SETS -> resources.getString(R.string.ui_informe_a_quantidade_de_series)
+    TargetFormError.INVALID_SETS -> resources.getString(R.string.ui_as_series_devem_ser_maiores_que_zero)
+    TargetFormError.MISSING_REPS -> resources.getString(R.string.ui_informe_a_faixa_de_repeticoes)
+    TargetFormError.INVALID_REPS -> resources.getString(R.string.ui_as_repeticoes_devem_ser_maiores_que_zero)
+    TargetFormError.MIN_GREATER_THAN_MAX -> resources.getString(R.string.ui_a_repeticao_minima_nao_pode_ser_maior_que_a_maxima)
+}
+
 }

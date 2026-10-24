@@ -1,6 +1,8 @@
 package com.loggym.ui.plans
 
 import androidx.lifecycle.SavedStateHandle
+import com.loggym.ui.util.UiOperation
+import kotlinx.coroutines.flow.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.loggym.domain.model.Exercise
@@ -21,6 +23,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed interface PlanEditorUiState {
+    data object Failed : PlanEditorUiState
+
     data object Loading : PlanEditorUiState
 
     /** O plano foi excluído enquanto o editor estava aberto. */
@@ -57,22 +61,37 @@ sealed interface PlanEditorDialog {
     ) : PlanEditorDialog
 }
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PlanEditorViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val planRepository: PlanRepository,
     exerciseRepository: ExerciseRepository,
 ) : ViewModel() {
+    private val operations = UiOperation(viewModelScope)
+    val busy = operations.busy
+    val operationFailed = operations.failed
+    fun dismissError() = operations.dismissError()
+
 
     /** Argumento da rota tipada `PlanEditorRoute(planId)`. */
     private val planId: Long = checkNotNull(savedStateHandle["planId"])
 
-    val uiState: StateFlow<PlanEditorUiState> = planRepository.observePlan(planId)
-        .map { plan -> plan?.let(PlanEditorUiState::Loaded) ?: PlanEditorUiState.NotFound }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanEditorUiState.Loading)
+    private val refresh = MutableStateFlow(0)
+    private val libraryFailure = MutableStateFlow(false)
+    val libraryFailed = libraryFailure.asStateFlow()
+    val uiState: StateFlow<PlanEditorUiState> = refresh.flatMapLatest {
+        planRepository.observePlan(planId)
+            .map { plan -> plan?.let(PlanEditorUiState::Loaded) ?: PlanEditorUiState.NotFound as PlanEditorUiState }
+            .onStart { emit(PlanEditorUiState.Loading) }
+            .catch { emit(PlanEditorUiState.Failed) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanEditorUiState.Loading)
 
-    val library: StateFlow<List<Exercise>> = exerciseRepository.observeAll()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    val library: StateFlow<List<Exercise>> = refresh.flatMapLatest {
+        exerciseRepository.observeAll().onStart { libraryFailure.value = false }
+            .catch { libraryFailure.value = true; emit(emptyList()) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    fun retry() { refresh.update { it + 1 } }
 
     private val _dialog = MutableStateFlow<PlanEditorDialog?>(null)
     val dialog: StateFlow<PlanEditorDialog?> = _dialog.asStateFlow()
@@ -104,7 +123,7 @@ class PlanEditorViewModel @Inject constructor(
 
     /** RF-31. */
     fun activatePlan() {
-        viewModelScope.launch { planRepository.setActivePlan(planId) }
+        operations.launch { planRepository.setActivePlan(planId) }
     }
 
     // Divisões
@@ -149,7 +168,7 @@ class PlanEditorViewModel @Inject constructor(
     fun moveWorkout(workout: Workout, offset: Int) {
         val workouts = plan?.workouts ?: return
         val reordered = workouts.moved(workouts.indexOfFirst { it.id == workout.id }, offset) ?: return
-        viewModelScope.launch { planRepository.reorderWorkouts(reordered.map { it.id }) }
+        operations.launch { planRepository.reorderWorkouts(reordered.map { it.id }) }
     }
 
     // Exercícios da divisão
@@ -203,17 +222,17 @@ class PlanEditorViewModel @Inject constructor(
 
     /** RF-47. */
     fun removeExercise(item: WorkoutExercise) {
-        viewModelScope.launch { planRepository.removeExerciseFromWorkout(item.id) }
+        operations.launch { planRepository.removeExerciseFromWorkout(item.id) }
     }
 
     /** RF-48. */
     fun moveExercise(workout: Workout, item: WorkoutExercise, offset: Int) {
         val reordered = workout.exercises.moved(workout.exercises.indexOfFirst { it.id == item.id }, offset) ?: return
-        viewModelScope.launch { planRepository.reorderWorkoutExercises(reordered.map { it.id }) }
+        operations.launch { planRepository.reorderWorkoutExercises(reordered.map { it.id }) }
     }
 
     private fun launchAndClose(action: suspend () -> Unit) {
-        viewModelScope.launch {
+        operations.launch {
             action()
             _dialog.value = null
         }
