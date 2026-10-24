@@ -13,3 +13,7 @@
 *.aab
 *.jks
 *.keystore
+*.p12
+*.pfx
+/keystore.properties
+/signing.properties
