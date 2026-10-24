@@ -398,6 +398,6 @@ Carga continua em kg na S2 e significa peso de um halter/lado conforme o equipam
 
 ## 22. Entrega e limites da Sprint 3
 
-O histórico usa somente sessões concluídas e seus snapshots, incluindo duração manual, com campos ausentes distintos de zero. A faixa de descanso é fixa; o aviso de conclusão é ocultado cerca de 3 segundos após o instante final, sem alterar os timestamps persistidos. O banco permanece na versão 2.
+O histórico usa somente sessões concluídas e seus snapshots, incluindo duração manual, com campos ausentes distintos de zero. A faixa de descanso é fixa; o aviso de conclusão é ocultado cerca de 5 segundos após o instante final, sem alterar os timestamps persistidos. O banco permanece na versão 2.
 
 As propostas de mínimo opcional, descanso livre, cadastro pela seleção, histórico individual, borracha e check automático estão no planejamento posterior em `docs/TAREFAS.md`. Não estão em vigor nesta entrega: RF-53 continua exigindo repetições prescritas positivas, RF-80 exige check manual e RF-142 mantém passos de 15 s. Fotos, distância e kg/lb continuam pendentes.

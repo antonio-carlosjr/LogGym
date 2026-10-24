@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -133,7 +134,10 @@ fun HomeScreen(
 private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, onDiscard: () -> Unit) {
     val resources = LocalResources.current
     Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        ),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -141,7 +145,10 @@ private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, on
             Text(resources.getString(R.string.ui_1_s_iniciado_as_2_s, draft.workoutName, draft.startedAt.formatTime()))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = onResume, enabled = enabled) { Text(resources.getString(R.string.ui_retomar)) }
-                TextButton(onClick = onDiscard, enabled = enabled) { Text(resources.getString(R.string.ui_descartar)) }
+                TextButton(onClick = onDiscard, enabled = enabled,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)) {
+                    Text(resources.getString(R.string.ui_descartar))
+                }
             }
         }
     }

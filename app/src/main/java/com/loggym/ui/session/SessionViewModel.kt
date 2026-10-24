@@ -116,7 +116,7 @@ class SessionViewModel @Inject constructor(
     private fun tick() {
         val now = clock.instant()
         // Derivado do instante persistido: recomposição/retomada não reexibe aviso antigo.
-        val timer = state.value.session?.restTimer?.takeIf { now.isBefore(it.endsAt.plusSeconds(3)) }
+        val timer = state.value.session?.restTimer?.takeIf { now.isBefore(it.endsAt.plusSeconds(5)) }
         val remaining = timer?.remaining(now)
         val seconds = remaining?.let { it.seconds + if (it.nano > 0) 1 else 0 }
         state.update { it.copy(remainingSeconds = seconds) }

@@ -179,7 +179,9 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
 private fun RestBanner(seconds: Long, enabled: Boolean, onSkip: () -> Unit) {
     val resources = LocalResources.current
     val description = stringResource(R.string.rest_remaining, seconds / 60, seconds % 60)
-    Surface(color = MaterialTheme.colorScheme.tertiaryContainer, modifier = Modifier.fillMaxWidth().testTag("rest-banner")) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.fillMaxWidth().testTag("rest-banner")) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f).semantics(mergeDescendants = true) {
                 if (seconds > 0) contentDescription = description
@@ -191,7 +193,9 @@ private fun RestBanner(seconds: Long, enabled: Boolean, onSkip: () -> Unit) {
                         style = MaterialTheme.typography.headlineSmall)
                 }
             }
-            TextButton(onClick = onSkip, enabled = enabled, modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) {
+            TextButton(onClick = onSkip, enabled = enabled,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) {
                 Text(stringResource(R.string.rest_skip))
             }
         }

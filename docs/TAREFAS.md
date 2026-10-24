@@ -83,7 +83,7 @@ A carga acima é a estimativa original, sem a ampliação de tempo. Não represe
 
 ## Sprint 3: Histórico e entrega
 
-Implementação e situação de cada entrega em [S3-IMPLEMENTACAO.md](S3-IMPLEMENTACAO.md). Tarefas originais preservadas; melhorias leves incorporadas ao polimento e à S3-UX-01. Encerramento depende do aceite manual, CI da nova versão e assinatura definitiva sob custódia da equipe.
+Implementação e situação de cada entrega em [S3-IMPLEMENTACAO.md](S3-IMPLEMENTACAO.md). Tarefas originais preservadas; melhorias leves incorporadas ao polimento e à S3-UX-01. Aceite funcional individual das correções finais informado pelo usuário em 24/10/2026, sem bloqueantes. Encerramento técnico/merge autorizados, condicionados à CI final e revisão por outra pessoa. Aceite coletivo, TalkBack, assinatura definitiva sob custódia da equipe e ensaio humano permanecem pendentes, sem atribuir testes não relatados ao usuário.
 
 | ID | Tarefa | RFs | Responsável | Pts | Depende de |
 | :--- | :--- | :--- | :---: | :---: | :--- |
@@ -97,7 +97,7 @@ Implementação e situação de cada entrega em [S3-IMPLEMENTACAO.md](S3-IMPLEME
 | S3-08 | Acessibilidade: `contentDescription`, alvos ≥ 48 dp, contraste, teste com TalkBack | — | Dev 3 | 3 | S3-06 |
 | S3-09 | Matriz de rastreabilidade RF → código/teste e atualização do README | todos | Dev 2 | 3 | S3-02 |
 | S3-10 | Roteiro de demonstração e ensaio da apresentação | — | Dev 3 (conduz), todos | 2 | S3-04 |
-| S3-UX-01 | Descanso fixo e destacado; aviso final oculto cerca de 3 s após o timestamp final; testes de retomada | RF-87 a RF-95 | Dev 2 | 2 | Estado da sessão; S3-07 |
+| S3-UX-01 | Descanso fixo e destacado; aviso final oculto cerca de 5 s após o timestamp final; testes de retomada | RF-87 a RF-95 | Dev 2 | 2 | Estado da sessão; S3-07 |
 
 **Carga:** Dev 1 = 10 · Dev 2 = 11 · Dev 3 = 11 · Total = 32
 

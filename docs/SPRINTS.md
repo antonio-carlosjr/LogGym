@@ -58,9 +58,11 @@ Os dois critérios foram confirmados na validação manual informada pelo usuár
 
 ---
 
-## Sprint 3: Histórico, robustez e entrega — implementação local; aceite pendente
+## Sprint 3: Histórico, robustez e entrega — código concluído; aceite funcional individual; integração em revisão
 
 **Objetivo:** consultar o passado com isolamento garantido e entregar um MVP polido. As dez tarefas originais e S3-UX-01 compõem 32 pontos (Dev 1: 10, Dev 2: 11, Dev 3: 11), com reserva de 7 pontos sobre a capacidade conservadora de 39. Implementação, evidências e pendências estão em [S3-IMPLEMENTACAO.md](S3-IMPLEMENTACAO.md).
+
+Em 24/10/2026, o usuário aprovou as correções escuras da Home e da faixa, o aviso de 5 segundos e o funcionamento que testou, sem bloqueantes. Autorizou encerramento técnico e merge condicionados às regras do repositório. O PR #12 depende de CI final verde e revisão por outra pessoa. Aceite coletivo, TalkBack, APK com assinatura definitiva e ensaio humano continuam pendentes; não registrar o encerramento integral ou publicação como realizados.
 
 | Item | RFs | Onde |
 | :--- | :--- | :--- |
@@ -71,7 +73,7 @@ Os dois critérios foram confirmados na validação manual informada pelo usuár
 | Testes de UI do fluxo principal: onboarding → iniciar → finalizar → histórico | seção 15 | `app/src/androidTest/.../ui/` |
 | APK de release assinado, README atualizado e roteiro da demonstração | — | `app/build.gradle.kts`, `docs/` |
 
-**Melhorias leves incluídas:** superfície coerente no seletor de exercícios; estado textual/visual de séries marcadas; faixa fixa do descanso; aviso de conclusão oculto após aproximadamente 3 s.
+**Melhorias leves incluídas:** superfície coerente no seletor de exercícios; estado textual/visual de séries marcadas; faixa fixa do descanso; aviso de conclusão oculto após aproximadamente 5 s.
 
 **Definição de pronto:**
 - Todo RF está rastreado até o código ou um teste.

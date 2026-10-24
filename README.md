@@ -171,10 +171,10 @@ O banco está na versão **2**, com migração 1→2 que preserva planos, rascun
 
 ## Validação e entrega da Sprint 3
 
-O histórico apresenta apenas sessões concluídas, com detalhe somente leitura e suporte a séries de carga/repetições e tempo manual. Valores ausentes são distintos de zero. O descanso aparece em faixa fixa; o aviso de conclusão some cerca de 3 s após o horário final, inclusive ao retomar. Banco Room v2 e regras da Sprint 2 preservados.
+O histórico apresenta apenas sessões concluídas, com detalhe somente leitura e suporte a séries de carga/repetições e tempo manual. Valores ausentes são distintos de zero. O descanso aparece em faixa fixa; o aviso de conclusão some cerca de 5 s após o horário final, inclusive ao retomar. Banco Room v2 e regras da Sprint 2 preservados.
 
 ```powershell
 .\gradlew.bat assembleDebug testDebugUnitTest lintDebug connectedDebugAndroidTest --no-configuration-cache --console=plain
 ```
 
-Consulte a [matriz RF → código/teste](docs/RASTREABILIDADE.md), o [roteiro de homologação](docs/HOMOLOGACAO-S3.md), a [preparação de assinatura](docs/RELEASE.md) e a [demonstração](docs/DEMONSTRACAO.md). O encerramento exige CI verde no commit entregue e aceite humano próprio da Sprint 3. Não há publicação automática.
+Consulte a [matriz RF → código/teste](docs/RASTREABILIDADE.md), o [roteiro de homologação](docs/HOMOLOGACAO-S3.md), a [preparação de assinatura](docs/RELEASE.md) e a [demonstração](docs/DEMONSTRACAO.md). O usuário aprovou individualmente as correções finais no emulador em 24/10/2026, sem bloqueantes, e autorizou o encerramento técnico/merge condicionado às regras do repositório. A integração pelo [PR #12](https://github.com/antonio-carlosjr/LogGym/pull/12) exige CI verde no commit final e revisão por outra pessoa. Aceite coletivo, TalkBack, assinatura definitiva e ensaio humano permanecem pendentes. Não há publicação automática.

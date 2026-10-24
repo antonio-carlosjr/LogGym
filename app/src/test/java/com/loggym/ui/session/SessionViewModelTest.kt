@@ -144,13 +144,13 @@ class SessionViewModelTest {
         assertFalse(vm.uiState.value.dirty)
     }
 
-    @Test fun restNoticeHidesThreeSecondsAfterEndAndOldNoticeDoesNotReappear() = runTest(dispatcher) {
+    @Test fun restNoticeHidesFiveSecondsAfterEndAndOldNoticeDoesNotReappear() = runTest(dispatcher) {
         runCurrent()
         val now = clock.instant()
-        repository.draft.value = repository.draft.value!!.copy(restTimer = RestTimer(now.minusSeconds(60), now.minusMillis(2999)))
+        repository.draft.value = repository.draft.value!!.copy(restTimer = RestTimer(now.minusSeconds(60), now.minusMillis(4999)))
         runCurrent()
         assertEquals(0L, vm.uiState.value.remainingSeconds)
-        val expired = RestTimer(now.minusSeconds(60), now.minusSeconds(3))
+        val expired = RestTimer(now.minusSeconds(60), now.minusSeconds(5))
         repository.draft.value = repository.draft.value!!.copy(restTimer = expired)
         runCurrent()
         assertNull(vm.uiState.value.remainingSeconds)
@@ -172,8 +172,8 @@ class SessionViewModelTest {
         clock.now = clock.now.plusSeconds(1)
         advanceTimeBy(1_000); runCurrent()
         assertEquals(0L, vm.uiState.value.remainingSeconds)
-        clock.now = clock.now.plusSeconds(2)
-        advanceTimeBy(2_000); runCurrent()
+        clock.now = clock.now.plusSeconds(4)
+        advanceTimeBy(4_000); runCurrent()
         assertEquals(0L, vm.uiState.value.remainingSeconds)
         clock.now = clock.now.plusSeconds(1)
         advanceTimeBy(1_000); runCurrent()

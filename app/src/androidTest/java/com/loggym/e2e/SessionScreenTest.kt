@@ -143,10 +143,10 @@ class SessionScreenTest {
         completeSet(1)
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val output = File(context.getExternalFilesDir(null), "s3-preview").apply { mkdirs() }
-        for (mode in listOf("light", "dark", "dynamic-large")) {
+        for (mode in listOf("light", "dark", "dynamic-dark", "dynamic-large")) {
             compose.runOnIdle {
-                dark.value = mode == "dark"
-                dynamic.value = mode == "dynamic-large"
+                dark.value = mode.contains("dark")
+                dynamic.value = mode.startsWith("dynamic")
                 fontScale.value = if (mode == "dynamic-large") 2f else 1f
             }
             compose.onNodeWithTag("rest-banner").assertIsDisplayed()
