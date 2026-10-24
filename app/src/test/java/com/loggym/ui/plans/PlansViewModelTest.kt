@@ -7,6 +7,7 @@ import com.loggym.data.local.LogGymDatabase
 import com.loggym.data.local.fixedClock
 import com.loggym.data.local.inMemoryDatabase
 import com.loggym.data.repository.PlanRepositoryImpl
+import com.loggym.domain.repository.PlanRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -65,6 +66,7 @@ class PlansViewModelTest {
 
         viewModel.createFromTemplate("ppl")
         val ask = viewModel.dialog.awaitFirst { it is PlansDialog.AskActivate } as PlansDialog.AskActivate
+        viewModel.busy.awaitFirst { !it }
         viewModel.activate(ask.planId)
 
         val plans = viewModel.uiState.awaitFirst { state -> state.plans.any { it.id == ask.planId && it.isActive } }
@@ -82,5 +84,29 @@ class PlansViewModelTest {
         viewModel.confirmDelete()
 
         viewModel.uiState.awaitFirst { it.plans.isEmpty() }
+    }
+
+    @Test
+    fun `falha ao criar preserva formulario e permite repetir sem duplicar`() = runTest {
+        var fail = true
+        val faulty = object : PlanRepository by repository {
+            override suspend fun createPlan(name: String): Long {
+                if (fail) throw java.io.IOException("Falha simulada")
+                return repository.createPlan(name)
+            }
+        }
+        val model = PlansViewModel(faulty)
+        model.openCreatePlan()
+        model.onPlanNameChange("Preservado")
+        model.createPlan { error("Não deve navegar após falha") }
+        model.operationFailed.awaitFirst { it }
+        model.busy.awaitFirst { !it }
+        assertEquals("Preservado", (model.dialog.value as PlansDialog.CreatePlan).name)
+        fail = false
+        val result = CompletableDeferred<Long>()
+        model.createPlan { result.complete(it) }
+        result.await()
+        assertEquals(listOf("Preservado"), model.uiState.awaitFirst { it.plans.isNotEmpty() }.plans.map { it.name })
+        assertEquals(null, model.dialog.value)
     }
 }

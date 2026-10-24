@@ -7,6 +7,27 @@ plugins {
     alias(libs.plugins.room)
 }
 
+// Credenciais só são lidas em invocações explícitas de Release; nunca entram no build de debug.
+val releaseRequested = gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
+val releaseVariables = listOf("LOGGYM_RELEASE_STORE_FILE", "LOGGYM_RELEASE_STORE_PASSWORD",
+    "LOGGYM_RELEASE_KEY_ALIAS", "LOGGYM_RELEASE_KEY_PASSWORD")
+val releaseCredentials = if (releaseRequested) releaseVariables.associateWith { providers.environmentVariable(it).orNull }
+    else emptyMap()
+val validateReleaseCredentials = tasks.register("validateReleaseCredentials") {
+    // O grafo de release não pode serializar senhas no cache de configuração.
+    notCompatibleWithConfigurationCache("Release usa credenciais externas de assinatura.")
+    doLast {
+        val credentials = releaseVariables.associateWith { System.getenv(it) }
+        if (!releaseRequested || credentials.values.any { it.isNullOrBlank() }) {
+            throw GradleException("Assinatura indisponível. Configure as variáveis LOGGYM_RELEASE_* e execute assembleRelease --no-configuration-cache. Consulte docs/RELEASE.md.")
+        }
+        val keyFile = rootProject.file(credentials.getValue("LOGGYM_RELEASE_STORE_FILE")!!).canonicalFile
+        if (!keyFile.isFile || keyFile.toPath().startsWith(rootProject.projectDir.canonicalFile.toPath())) {
+            throw GradleException("O keystore de release deve existir fora do repositório.")
+        }
+    }
+}
+
 android {
     namespace = "com.loggym"
     compileSdk = 37
@@ -21,8 +42,19 @@ android {
         testInstrumentationRunner = "com.loggym.HiltTestRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            if (releaseRequested) {
+                releaseCredentials["LOGGYM_RELEASE_STORE_FILE"]?.takeIf { it.isNotBlank() }?.let { storeFile = rootProject.file(it) }
+                storePassword = releaseCredentials["LOGGYM_RELEASE_STORE_PASSWORD"]
+                keyAlias = releaseCredentials["LOGGYM_RELEASE_KEY_ALIAS"]
+                keyPassword = releaseCredentials["LOGGYM_RELEASE_KEY_PASSWORD"]
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -53,6 +85,10 @@ android {
         getByName("androidTest").kotlin.srcDir("src/sharedTest/java")
         getByName("androidTest").assets.srcDir("schemas")
     }
+}
+
+tasks.configureEach {
+    if (name == "preReleaseBuild" || name == "validateSigningRelease") dependsOn(validateReleaseCredentials)
 }
 
 kotlin {

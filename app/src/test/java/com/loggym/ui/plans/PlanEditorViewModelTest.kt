@@ -68,6 +68,7 @@ class PlanEditorViewModelTest {
         viewModel.openRenamePlan()
         viewModel.onPlanNameChange("ABC")
         viewModel.saveRenamePlan()
+        awaitPlan { it.name == "ABC" }
         viewModel.openRenameWorkout(workout)
         viewModel.onWorkoutNameChange("Treino A")
         viewModel.saveWorkoutName()
@@ -172,9 +173,13 @@ class PlanEditorViewModelTest {
         assertNull(listOf("a", "b").moved(1, +1))
     }
 
-    private suspend fun awaitPlan(predicate: (Plan) -> Boolean): Plan =
-        (viewModel.uiState.awaitFirst { (it as? PlanEditorUiState.Loaded)?.plan?.let(predicate) == true }
+    private suspend fun awaitPlan(predicate: (Plan) -> Boolean): Plan {
+        // Uma emissão Room pode chegar antes do término da operação de escrita.
+        // A próxima ação deve aguardar a liberação da proteção contra duplicidade.
+        viewModel.busy.awaitFirst { !it }
+        return (viewModel.uiState.awaitFirst { (it as? PlanEditorUiState.Loaded)?.plan?.let(predicate) == true }
             as PlanEditorUiState.Loaded).plan
+    }
 
     private suspend fun workoutWithLibraryLoaded(name: String) = run {
         plans.addWorkout(planId, name)

@@ -1,5 +1,7 @@
 package com.loggym.ui.home
 
+import com.loggym.R
+import kotlinx.coroutines.flow.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.loggym.domain.model.Plan
@@ -20,10 +22,12 @@ data class HomeUiState(
     val isLoading: Boolean = true,
     val activePlan: Plan? = null,
     val draft: Session? = null,
-    val message: String? = null,
+    val message: Int? = null,
     val isBusy: Boolean = false,
+    val failed: Boolean = false,
 )
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     planRepository: PlanRepository,
@@ -31,15 +35,19 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val busy = MutableStateFlow(false)
-    private val message = MutableStateFlow<String?>(null)
+    private val message = MutableStateFlow<Int?>(null)
 
-    val uiState: StateFlow<HomeUiState> = combine(
+    private val refresh = MutableStateFlow(0)
+    fun retry() { refresh.update { it + 1 } }
+
+    val uiState: StateFlow<HomeUiState> = refresh.flatMapLatest { combine(
         planRepository.observeActivePlan(),
         sessionRepository.observeDraft(),
         message,
         busy,
     ) { plan, draft, message, busy ->
         HomeUiState(isLoading = false, activePlan = plan, draft = draft, message = message, isBusy = busy)
+    }.onStart { emit(HomeUiState()) }.catch { emit(HomeUiState(isLoading = false, failed = true)) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     fun startWorkout(workoutId: Long, onStarted: () -> Unit) {
@@ -50,15 +58,15 @@ class HomeViewModel @Inject constructor(
                 when (sessionRepository.startSession(workoutId)) {
                     is StartSessionResult.Started -> onStarted()
                     is StartSessionResult.DraftAlreadyExists ->
-                        message.value = "Já existe um treino em andamento. Retome ou descarte antes de iniciar outro."
+                        message.value = R.string.draft_exists_warning
                     StartSessionResult.NoActivePlan ->
-                        message.value = "Nenhum plano ativo. Selecione ou crie um plano."
+                        message.value = R.string.no_active_plan_warning
                     StartSessionResult.WorkoutNotInActivePlan ->
-                        message.value = "Esta divisão não pertence ao plano ativo."
+                        message.value = R.string.wrong_workout_warning
                 }
             } catch (error: Exception) {
                 if (error is kotlinx.coroutines.CancellationException) throw error
-                message.value = error.message ?: "Não foi possível iniciar. Tente novamente."
+                message.value = R.string.session_start_error
             } finally { busy.value = false }
         }
     }
@@ -71,7 +79,7 @@ class HomeViewModel @Inject constructor(
                 check(sessionRepository.discardSession(sessionId)) { "O treino não está mais em andamento." }
             } catch (error: Exception) {
                 if (error is kotlinx.coroutines.CancellationException) throw error
-                message.value = error.message ?: "Não foi possível descartar. Tente novamente."
+                message.value = R.string.session_discard_error
             } finally { busy.value = false }
         }
     }

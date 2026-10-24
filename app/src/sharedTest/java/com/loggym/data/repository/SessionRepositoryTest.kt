@@ -200,6 +200,50 @@ class SessionRepositoryTest {
         } finally { db.close(); context.deleteDatabase(name) }
     }
 
+    @Test fun completedMixedSnapshotSurvivesPrescriptionEditsAndSourceDeletion() = runBlocking {
+        val draft = start()
+        sessions.saveSetAndSetCompleted(draft.exercises[0].sets[0].id, SetValues(0.0, 0), true)
+        sessions.saveSetAndSetCompleted(draft.exercises[0].sets[1].id, SetValues(), true)
+        sessions.saveSetAndSetCompleted(draft.exercises[1].sets[0].id, SetValues(durationSeconds = 45), true)
+        clock.now = clock.now.plusSeconds(125)
+        sessions.finishSession(draft.id)
+        val snapshot = sessions.observeSession(draft.id).first()!!
+        val plan = plans.observePlan(planId).first()!!
+        plans.renamePlan(planId, "Plano novo")
+        plans.renameWorkout(workoutId, "Divisão nova")
+        for (item in plan.workouts.single().exercises) {
+            val target = if (item.exercise.trackingType == TrackingType.TIME)
+                ExerciseTarget.Timed(4, 90, Duration.ZERO)
+            else ExerciseTarget.Repetitions(4, 10, 20, Duration.ZERO)
+            plans.updateWorkoutExercise(item.id, target)
+            exercises.updateCustom(item.exercise.id, ExerciseDraft("Novo ${item.exercise.id}", trackingType = item.exercise.trackingType))
+        }
+        assertEquals(snapshot, sessions.observeSession(draft.id).first())
+        plan.workouts.single().exercises.forEach { exercises.deleteCustom(it.exercise.id) }
+        plans.deletePlan(planId)
+        assertEquals(snapshot, sessions.observeSession(draft.id).first())
+        assertEquals("Halter", snapshot.exercises[0].name)
+        assertEquals(0.0, snapshot.exercises[0].sets[0].weightKg!!, 0.0)
+        assertNull(snapshot.exercises[0].sets[1].weightKg)
+        assertEquals(45, snapshot.exercises[1].sets.single().durationSeconds)
+        assertEquals(30, snapshot.exercises[1].target.durationSeconds)
+    }
+
+    @Test fun historyExcludesDraftsAndDiscardsAndOrdersCompletedSessionsNewestFirst() = runBlocking {
+        val first = start()
+        sessions.saveSetAndSetCompleted(first.exercises[0].sets[0].id, SetValues(1.0, 1), true)
+        sessions.finishSession(first.id)
+        clock.now = clock.now.plusSeconds(60)
+        val discarded = start()
+        assertEquals(listOf(first.id), sessions.observeHistory().first().map { it.id })
+        sessions.discardSession(discarded.id)
+        assertEquals(listOf(first.id), sessions.observeHistory().first().map { it.id })
+        val last = start()
+        sessions.saveSetAndSetCompleted(last.exercises[1].sets[0].id, SetValues(durationSeconds = 45), true)
+        sessions.finishSession(last.id)
+        assertEquals(listOf(last.id, first.id), sessions.observeHistory().first().map { it.id })
+    }
+
     private class MutableClock(var now: Instant = Instant.parse("2026-10-22T12:00:00Z")) : Clock() {
         override fun instant() = now
         override fun getZone(): ZoneId = ZoneOffset.UTC

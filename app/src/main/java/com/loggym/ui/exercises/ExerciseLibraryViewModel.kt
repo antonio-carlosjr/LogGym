@@ -1,5 +1,7 @@
 package com.loggym.ui.exercises
 
+import com.loggym.ui.util.UiOperation
+import kotlinx.coroutines.flow.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.loggym.domain.model.TrackingType
@@ -25,6 +27,7 @@ data class ExerciseLibraryUiState(
     val query: String = "",
     val groupFilter: MuscleGroup? = null,
     val exercises: List<Exercise> = emptyList(),
+    val failed: Boolean = false,
 )
 
 /** Diálogo aberto na tela; no máximo um por vez. */
@@ -45,30 +48,34 @@ sealed interface ExerciseDialog {
 
 enum class EditorError { BLANK_NAME, DUPLICATE_NAME, NOT_EDITABLE }
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ExerciseLibraryViewModel @Inject constructor(
     private val repository: ExerciseRepository,
 ) : ViewModel() {
+    private val operations = UiOperation(viewModelScope)
+    val busy = operations.busy
+    val operationFailed = operations.failed
+    fun dismissError() = operations.dismissError()
+
 
     private val query = MutableStateFlow("")
     private val groupFilter = MutableStateFlow<MuscleGroup?>(null)
 
-    /** Lista completa, usada também pelos diálogos para ler o estado mais recente do exercício. */
-    val allExercises: StateFlow<List<Exercise>> = repository.observeAll()
+    private val refresh = MutableStateFlow(0)
+    private val source: StateFlow<ExerciseLibraryUiState> = refresh.flatMapLatest {
+        repository.observeAll().map { ExerciseLibraryUiState(isLoading = false, exercises = it) }
+            .onStart { emit(ExerciseLibraryUiState()) }
+            .catch { emit(ExerciseLibraryUiState(isLoading = false, failed = true)) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ExerciseLibraryUiState())
+
+    val allExercises = source.map { it.exercises }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    val uiState: StateFlow<ExerciseLibraryUiState> = combine(
-        repository.observeAll(),
-        query,
-        groupFilter,
-    ) { exercises, query, group ->
-        ExerciseLibraryUiState(
-            isLoading = false,
-            query = query,
-            groupFilter = group,
-            exercises = filterExercises(exercises, query, group),
-        )
+    val uiState: StateFlow<ExerciseLibraryUiState> = combine(source, query, groupFilter) { source, query, group ->
+        source.copy(query = query, groupFilter = group, exercises = filterExercises(source.exercises, query, group))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ExerciseLibraryUiState())
+    fun retry() { refresh.update { it + 1 } }
 
     private val _dialog = MutableStateFlow<ExerciseDialog?>(null)
     val dialog: StateFlow<ExerciseDialog?> = _dialog.asStateFlow()
@@ -110,7 +117,7 @@ class ExerciseLibraryViewModel @Inject constructor(
 
     fun saveEditor() {
         val editor = _dialog.value as? ExerciseDialog.Editor ?: return
-        viewModelScope.launch {
+        operations.launch {
             val draft = ExerciseDraft(editor.name, editor.muscleGroups, editor.description, editor.trackingType)
             val result = editor.editingId
                 ?.let { repository.updateCustom(it, draft) }
@@ -126,7 +133,7 @@ class ExerciseLibraryViewModel @Inject constructor(
 
     /** RF-133. */
     fun saveNote(exerciseId: Long, note: String) {
-        viewModelScope.launch {
+        operations.launch {
             repository.updateUserNote(exerciseId, note.take(InputRules.USER_NOTE_MAX_LENGTH))
         }
     }
@@ -134,14 +141,14 @@ class ExerciseLibraryViewModel @Inject constructor(
     /** RF-17/RF-21: consulta o uso em planos antes de pedir confirmação. */
     fun requestDelete(exercise: Exercise) {
         if (!exercise.isCustom) return
-        viewModelScope.launch {
+        operations.launch {
             _dialog.value = ExerciseDialog.ConfirmDelete(exercise, repository.countPlanUsages(exercise.id))
         }
     }
 
     fun confirmDelete() {
         val confirm = _dialog.value as? ExerciseDialog.ConfirmDelete ?: return
-        viewModelScope.launch {
+        operations.launch {
             repository.deleteCustom(confirm.exercise.id)
             _dialog.value = null
         }

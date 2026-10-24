@@ -55,3 +55,7 @@ Ambiente: **MyPhone (AVD), Android 17/API 37**, APK debug gerado nesta implement
 O check antes de 500 ms e o isolamento de snapshots após alterações no plano também são cobertos pelos testes automatizados aprovados. Os testes instrumentados incluem criação/prescrição/execução de tempo e avisos de incompletude.
 
 Artefatos locais da execução: `app/build/s2-recovery/`, com cópias estáveis do banco e `snapshot.json` por etapa (`before-kill`, `after-kill`, `after-reboot`, `after-activity-recreation`, `before-force-stop`, `after-force-stop`, `mixed-before-kill`, `mixed-after-kill`, `finished`, `prefilled-next`, `after-discard`). São dados de teste gerados localmente, fora do versionamento.
+
+## Confirmação adicional informada pelo usuário — 24/10/2026
+
+O usuário confirmou a recuperação de um **treino misto**, com exercícios de carga/repetições e por tempo, após encerramento do processo. Também informou que persistência de valores e marcações, finalização apenas das séries marcadas e pré-preenchimento no treino seguinte passaram na validação manual. Esta confirmação é um relato do usuário recebido em 24/10/2026; data exata da execução, dispositivo e capturas/logs adicionais não foram informados. Ela não substitui as evidências técnicas da execução local de 22/10/2026 nem representa aceite formal da equipe. Os demais cenários manuais informados estão consolidados em [S2-IMPLEMENTACAO.md](../S2-IMPLEMENTACAO.md#validação-manual-informada-pelo-usuário--relato-de-24102026).

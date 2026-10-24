@@ -1,5 +1,6 @@
 package com.loggym.ui.session
 
+import com.loggym.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.loggym.domain.logic.SetValues
@@ -14,6 +15,8 @@ import kotlinx.coroutines.sync.withLock
 import java.time.Clock
 import javax.inject.Inject
 
+private class SetInputException(val messageId: Int) : IllegalArgumentException()
+
 /** Raw text stays local while Room emits previously committed values. */
 data class SetEntry(
     val weight: String = "",
@@ -21,19 +24,19 @@ data class SetEntry(
     val duration: String = "",
     val revision: Long = 0,
     val savedRevision: Long = 0,
-    val error: String? = null,
+    val error: Int? = null,
 ) {
     val dirty: Boolean get() = revision != savedRevision
     fun values(type: TrackingType): SetValues {
         fun integer(text: String, positive: Boolean): Int? {
             if (text.isBlank()) return null
             return requireNotNull(text.toIntOrNull()?.takeIf { if (positive) it > 0 else it >= 0 }) {
-                if (positive) "Informe segundos inteiros maiores que zero." else "Informe repetições inteiras não negativas."
+                throw SetInputException(if (positive) R.string.invalid_seconds else R.string.invalid_reps)
             }
         }
         return if (type == TrackingType.TIME) SetValues(durationSeconds = integer(duration, true)) else {
             val kg = if (weight.isBlank()) null else requireNotNull(WeightFormat.parse(weight)?.takeIf { it.isFinite() }) {
-                "Informe carga não negativa com até duas casas decimais."
+                throw SetInputException(R.string.invalid_weight)
             }
             SetValues(kg, integer(reps, false))
         }
@@ -53,8 +56,8 @@ data class SessionUiState(
     val entries: Map<Long, SetEntry> = emptyMap(),
     val busy: Boolean = false,
     val saving: Boolean = false,
-    val error: String? = null,
-    val message: String? = null,
+    val error: Int? = null,
+    val message: Int? = null,
     val dialog: SessionDialog? = null,
     val remainingSeconds: Long? = null,
     val exitReady: Boolean = false,
@@ -87,7 +90,7 @@ class SessionViewModel @Inject constructor(
         observing = viewModelScope.launch {
             repository.observeDraft().catch { error ->
                 observationFailed = true
-                state.update { it.copy(isLoading = false, error = error.message ?: "Não foi possível abrir o treino.") }
+                state.update { it.copy(isLoading = false, error = R.string.session_open_error) }
             }.collect { session ->
                 state.update { current ->
                     val entries = session?.exercises?.flatMap { it.sets }?.associate { set ->
@@ -111,7 +114,10 @@ class SessionViewModel @Inject constructor(
     }
 
     private fun tick() {
-        val remaining = state.value.session?.restTimer?.remaining(clock.instant())
+        val now = clock.instant()
+        // Derivado do instante persistido: recomposição/retomada não reexibe aviso antigo.
+        val timer = state.value.session?.restTimer?.takeIf { now.isBefore(it.endsAt.plusSeconds(5)) }
+        val remaining = timer?.remaining(now)
         val seconds = remaining?.let { it.seconds + if (it.nano > 0) 1 else 0 }
         state.update { it.copy(remainingSeconds = seconds) }
     }
@@ -156,7 +162,7 @@ class SessionViewModel @Inject constructor(
     private fun parse(id: Long, entry: SetEntry, type: TrackingType): SetValues? = try {
         entry.values(type)
     } catch (error: IllegalArgumentException) {
-        state.update { current -> current.copy(entries = current.entries + (id to entry.copy(error = error.message))) }
+        state.update { current -> current.copy(entries = current.entries + (id to entry.copy(error = (error as? SetInputException)?.messageId ?: R.string.invalid_weight))) }
         null
     }
 
@@ -188,7 +194,7 @@ class SessionViewModel @Inject constructor(
         }
     }
 
-    private fun fail(error: Exception) { state.update { it.copy(error = error.message ?: "Falha ao salvar. Tente novamente.") } }
+    private fun fail(error: Exception) { state.update { it.copy(error = R.string.session_save_error) } }
 
     fun toggle(id: Long) = operation {
         debounces.remove(id)?.cancel()
@@ -204,7 +210,7 @@ class SessionViewModel @Inject constructor(
                 isCompleted = !set.isCompleted,
             ) })
         }), message = if (!set.isCompleted && values.isIncomplete(exercise.trackingType))
-            "Série marcada com campos incompletos." else null) }
+            R.string.incomplete_set_warning else null) }
     }
 
     fun add(exerciseId: Long) = operation {
@@ -231,7 +237,7 @@ class SessionViewModel @Inject constructor(
         if (!flush()) return@operation
         val session = state.value.session ?: return@operation
         if (session.completedSetCount == 0) {
-            state.update { it.copy(message = "Marque ao menos uma série antes de finalizar, ou descarte o treino.") }
+            state.update { it.copy(message = R.string.session_empty_warning) }
         } else if (session.pendingSetCount > 0 || state.value.incompleteCount > 0) {
             state.update { it.copy(dialog = SessionDialog.FINISH) }
         } else finish()
@@ -241,7 +247,7 @@ class SessionViewModel @Inject constructor(
         if (!flush()) return
         when (repository.finishSession(id)) {
             FinishSessionResult.Finished -> state.update { it.copy(exitReady = true, dialog = null) }
-            FinishSessionResult.NoCompletedSets -> state.update { it.copy(message = "Marque ao menos uma série.", dialog = null) }
+            FinishSessionResult.NoCompletedSets -> state.update { it.copy(message = R.string.session_mark_one, dialog = null) }
             FinishSessionResult.NotADraft -> error("O treino não está mais em andamento.")
         }
     }

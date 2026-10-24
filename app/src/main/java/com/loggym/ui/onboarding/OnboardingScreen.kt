@@ -1,5 +1,8 @@
 package com.loggym.ui.onboarding
 
+import androidx.compose.ui.res.stringResource
+import com.loggym.R
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +31,8 @@ fun OnboardingScreen(
     onSkip: () -> Unit,
     viewModel: OnboardingViewModel = hiltViewModel(),
 ) {
+    val resources = LocalResources.current
+    val failed by viewModel.failed.collectAsStateWithLifecycle()
     val isWorking by viewModel.isWorking.collectAsStateWithLifecycle()
 
     Scaffold { padding ->
@@ -38,15 +43,16 @@ fun OnboardingScreen(
             contentPadding = PaddingValues(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (failed) item { Text(stringResource(R.string.operation_failed), color = MaterialTheme.colorScheme.error) }
             item {
-                Text("Bem-vindo ao LogGym", style = MaterialTheme.typography.headlineMedium)
+                Text(resources.getString(R.string.ui_bem_vindo_ao_loggym), style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    "Escolha um plano pronto para começar. Você poderá personalizá-lo depois.",
+                    resources.getString(R.string.ui_escolha_um_plano_pronto_para_comecar_voce_podera_personaliza_lo_depois),
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 // RF-147: aviso de saúde.
                 Text(
-                    "O LogGym não substitui a orientação de um profissional de educação física ou de saúde.",
+                    resources.getString(R.string.ui_o_loggym_nao_substitui_a_orientacao_de_um_profissional_de_educacao_fisica_o),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp),
@@ -74,14 +80,14 @@ fun OnboardingScreen(
                     enabled = !isWorking,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Criar plano personalizado")
+                    Text(resources.getString(R.string.ui_criar_plano_personalizado))
                 }
                 TextButton(
                     onClick = { viewModel.complete(onSkip) },
                     enabled = !isWorking,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Pular por enquanto")
+                    Text(resources.getString(R.string.ui_pular_por_enquanto))
                 }
             }
         }

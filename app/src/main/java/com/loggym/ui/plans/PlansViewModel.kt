@@ -1,5 +1,7 @@
 package com.loggym.ui.plans
 
+import com.loggym.ui.util.UiOperation
+import kotlinx.coroutines.flow.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.loggym.domain.model.PlanSummary
@@ -19,6 +21,7 @@ import javax.inject.Inject
 data class PlansUiState(
     val isLoading: Boolean = true,
     val plans: List<PlanSummary> = emptyList(),
+    val failed: Boolean = false,
 )
 
 sealed interface PlansDialog {
@@ -35,16 +38,26 @@ sealed interface PlansDialog {
     data class ConfirmDelete(val plan: PlanSummary) : PlansDialog
 }
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PlansViewModel @Inject constructor(
     private val repository: PlanRepository,
 ) : ViewModel() {
+    private val operations = UiOperation(viewModelScope)
+    val busy = operations.busy
+    val operationFailed = operations.failed
+    fun dismissError() = operations.dismissError()
+
 
     val templates: List<PlanTemplate> = repository.templates()
 
-    val uiState: StateFlow<PlansUiState> = repository.observePlans()
-        .map { PlansUiState(isLoading = false, plans = it) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlansUiState())
+    private val refresh = MutableStateFlow(0)
+    val uiState: StateFlow<PlansUiState> = refresh.flatMapLatest {
+        repository.observePlans().map { PlansUiState(isLoading = false, plans = it) }
+            .onStart { emit(PlansUiState()) }
+            .catch { emit(PlansUiState(isLoading = false, failed = true)) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlansUiState())
+    fun retry() { refresh.update { it + 1 } }
 
     private val _dialog = MutableStateFlow<PlansDialog?>(null)
     val dialog: StateFlow<PlansDialog?> = _dialog.asStateFlow()
@@ -64,7 +77,7 @@ class PlansViewModel @Inject constructor(
             _dialog.value = create.copy(showBlankError = true)
             return
         }
-        viewModelScope.launch {
+        operations.launch {
             val planId = repository.createPlan(create.name)
             _dialog.value = null
             onCreated(planId)
@@ -76,7 +89,7 @@ class PlansViewModel @Inject constructor(
     }
 
     fun createFromTemplate(templateKey: String) {
-        viewModelScope.launch {
+        operations.launch {
             val planId = repository.createFromTemplate(templateKey, activate = false)
             _dialog.value = PlansDialog.AskActivate(planId)
         }
@@ -84,7 +97,7 @@ class PlansViewModel @Inject constructor(
 
     /** RF-28/RF-29/RF-31: ativar desativa o plano anterior. */
     fun activate(planId: Long) {
-        viewModelScope.launch {
+        operations.launch {
             repository.setActivePlan(planId)
             if ((_dialog.value as? PlansDialog.AskActivate)?.planId == planId) _dialog.value = null
         }
@@ -96,7 +109,7 @@ class PlansViewModel @Inject constructor(
 
     fun confirmDelete() {
         val confirm = _dialog.value as? PlansDialog.ConfirmDelete ?: return
-        viewModelScope.launch {
+        operations.launch {
             repository.deletePlan(confirm.plan.id)
             _dialog.value = null
         }

@@ -1,6 +1,6 @@
 # Planejamento do MVP em 3 sprints
 
-O ponto de partida é a estrutura inicial: domínio, banco Room, repositórios, onboarding e home. A partir dela, o restante da [especificação funcional](../especifica_o_funcional_loggym.md) (RF-01 a RF-129) fica dividido em três sprints de **2 semanas**. A ordem segue o fluxo da seção 15: **prescrever → executar → consultar**.
+O ponto de partida é a estrutura inicial: domínio, banco Room, repositórios, onboarding e home. A partir dela, o restante da [especificação funcional](../especifica_o_funcional_loggym.md) (RF-01 a RF-148, com requisitos parciais e pendentes identificados na matriz de rastreabilidade) fica dividido em três sprints de **2 semanas**. A ordem segue o fluxo da seção 15: **prescrever → executar → consultar**.
 
 A divisão das tarefas entre os integrantes está em [`TAREFAS.md`](TAREFAS.md).
 
@@ -34,9 +34,9 @@ A divisão das tarefas entre os integrantes está em [`TAREFAS.md`](TAREFAS.md).
 
 ---
 
-## Sprint 2: Execução do treino — implementada, aguardando homologação
+## Sprint 2: Execução do treino — aceite individual formalizado; aceite coletivo pendente
 
-Escopo fechado: S2-01 a S2-09 e **tempo manual**, sem distância/fotos. Contratos, rastreabilidade e critérios estão em [S2-IMPLEMENTACAO.md](S2-IMPLEMENTACAO.md). Build local aprovado, com 103 testes JVM e 14 instrumentados. S2-06 executada localmente, com evidências no roteiro de recuperação. A homologação em equipe e o CI remoto seguem pendentes.
+Escopo fechado: S2-01 a S2-09 e **tempo manual**, sem distância/fotos. Contratos, rastreabilidade e critérios estão em [S2-IMPLEMENTACAO.md](S2-IMPLEMENTACAO.md). Build, 103 testes JVM e 14 instrumentados foram aprovados localmente em 24/10/2026; a CI remota do mesmo commit também passou. O usuário informou aprovação dos cenários manuais restantes, inclusive recuperação de treino misto, finalização e pré-preenchimento. A [S2-06](reunioes/S2-06-recuperacao.md) contém as evidências locais anteriores e distingue a confirmação adicional informada pelo usuário. **O usuário formalizou seu aceite individual; somente a aprovação coletiva permanece pendente e não bloqueia o desenvolvimento local da Sprint 3.**
 
 **Objetivo:** registrar um treino completo que resista a interrupções.
 
@@ -54,11 +54,15 @@ Escopo fechado: S2-01 a S2-09 e **tempo manual**, sem distância/fotos. Contrato
 - Um treino é iniciado, o app é morto, e o treino é retomado e finalizado.
 - O treino seguinte da mesma divisão vem pré-preenchido.
 
+Os dois critérios foram confirmados na validação manual informada pelo usuário em 24/10/2026. Isso registra o aceite individual, sem declarar homologação coletiva.
+
 ---
 
-## Sprint 3: Histórico, robustez e entrega
+## Sprint 3: Histórico, robustez e entrega — código concluído; aceite funcional individual; integração aprovada pelo responsável
 
-**Objetivo:** consultar o passado com isolamento garantido e entregar um MVP polido.
+**Objetivo:** consultar o passado com isolamento garantido e entregar um MVP polido. As dez tarefas originais e S3-UX-01 compõem 32 pontos (Dev 1: 10, Dev 2: 11, Dev 3: 11), com reserva de 7 pontos sobre a capacidade conservadora de 39. Implementação, evidências e pendências estão em [S3-IMPLEMENTACAO.md](S3-IMPLEMENTACAO.md).
+
+Em 24/10/2026, o usuário aprovou as correções escuras da Home e da faixa, o aviso de 5 segundos e o funcionamento que testou, sem bloqueantes. Aprovou explicitamente o PR #12 e seu merge, incluindo a nova política de aprovação pelo responsável na conversa. CI final verde e condições técnicas continuam obrigatórias; revisão independente não é mais requisito interno. O resultado efetivo e o hash da integração são consolidados no [PR #12](https://github.com/antonio-carlosjr/LogGym/pull/12). TalkBack, APK com assinatura definitiva e ensaio humano continuam pendentes; não registrar esses critérios nem publicação como realizados. Não há aceite coletivo atribuído à equipe.
 
 | Item | RFs | Onde |
 | :--- | :--- | :--- |
@@ -69,12 +73,18 @@ Escopo fechado: S2-01 a S2-09 e **tempo manual**, sem distância/fotos. Contrato
 | Testes de UI do fluxo principal: onboarding → iniciar → finalizar → histórico | seção 15 | `app/src/androidTest/.../ui/` |
 | APK de release assinado, README atualizado e roteiro da demonstração | — | `app/build.gradle.kts`, `docs/` |
 
+**Melhorias leves incluídas:** superfície coerente no seletor de exercícios; estado textual/visual de séries marcadas; faixa fixa do descanso; aviso de conclusão oculto após aproximadamente 5 s.
+
 **Definição de pronto:**
 - Todo RF está rastreado até o código ou um teste.
 - O APK de release instala e funciona.
 - O fluxo completo é demonstrado.
 
 ---
+
+## Ampliações posteriores
+
+As mudanças de mínimo de repetições, descanso livre, cadastro pela seleção, histórico individual, borracha e marcação automática são candidatas à Sprint 4 em [TAREFAS.md](TAREFAS.md#sprint-4-candidata--refinamento-funcional). Layout compacto e preferência persistente de pré-preenchimento ficam em fila posterior. Nenhuma delas integra a implementação da Sprint 3; fotos, distância e kg/lb seguem pendentes de refinamento.
 
 ## Fora do escopo
 

@@ -18,7 +18,7 @@ import java.time.*
 class SessionViewModelTest {
     private val dispatcher = StandardTestDispatcher()
     private val repository = FakeRepository()
-    private val clock = Clock.fixed(Instant.parse("2026-10-22T12:00:00Z"), ZoneOffset.UTC)
+    private val clock = MutableClock()
     private val store = ViewModelStore()
     private lateinit var vm: SessionViewModel
 
@@ -61,7 +61,7 @@ class SessionViewModelTest {
         runCurrent()
         vm.toggle(11); runCurrent()
         assertEquals(SetValues(), repository.checkedValues)
-        assertEquals("Série marcada com campos incompletos.", vm.uiState.value.message)
+        assertEquals(com.loggym.R.string.incomplete_set_warning, vm.uiState.value.message)
         assertEquals(1, vm.uiState.value.incompleteCount)
         vm.edit(10) { it.copy(weight = "0", reps = "0") }
         vm.toggle(10); runCurrent()
@@ -142,6 +142,50 @@ class SessionViewModelTest {
         advanceTimeBy(500); runCurrent()
         assertEquals(25.0, repository.updates[10L]!!.weightKg!!, 0.0)
         assertFalse(vm.uiState.value.dirty)
+    }
+
+    @Test fun restNoticeHidesFiveSecondsAfterEndAndOldNoticeDoesNotReappear() = runTest(dispatcher) {
+        runCurrent()
+        val now = clock.instant()
+        repository.draft.value = repository.draft.value!!.copy(restTimer = RestTimer(now.minusSeconds(60), now.minusMillis(4999)))
+        runCurrent()
+        assertEquals(0L, vm.uiState.value.remainingSeconds)
+        val expired = RestTimer(now.minusSeconds(60), now.minusSeconds(5))
+        repository.draft.value = repository.draft.value!!.copy(restTimer = expired)
+        runCurrent()
+        assertNull(vm.uiState.value.remainingSeconds)
+        vm.setActive(true); runCurrent()
+        assertNull(vm.uiState.value.remainingSeconds)
+        assertEquals(expired, repository.draft.value!!.restTimer)
+        repository.draft.value = repository.draft.value!!.copy(restTimer = RestTimer(now, now.plusSeconds(30)))
+        runCurrent()
+        assertEquals(30L, vm.uiState.value.remainingSeconds)
+        vm.setActive(false); runCurrent()
+    }
+
+    @Test fun tickerHidesNoticeWithoutWritingOrReceivingAnotherDatabaseEmission() = runTest(dispatcher) {
+        runCurrent()
+        val timer = RestTimer(clock.instant(), clock.instant().plusSeconds(1))
+        repository.draft.value = repository.draft.value!!.copy(restTimer = timer)
+        vm.setActive(true); runCurrent()
+        assertEquals(1L, vm.uiState.value.remainingSeconds)
+        clock.now = clock.now.plusSeconds(1)
+        advanceTimeBy(1_000); runCurrent()
+        assertEquals(0L, vm.uiState.value.remainingSeconds)
+        clock.now = clock.now.plusSeconds(4)
+        advanceTimeBy(4_000); runCurrent()
+        assertEquals(0L, vm.uiState.value.remainingSeconds)
+        clock.now = clock.now.plusSeconds(1)
+        advanceTimeBy(1_000); runCurrent()
+        assertNull(vm.uiState.value.remainingSeconds)
+        assertEquals(timer, repository.draft.value!!.restTimer)
+        vm.setActive(false); runCurrent()
+    }
+
+    private class MutableClock(var now: Instant = Instant.parse("2026-10-22T12:00:00Z")) : Clock() {
+        override fun instant() = now
+        override fun getZone(): ZoneId = ZoneOffset.UTC
+        override fun withZone(zone: ZoneId): Clock = Clock.fixed(now, zone)
     }
 
     private class FakeRepository : SessionRepository {

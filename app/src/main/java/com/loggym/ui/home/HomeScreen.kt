@@ -1,5 +1,8 @@
 package com.loggym.ui.home
 
+import com.loggym.ui.components.LoadError
+import com.loggym.R
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,19 +50,20 @@ fun HomeScreen(
     onOpenHistory: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val resources = LocalResources.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var draftToDiscard by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(state.message) {
         state.message?.let { message ->
-            snackbarHostState.showSnackbar(message)
+            snackbarHostState.showSnackbar(resources.getString(message))
             viewModel.onMessageShown()
         }
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("LogGym") }) },
+        topBar = { TopAppBar(title = { Text(resources.getString(R.string.app_name)) }) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         LazyColumn(
@@ -68,6 +73,7 @@ fun HomeScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (state.failed) item { LoadError(viewModel::retry) }
             state.draft?.let { draft ->
                 item(key = "draft") {
                     DraftCard(draft = draft, enabled = !state.isBusy, onResume = onOpenSession, onDiscard = { draftToDiscard = draft.id })
@@ -75,14 +81,14 @@ fun HomeScreen(
             }
 
             val plan = state.activePlan
-            if (!state.isLoading && plan == null) {
+            if (!state.isLoading && !state.failed && plan == null) {
                 item(key = "no-plan") { NoActivePlanCard(onOpenPlans = onOpenPlans) }
             }
             if (plan != null) {
                 item(key = "plan-header") {
                     Column {
                         Text(plan.name, style = MaterialTheme.typography.titleLarge)
-                        Text("Escolha a divisão de hoje", style = MaterialTheme.typography.bodyMedium)
+                        Text(resources.getString(R.string.ui_escolha_a_divisao_de_hoje), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
                 items(plan.workouts, key = { it.id }) { workout ->
@@ -96,9 +102,9 @@ fun HomeScreen(
 
             item(key = "navigation") {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onOpenPlans, modifier = Modifier.fillMaxWidth()) { Text("Planos") }
-                    OutlinedButton(onClick = onOpenExercises, modifier = Modifier.fillMaxWidth()) { Text("Exercícios") }
-                    OutlinedButton(onClick = onOpenHistory, modifier = Modifier.fillMaxWidth()) { Text("Histórico") }
+                    OutlinedButton(onClick = onOpenPlans, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.ui_planos)) }
+                    OutlinedButton(onClick = onOpenExercises, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.ui_exercicios)) }
+                    OutlinedButton(onClick = onOpenHistory, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.history_title)) }
                 }
             }
         }
@@ -108,16 +114,16 @@ fun HomeScreen(
         // RF-104: o descarte exige confirmação explícita.
         AlertDialog(
             onDismissRequest = { draftToDiscard = null },
-            title = { Text("Descartar treino?") },
-            text = { Text("O treino em andamento será apagado e não aparecerá no histórico.") },
+            title = { Text(resources.getString(R.string.ui_descartar_treino)) },
+            text = { Text(resources.getString(R.string.ui_o_treino_em_andamento_sera_apagado_e_nao_aparecera_no_historico)) },
             confirmButton = {
                 TextButton(enabled = !state.isBusy, onClick = {
                     viewModel.discardDraft(sessionId)
                     draftToDiscard = null
-                }) { Text("Descartar") }
+                }) { Text(resources.getString(R.string.ui_descartar)) }
             },
             dismissButton = {
-                TextButton(onClick = { draftToDiscard = null }) { Text("Cancelar") }
+                TextButton(onClick = { draftToDiscard = null }) { Text(resources.getString(R.string.ui_cancelar)) }
             },
         )
     }
@@ -126,16 +132,23 @@ fun HomeScreen(
 /** RF-101 a RF-103: avisa sobre a sessão em andamento e permite retomar ou descartar. */
 @Composable
 private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, onDiscard: () -> Unit) {
+    val resources = LocalResources.current
     Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        ),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Treino em andamento", style = MaterialTheme.typography.titleMedium)
-            Text("${draft.workoutName} · iniciado às ${draft.startedAt.formatTime()}")
+            Text(resources.getString(R.string.ui_treino_em_andamento), style = MaterialTheme.typography.titleMedium)
+            Text(resources.getString(R.string.ui_1_s_iniciado_as_2_s, draft.workoutName, draft.startedAt.formatTime()))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onResume, enabled = enabled) { Text("Retomar") }
-                TextButton(onClick = onDiscard, enabled = enabled) { Text("Descartar") }
+                Button(onClick = onResume, enabled = enabled) { Text(resources.getString(R.string.ui_retomar)) }
+                TextButton(onClick = onDiscard, enabled = enabled,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)) {
+                    Text(resources.getString(R.string.ui_descartar))
+                }
             }
         }
     }
@@ -144,17 +157,19 @@ private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, on
 /** RF-07/RF-34: sem plano ativo, direciona para seleção ou criação. */
 @Composable
 private fun NoActivePlanCard(onOpenPlans: () -> Unit) {
+    val resources = LocalResources.current
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Nenhum plano ativo", style = MaterialTheme.typography.titleMedium)
-            Text("Selecione ou crie um plano para começar a treinar.")
-            Button(onClick = onOpenPlans) { Text("Ir para planos") }
+            Text(resources.getString(R.string.ui_nenhum_plano_ativo), style = MaterialTheme.typography.titleMedium)
+            Text(resources.getString(R.string.ui_selecione_ou_crie_um_plano_para_comecar_a_treinar))
+            Button(onClick = onOpenPlans) { Text(resources.getString(R.string.ui_ir_para_planos)) }
         }
     }
 }
 
 @Composable
 private fun WorkoutCard(workout: Workout, canStart: Boolean, onStart: () -> Unit) {
+    val resources = LocalResources.current
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -165,10 +180,10 @@ private fun WorkoutCard(workout: Workout, canStart: Boolean, onStart: () -> Unit
         ) {
             Column(Modifier.weight(1f)) {
                 Text(workout.name, style = MaterialTheme.typography.titleMedium)
-                Text("${workout.exercises.size} exercícios", style = MaterialTheme.typography.bodySmall)
+                Text(resources.getQuantityString(R.plurals.exercise_count, workout.exercises.size, workout.exercises.size), style = MaterialTheme.typography.bodySmall)
             }
             Button(onClick = onStart, enabled = canStart && workout.exercises.isNotEmpty()) {
-                Text("Iniciar")
+                Text(resources.getString(R.string.ui_iniciar))
             }
         }
     }

@@ -85,7 +85,7 @@ app/src/main/java/com/loggym/
     ├── onboarding/             # Tela + ViewModel (funcional)
     ├── home/                   # Tela + ViewModel (funcional)
     ├── exercises/  plans/  session/             # Biblioteca, planos e execução
-    ├── history/                               # Telas provisórias da Sprint 3
+    ├── history/                               # Lista/detalhe somente leitura com snapshots
     └── util/
 ```
 
@@ -157,8 +157,9 @@ O cronômetro não usa `ForegroundService`. Ao marcar uma série, o repositório
 | Banco, seed de 60 exercícios nativos e 4 planos prontos, regras de entrada (decisão S1-04) | ✅ Sprint 1 |
 | Onboarding, Home, biblioteca de exercícios, planos e editor de plano | ✅ Sprint 1 |
 | Testes: unidade, persistência e ViewModels (Robolectric), ponta a ponta na JVM e no emulador | ✅ Sprint 1 |
-| Execução: carga/repetições e tempo manual, descanso, rascunho e finalização | Implementada; 103 testes JVM e 14 instrumentados aprovados ([detalhes](docs/S2-IMPLEMENTACAO.md)) |
-| Histórico, polimento e release | 🚧 Sprint 3, com tela provisória |
+| Execução: carga/repetições e tempo manual, descanso, rascunho e finalização | Aceite individual formalizado em 24/10/2026; evidências de testes/CI registradas; aprovação coletiva pendente ([detalhes](docs/S2-IMPLEMENTACAO.md)) |
+| Histórico, polimento, acessibilidade e descanso | Implementados na Sprint 3; 115 testes JVM e 18 instrumentados aprovados; testes e pendências em [S3-IMPLEMENTACAO.md](docs/S3-IMPLEMENTACAO.md) |
+| Release assinado | Configuração externa pronta; chave definitiva/custódia e aceite humano pendentes ([procedimento](docs/RELEASE.md)) |
 
 O planejamento das próximas entregas está em [`docs/SPRINTS.md`](docs/SPRINTS.md).
 
@@ -167,3 +168,13 @@ O planejamento das próximas entregas está em [`docs/SPRINTS.md`](docs/SPRINTS.
 Distância (RF-136 parcial), fotos dos nativos e kg/lb continuam pendentes. Biblioteca/templates e convenção de carga já foram decididos em [S1-04](docs/decisoes/S1-04.md). Alarme de descanso com o app fechado segue fora do MVP.
 
 O banco está na versão **2**, com migração 1→2 que preserva planos, rascunhos e histórico. A sessão aceita campos vazios com aviso e usa debounce de 500 ms: uma morte antes do commit pode perder a última digitação ainda não salva. Consulte o [roteiro de recuperação](docs/reunioes/S2-06-recuperacao.md).
+
+## Validação e entrega da Sprint 3
+
+O histórico apresenta apenas sessões concluídas, com detalhe somente leitura e suporte a séries de carga/repetições e tempo manual. Valores ausentes são distintos de zero. O descanso aparece em faixa fixa; o aviso de conclusão some cerca de 5 s após o horário final, inclusive ao retomar. Banco Room v2 e regras da Sprint 2 preservados.
+
+```powershell
+.\gradlew.bat assembleDebug testDebugUnitTest lintDebug connectedDebugAndroidTest --no-configuration-cache --console=plain
+```
+
+Consulte a [matriz RF → código/teste](docs/RASTREABILIDADE.md), o [roteiro de homologação](docs/HOMOLOGACAO-S3.md), a [preparação de assinatura](docs/RELEASE.md) e a [demonstração](docs/DEMONSTRACAO.md). O usuário aprovou individualmente as correções finais no emulador em 24/10/2026, sem bloqueantes, e aprovou explicitamente o PR #12 e seu merge. A [política de PRs](docs/TAREFAS.md#aprovação-e-integração-de-pull-requests) exige revisão técnica do Codex, aprovação explícita do responsável na conversa, CI verde e condições de integração satisfeitas; revisão independente é opcional internamente e proteções efetivas do GitHub continuam obrigatórias. O [PR #12](https://github.com/antonio-carlosjr/LogGym/pull/12) registra a conclusão efetiva e o hash de merge. TalkBack, assinatura definitiva e ensaio humano permanecem pendentes; não foi atribuído aceite coletivo. Não há publicação automática nem autorização de merge para PRs futuros.

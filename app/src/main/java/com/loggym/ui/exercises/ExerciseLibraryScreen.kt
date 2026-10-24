@@ -1,5 +1,9 @@
 package com.loggym.ui.exercises
 
+import com.loggym.ui.components.LoadError
+import com.loggym.ui.components.OperationError
+import com.loggym.R
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,17 +60,19 @@ fun ExerciseLibraryScreen(
     onBack: () -> Unit,
     viewModel: ExerciseLibraryViewModel = hiltViewModel(),
 ) {
+    val resources = LocalResources.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val operationFailed by viewModel.operationFailed.collectAsStateWithLifecycle()
     val allExercises by viewModel.allExercises.collectAsStateWithLifecycle()
     val dialog by viewModel.dialog.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Exercícios") },
+                title = { Text(resources.getString(R.string.ui_exercicios)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = resources.getString(R.string.back))
                     }
                 },
             )
@@ -75,9 +81,9 @@ fun ExerciseLibraryScreen(
             ExtendedFloatingActionButton(
                 onClick = viewModel::openCreate,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("Novo exercício") },
+                text = { Text(resources.getString(R.string.ui_novo_exercicio)) },
                 // O FAB estendido limpa a semântica do rótulo; sem isto o leitor de tela não anuncia a ação.
-                modifier = Modifier.semantics { contentDescription = "Novo exercício" },
+                modifier = Modifier.semantics { contentDescription = resources.getString(R.string.ui_novo_exercicio) },
             )
         },
     ) { padding ->
@@ -89,7 +95,7 @@ fun ExerciseLibraryScreen(
             OutlinedTextField(
                 value = state.query,
                 onValueChange = viewModel::onQueryChange,
-                placeholder = { Text("Buscar exercício") },
+                placeholder = { Text(resources.getString(R.string.ui_buscar_exercicio)) },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 singleLine = true,
                 modifier = Modifier
@@ -98,10 +104,12 @@ fun ExerciseLibraryScreen(
             )
             MuscleGroupFilterRow(selected = state.groupFilter, onSelect = viewModel::onGroupFilterChange)
             HorizontalDivider()
+            if (operationFailed) OperationError(viewModel::dismissError)
+            if (state.failed) LoadError(viewModel::retry)
 
-            if (!state.isLoading && state.exercises.isEmpty()) {
+            if (!state.isLoading && !state.failed && state.exercises.isEmpty()) {
                 Text(
-                    "Nenhum exercício encontrado.",
+                    resources.getString(R.string.ui_nenhum_exercicio_encontrado),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(16.dp),
                 )
@@ -144,12 +152,13 @@ fun ExerciseLibraryScreen(
 
 @Composable
 private fun MuscleGroupFilterRow(selected: MuscleGroup?, onSelect: (MuscleGroup?) -> Unit) {
+    val resources = LocalResources.current
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
-            FilterChip(selected = selected == null, onClick = { onSelect(null) }, label = { Text("Todos") })
+            FilterChip(selected = selected == null, onClick = { onSelect(null) }, label = { Text(resources.getString(R.string.ui_todos)) })
         }
         items(MuscleGroup.entries) { group ->
             FilterChip(
@@ -164,6 +173,7 @@ private fun MuscleGroupFilterRow(selected: MuscleGroup?, onSelect: (MuscleGroup?
 /** RF-12: indica se o exercício é personalizado. */
 @Composable
 private fun ExerciseRow(exercise: Exercise, onClick: () -> Unit) {
+    val resources = LocalResources.current
     ListItem(
         headlineContent = { Text(exercise.name) },
         supportingContent = {
@@ -172,9 +182,9 @@ private fun ExerciseRow(exercise: Exercise, onClick: () -> Unit) {
         },
         trailingContent = {
             Text(
-                if (exercise.isCustom) "Personalizado" else "Nativo",
+                if (exercise.isCustom) resources.getString(R.string.ui_personalizado) else resources.getString(R.string.ui_nativo),
                 style = MaterialTheme.typography.labelSmall,
-                color = if (exercise.isCustom) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                color = if (exercise.isCustom) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
         modifier = Modifier.clickable(onClick = onClick),
@@ -189,6 +199,7 @@ private fun ExerciseDetailsDialog(
     onDelete: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val resources = LocalResources.current
     var note by remember(exercise.id, exercise.userNote) { mutableStateOf(exercise.userNote.orEmpty()) }
     val noteChanged = note.trim() != exercise.userNote.orEmpty()
 
@@ -201,34 +212,34 @@ private fun ExerciseDetailsDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    if (exercise.isCustom) "Exercício personalizado" else "Exercício nativo",
+                    if (exercise.isCustom) resources.getString(R.string.ui_exercicio_personalizado) else resources.getString(R.string.ui_exercicio_nativo),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 val groups = exercise.muscleGroups.labels()
                 if (groups.isNotEmpty()) Text(groups, style = MaterialTheme.typography.bodyMedium)
-                Text(if (exercise.trackingType == TrackingType.TIME) "Tempo (segundos)" else "Carga e repetições")
+                Text(if (exercise.trackingType == TrackingType.TIME) resources.getString(R.string.ui_tempo_segundos) else resources.getString(R.string.ui_carga_e_repeticoes))
                 exercise.description?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
                 // RF-133: observação do usuário, inclusive em nativos.
                 OutlinedTextField(
                     value = note,
                     onValueChange = { note = it.take(InputRules.USER_NOTE_MAX_LENGTH) },
-                    label = { Text("Minha observação") },
+                    label = { Text(resources.getString(R.string.ui_minha_observacao)) },
                     supportingText = { Text("${note.length}/${InputRules.USER_NOTE_MAX_LENGTH}") },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 if (noteChanged) {
-                    TextButton(onClick = { onSaveNote(note) }) { Text("Salvar observação") }
+                    TextButton(onClick = { onSaveNote(note) }) { Text(resources.getString(R.string.ui_salvar_observacao)) }
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Fechar") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(resources.getString(R.string.ui_fechar)) } },
         dismissButton = {
             // RF-18/RF-19: nativos não podem ser editados nem excluídos.
             if (exercise.isCustom) {
                 Row {
-                    TextButton(onClick = onDelete) { Text("Excluir") }
-                    TextButton(onClick = onEdit) { Text("Editar") }
+                    TextButton(onClick = onDelete) { Text(resources.getString(R.string.ui_excluir)) }
+                    TextButton(onClick = onEdit) { Text(resources.getString(R.string.ui_editar)) }
                 }
             }
         },
@@ -242,9 +253,10 @@ private fun ExerciseEditorDialog(
     onSave: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val resources = LocalResources.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (editor.editingId == null) "Novo exercício" else "Editar exercício") },
+        title = { Text(if (editor.editingId == null) resources.getString(R.string.ui_novo_exercicio) else resources.getString(R.string.ui_editar_exercicio)) },
         text = {
             Column(
                 Modifier.verticalScroll(rememberScrollState()),
@@ -253,29 +265,29 @@ private fun ExerciseEditorDialog(
                 OutlinedTextField(
                     value = editor.name,
                     onValueChange = { value -> onChange { it.copy(name = value) } },
-                    label = { Text("Nome") },
+                    label = { Text(resources.getString(R.string.ui_nome)) },
                     singleLine = true,
                     isError = editor.error != null,
                     supportingText = {
                         when (editor.error) {
-                            EditorError.BLANK_NAME -> Text("Informe um nome.")
-                            EditorError.DUPLICATE_NAME -> Text("Já existe um exercício com esse nome.")
-                            EditorError.NOT_EDITABLE -> Text("Este exercício não pode ser editado.")
-                            null -> Text("Ex.: Movimento + variação + equipamento")
+                            EditorError.BLANK_NAME -> Text(resources.getString(R.string.ui_informe_um_nome))
+                            EditorError.DUPLICATE_NAME -> Text(resources.getString(R.string.ui_ja_existe_um_exercicio_com_esse_nome))
+                            EditorError.NOT_EDITABLE -> Text(resources.getString(R.string.ui_este_exercicio_nao_pode_ser_editado))
+                            null -> Text(resources.getString(R.string.ui_ex_movimento_variacao_equipamento))
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Text("Tipo de registro (fixo após criar)")
+                Text(resources.getString(R.string.ui_tipo_de_registro_fixo_apos_criar))
                 TrackingType.entries.forEach { type ->
                     FilterChip(
                         selected = editor.trackingType == type,
                         enabled = editor.editingId == null,
                         onClick = { onChange { it.copy(trackingType = type) } },
-                        label = { Text(if (type == TrackingType.TIME) "Tempo (segundos)" else "Carga e repetições") },
+                        label = { Text(if (type == TrackingType.TIME) resources.getString(R.string.ui_tempo_segundos) else resources.getString(R.string.ui_carga_e_repeticoes)) },
                     )
                 }
-                Text("Grupos musculares (opcional)", style = MaterialTheme.typography.labelLarge)
+                Text(resources.getString(R.string.ui_grupos_musculares_opcional), style = MaterialTheme.typography.labelLarge)
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -296,14 +308,14 @@ private fun ExerciseEditorDialog(
                 OutlinedTextField(
                     value = editor.description,
                     onValueChange = { value -> onChange { it.copy(description = value) } },
-                    label = { Text("Descrição ou instrução (opcional)") },
+                    label = { Text(resources.getString(R.string.ui_descricao_ou_instrucao_opcional)) },
                     minLines = 2,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
-        confirmButton = { TextButton(onClick = onSave) { Text("Salvar") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        confirmButton = { TextButton(onClick = onSave) { Text(resources.getString(R.string.ui_salvar)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(resources.getString(R.string.ui_cancelar)) } },
     )
 }
 
@@ -314,16 +326,14 @@ private fun ConfirmDeleteDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val usage = when (confirm.planUsages) {
-        0 -> ""
-        1 -> "Ele está em 1 divisão de plano e será removido dela. "
-        else -> "Ele está em ${confirm.planUsages} divisões de planos e será removido delas. "
-    }
+    val resources = LocalResources.current
+    val usage = if (confirm.planUsages == 0) "" else resources.getQuantityString(
+        R.plurals.plan_usages, confirm.planUsages, confirm.planUsages)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Excluir \"${confirm.exercise.name}\"?") },
-        text = { Text("${usage}Os treinos já registrados no histórico não mudam.") },
-        confirmButton = { TextButton(onClick = onConfirm) { Text("Excluir") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        title = { Text(resources.getString(R.string.ui_excluir_1_s, confirm.exercise.name)) },
+        text = { Text(resources.getString(R.string.ui_1_sos_treinos_ja_registrados_no_historico_nao_mudam, usage)) },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(resources.getString(R.string.ui_excluir)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(resources.getString(R.string.ui_cancelar)) } },
     )
 }
