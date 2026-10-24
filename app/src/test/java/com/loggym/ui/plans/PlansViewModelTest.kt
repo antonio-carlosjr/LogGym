@@ -66,6 +66,7 @@ class PlansViewModelTest {
 
         viewModel.createFromTemplate("ppl")
         val ask = viewModel.dialog.awaitFirst { it is PlansDialog.AskActivate } as PlansDialog.AskActivate
+        viewModel.busy.awaitFirst { !it }
         viewModel.activate(ask.planId)
 
         val plans = viewModel.uiState.awaitFirst { state -> state.plans.any { it.id == ask.planId && it.isActive } }

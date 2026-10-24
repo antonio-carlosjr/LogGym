@@ -38,6 +38,8 @@ O código de produção manteve Room v2 e os mesmos contratos de escrita. A prim
 
 No smoke por adb, a primeira tentativa de kill ocorreu durante a transição para segundo plano e não encerrou o PID. A verificação aguardou a transição e confirmou a ausência do processo. A navegação restaurou diretamente a sessão; o teste então verificou também Voltar/Home/Retomar. Não foi necessário alterar a recuperação de produção.
 
+A [primeira CI da Sprint 3](https://github.com/antonio-carlosjr/LogGym/actions/runs/40125824880), no commit `2abd171`, encontrou uma falha JVM de sincronização e duas falhas instrumentadas de rolagem/visibilidade no API 35 (114/115 e 16/18 aprovados). Os testes de planos passaram a aguardar o término da escrita antes da próxima ação. Os testes da sessão passaram a rolar pela `LazyColumn` até compor a série e a localizar o aviso persistente dentro da lista, aguardando o commit do check. As asserções funcionais foram preservadas. A suíte JVM completa voltou a passar localmente; consultar o resultado subsequente do PR para a confirmação remota das correções. Nenhum código de produção foi alterado nessa correção de testes.
+
 ```powershell
 .\gradlew.bat assembleDebug testDebugUnitTest lintDebug connectedDebugAndroidTest --no-configuration-cache --console=plain
 ```

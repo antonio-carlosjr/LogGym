@@ -83,14 +83,30 @@ class SessionScreenTest {
         compose.onAllNodesWithText("Duração (s)").fetchSemanticsNodes().isNotEmpty()
     }
     private fun click(text: String) { compose.onNodeWithText(text).performClick() }
+    private fun scrollToSet(index: Int) {
+        // A LazyColumn pode ainda não ter composto a série fora da tela.
+        compose.onNode(hasScrollAction()).performScrollToNode(
+            hasContentDescription("Concluir série $index de Prancha"),
+        )
+    }
+    private fun completeSet(index: Int) {
+        scrollToSet(index)
+        compose.onNodeWithContentDescription("Concluir série $index de Prancha").performClick()
+        compose.waitUntil(10_000) {
+            val state = vm.uiState.value
+            !state.busy && state.session?.exercises?.single()?.sets?.get(index - 1)?.isCompleted == true
+        }
+    }
 
     @Test fun timedSetAndIncompleteSetFinishWithWarningAndNullPreserved() {
         waitForScreen()
         compose.onAllNodesWithText("Duração (s)")[0].performTextInput("45")
-        compose.onNodeWithContentDescription("Concluir série 1 de Prancha").performClick()
+        completeSet(1)
         compose.onAllNodesWithText("Duração (s)").onFirst().assertIsNotEnabled()
-        compose.onNodeWithContentDescription("Concluir série 2 de Prancha").performScrollTo().performClick()
-        compose.onAllNodesWithText("Série marcada com campos incompletos.").onFirst().assertIsDisplayed()
+        completeSet(2)
+        val warning = hasText("Série marcada com campos incompletos.") and hasAnyAncestor(hasScrollAction())
+        compose.onNode(hasScrollAction()).performScrollToNode(warning)
+        compose.onNode(warning).assertIsDisplayed()
         click("Finalizar treino")
         compose.onNodeWithText("1 série será salva com campos vazios.").assertIsDisplayed()
         click("Finalizar")
@@ -124,7 +140,7 @@ class SessionScreenTest {
 
     @Test fun restAndCompletedStateRemainAccessibleAcrossThemesAndLargeText() {
         waitForScreen()
-        compose.onNodeWithContentDescription("Concluir série 1 de Prancha").performClick()
+        completeSet(1)
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val output = File(context.getExternalFilesDir(null), "s3-preview").apply { mkdirs() }
         for (mode in listOf("light", "dark", "dynamic-large")) {
@@ -135,7 +151,8 @@ class SessionScreenTest {
             }
             compose.onNodeWithTag("rest-banner").assertIsDisplayed()
             compose.onNodeWithText("Pular").assertIsDisplayed()
-            compose.onNodeWithContentDescription("Concluir série 2 de Prancha").performScrollTo().assertIsDisplayed()
+            scrollToSet(2)
+            compose.onNodeWithContentDescription("Concluir série 2 de Prancha").assertIsDisplayed()
             compose.onNodeWithTag("rest-banner").assertIsDisplayed()
             val bounds = compose.onNodeWithText("Pular").fetchSemanticsNode().boundsInRoot
             val minimum = 48 * context.resources.displayMetrics.density - 1
