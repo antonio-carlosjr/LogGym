@@ -20,9 +20,24 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 
 - **Branch por tarefa:** `feature/<id>-descricao-curta`, por exemplo `feature/S1-05-lista-exercicios`.
 - **Commits:** atômicos, no padrão Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`…), em português.
-- **Pull requests:** todo PR para `main` precisa de revisão de outra pessoa e CI verde (a CI passa a existir depois da S1-02).
+- **Pull requests:** seguem a política de aprovação do responsável pelo projeto abaixo, vigente desde 24/10/2026. Revisão independente é opcional como regra interna; aprovação explícita do responsável e verificações técnicas aprovadas são obrigatórias para merge.
 - **Arquivos compartilhados:** mudanças em `domain/` ou em interfaces de repositório são avisadas à equipe antes, porque afetam as três áreas.
 - **Rastreabilidade:** a descrição do PR cita os RFs atendidos.
+
+### Aprovação e integração de Pull Requests
+
+1. O Codex implementa na branch correspondente, sem incluir alterações fora do escopo autorizado.
+2. Executa os testes automatizados e demais verificações pertinentes, tratando falhas antes da integração.
+3. Cria ou atualiza o PR destinado à `main`, com rastreabilidade e pendências documentadas.
+4. Realiza revisão técnica do diff e apresenta ao responsável um resumo das alterações, resultados dos testes e limitações.
+5. **Aguarda aprovação explícita do responsável na conversa antes de fazer merge.** Criar um PR, ter CI verde ou concluir a implementação não autoriza o merge de novos PRs. O responsável não precisa registrar aprovação nem executar o merge manualmente no GitHub, salvo exigência efetiva da plataforma. Registrar no PR a aprovação recebida, sua data e o escopo autorizado, sem simular uma revisão de outra pessoa.
+6. Após a aprovação, confere novamente o commit final, CI, conflitos, condições de integração e proteções efetivas do GitHub. Mudanças de escopo não cobertas pela aprovação exigem nova autorização; não presumir aprovação de novos PRs.
+7. Se todas as condições forem satisfeitas, o Codex integra por **merge commit**, conferindo o HEAD aprovado. Não usar force push, desativar proteções ou contornar exigências remotas. Se alguma proteção impedir o fluxo, informar exatamente a exigência e aguardar sua satisfação.
+8. Confirma o commit integrado e atualiza o repositório local por fast-forward, preservando alterações locais alheias à entrega. Consolida no PR o resultado da integração, CI e hash de merge; a documentação da sprint aponta para esse registro. Integração do código, homologação funcional e entrega/publicação do APK são estados separados.
+
+A revisão técnica pelo Codex e a aprovação do responsável substituem a antiga exigência interna de revisão por outra pessoa; não representam um review `APPROVED` de terceiros no GitHub. Revisões voluntárias continuam possíveis. Publicar release exige autorização própria.
+
+**Aplicação ao PR #12:** em 24/10/2026, o responsável aprovou expressamente o PR e seu merge, incluindo a atualização desta política na mesma branch. Essa autorização dispensa nova confirmação para esta integração, após a CI do commit atualizado e demais condições técnicas aprovadas. O resultado e o hash de merge são registrados no próprio PR.
 
 ---
 
@@ -83,7 +98,7 @@ A carga acima é a estimativa original, sem a ampliação de tempo. Não represe
 
 ## Sprint 3: Histórico e entrega
 
-Implementação e situação de cada entrega em [S3-IMPLEMENTACAO.md](S3-IMPLEMENTACAO.md). Tarefas originais preservadas; melhorias leves incorporadas ao polimento e à S3-UX-01. Aceite funcional individual das correções finais informado pelo usuário em 24/10/2026, sem bloqueantes. Encerramento técnico/merge autorizados, condicionados à CI final e revisão por outra pessoa. Aceite coletivo, TalkBack, assinatura definitiva sob custódia da equipe e ensaio humano permanecem pendentes, sem atribuir testes não relatados ao usuário.
+Implementação e situação de cada entrega em [S3-IMPLEMENTACAO.md](S3-IMPLEMENTACAO.md). Tarefas originais preservadas; melhorias leves incorporadas ao polimento e à S3-UX-01. Aceite funcional individual das correções finais informado pelo usuário em 24/10/2026, sem bloqueantes. O responsável aprovou expressamente o PR #12 e seu merge conforme a nova política, condicionados à CI do commit atualizado e às condições técnicas; consultar o registro de integração no PR. TalkBack, assinatura definitiva sob custódia da equipe e ensaio humano permanecem pendentes. Não foi atribuído aceite coletivo nem testes não relatados ao usuário; aprovação coletiva não é requisito interno para integrar o código pela política vigente.
 
 | ID | Tarefa | RFs | Responsável | Pts | Depende de |
 | :--- | :--- | :--- | :---: | :---: | :--- |

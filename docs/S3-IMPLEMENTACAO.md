@@ -4,7 +4,7 @@
 
 Código da Sprint 3 implementado, contemplando as tarefas originais e a melhoria leve S3-UX-01. Etapas humanas de acessibilidade, demonstração e release permanecem discriminadas abaixo. Sem alterações no esquema Room v2, nas regras de check manual, no pré-preenchimento ou nas prescrições. As propostas da Sprint 4 não foram implementadas. O aceite individual da Sprint 2 foi formalizado pelo usuário; a aprovação coletiva não impede o desenvolvimento local autorizado.
 
-**Estado:** implementação concluída e homologação funcional individual relatada/aprovada; encerramento técnico e merge autorizados pelo responsável, condicionados aos requisitos do repositório. Integração pelo [PR #12](https://github.com/antonio-carlosjr/LogGym/pull/12), que exige CI verde no commit final e revisão por outra pessoa conforme [TAREFAS.md](TAREFAS.md#combinados-da-equipe). Encerramento integral da sprint e entrega definitiva ainda têm pendências humanas; não há aceite coletivo presumido.
+**Estado:** implementação concluída e homologação funcional individual relatada/aprovada. Em 24/10/2026, o responsável aprovou explicitamente o PR #12 e autorizou seu merge, incluindo a nova política de integração. A aprovação na conversa e a revisão técnica pelo Codex substituem a antiga exigência interna de revisão independente, conforme [TAREFAS.md](TAREFAS.md#aprovação-e-integração-de-pull-requests). A CI do commit atualizado e demais condições técnicas continuam obrigatórias. O [registro de integração do PR #12](https://github.com/antonio-carlosjr/LogGym/pull/12) consolida o resultado efetivo, CI e hash de merge; a integração está concluída quando esse registro indicar `MERGED`. Entrega definitiva e verificações humanas específicas permanecem separadas, sem aceite coletivo presumido.
 
 | Tarefa | Implementação/evidência | Situação |
 | --- | --- | --- |
@@ -62,13 +62,19 @@ Data do registro: 24/10/2026. Responsável: usuário que realizou e relatou os t
 
 ### Pendências distintas da implementação
 
-- **Integração:** CI verde do commit final e revisão por outra pessoa, exigida nos combinados da equipe. Consultar estado, checks e revisões do PR #12 antes do merge. Autorização do autor não substitui a revisão independente.
-- **Aprovação coletiva:** não confirmada para a Sprint 3; a pendência coletiva da Sprint 2 também permanece registrada separadamente.
+- **Integração técnica:** aprovação explícita do responsável já recebida para o PR #12, incluindo a atualização da política. Conferir CI do commit atualizado, conflitos e proteções antes do merge commit. Resultado efetivo e versão integrada são registrados no PR; revisão independente não é mais uma exigência interna.
+- **Aprovação coletiva:** não foi atribuída à equipe para a Sprint 3; o registro coletivo da Sprint 2 permanece separado. Pela nova política, essa ausência não bloqueia a integração autorizada pelo responsável.
 - **S3-08:** teste humano de TalkBack e avaliação de acessibilidade ainda não confirmados.
 - **S3-05:** criação/custódia/backup da chave definitiva e homologação do APK com essa assinatura pendentes; a chave temporária não representa entrega definitiva.
 - **S3-10:** ensaio/apresentação humana ainda não confirmados.
 
-Esses itens impedem registrar todos os critérios originais de encerramento como concluídos, mesmo que o código venha a ser integrado. A integração autorizada é distinta do aceite coletivo e da entrega do APK definitivo. Não publicar release nesta etapa.
+As verificações humanas e de release ainda não realizadas impedem registrar todos os critérios originais de entrega como concluídos. O encerramento técnico e a integração autorizados pelo responsável são distintos desses itens, do aceite coletivo e da entrega do APK definitivo. Não publicar release nesta etapa.
+
+### Política e registro de integração — 24/10/2026
+
+O responsável substituiu expressamente a obrigatoriedade interna de revisão por outra pessoa pelo fluxo de revisão técnica do Codex, apresentação dos resultados e aprovação explícita na conversa. A autorização desta integração foi recebida depois da implementação, testes, revisão técnica e relato das pendências, e inclui as mudanças documentais da política no PR #12. Não autoriza merge automático de PRs futuros.
+
+A consulta remota anterior à integração retornou `main.protected=false`, sem regras aplicáveis de rulesets; merge commit está habilitado. Isso deve ser reconferido antes da operação. Nenhuma proteção será alterada ou contornada, e nenhuma revisão de terceiros será simulada. A conclusão da integração, o commit final da branch e o hash do merge na `main` ficam consolidados na descrição e no evento de merge do PR #12, evitando registrar antecipadamente uma operação ainda não executada.
 
 ## Artefato de assinatura de validação
 

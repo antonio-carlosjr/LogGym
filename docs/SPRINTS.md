@@ -58,11 +58,11 @@ Os dois critérios foram confirmados na validação manual informada pelo usuár
 
 ---
 
-## Sprint 3: Histórico, robustez e entrega — código concluído; aceite funcional individual; integração em revisão
+## Sprint 3: Histórico, robustez e entrega — código concluído; aceite funcional individual; integração aprovada pelo responsável
 
 **Objetivo:** consultar o passado com isolamento garantido e entregar um MVP polido. As dez tarefas originais e S3-UX-01 compõem 32 pontos (Dev 1: 10, Dev 2: 11, Dev 3: 11), com reserva de 7 pontos sobre a capacidade conservadora de 39. Implementação, evidências e pendências estão em [S3-IMPLEMENTACAO.md](S3-IMPLEMENTACAO.md).
 
-Em 24/10/2026, o usuário aprovou as correções escuras da Home e da faixa, o aviso de 5 segundos e o funcionamento que testou, sem bloqueantes. Autorizou encerramento técnico e merge condicionados às regras do repositório. O PR #12 depende de CI final verde e revisão por outra pessoa. Aceite coletivo, TalkBack, APK com assinatura definitiva e ensaio humano continuam pendentes; não registrar o encerramento integral ou publicação como realizados.
+Em 24/10/2026, o usuário aprovou as correções escuras da Home e da faixa, o aviso de 5 segundos e o funcionamento que testou, sem bloqueantes. Aprovou explicitamente o PR #12 e seu merge, incluindo a nova política de aprovação pelo responsável na conversa. CI final verde e condições técnicas continuam obrigatórias; revisão independente não é mais requisito interno. O resultado efetivo e o hash da integração são consolidados no [PR #12](https://github.com/antonio-carlosjr/LogGym/pull/12). TalkBack, APK com assinatura definitiva e ensaio humano continuam pendentes; não registrar esses critérios nem publicação como realizados. Não há aceite coletivo atribuído à equipe.
 
 | Item | RFs | Onde |
 | :--- | :--- | :--- |
