@@ -91,7 +91,7 @@ class Sprint4FlowTest {
     private fun matching(text: String) = hasText(text) or hasContentDescription(text)
     private fun exists(text: String) = compose.onAllNodes(matching(text)).fetchSemanticsNodes().isNotEmpty()
     private fun waitFor(text: String) {
-        compose.waitUntil(15_000) {
+        try { compose.waitUntil(15_000) {
             exists(text) || run {
                 val scrollables = compose.onAllNodes(hasScrollAction())
                 repeat(scrollables.fetchSemanticsNodes().size) { index ->
@@ -99,6 +99,10 @@ class Sprint4FlowTest {
                 }
                 exists(text)
             }
+        } } catch (error: ComposeTimeoutException) {
+            val roots = compose.onAllNodes(isRoot())
+            val tree = roots.fetchSemanticsNodes().indices.joinToString("\n") { roots[it].printToString() }
+            throw AssertionError("Não encontrado: $text\n$tree", error)
         }
     }
     private fun click(text: String) {
