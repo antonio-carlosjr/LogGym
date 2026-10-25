@@ -15,8 +15,17 @@ data class SettingsUiState(val settings: UserSettings? = null, val failed: Boole
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class SettingsViewModel @Inject constructor(private val preferences: UserPreferencesRepository) : ViewModel() {
-    private val operations = UiOperation(viewModelScope)
+class SettingsViewModel @Inject constructor(private val preferences: UserPreferencesRepository,
+    private val persistence: com.loggym.domain.backup.PersistenceCoordinator = com.loggym.domain.backup.PersistenceCoordinator(),
+    private val backup: com.loggym.domain.backup.BackupRepository? = null,
+) : ViewModel() {
+    val backupState = backup?.state ?: MutableStateFlow(com.loggym.domain.backup.BackupState())
+    fun export(mode: com.loggym.domain.backup.BackupMode) { backup?.prepareExport(mode) }
+    fun writeExport(token: String, uri: String?) { backup?.writeExport(token, uri) }
+    fun importBackup(uri: String) { backup?.validateImport(uri) }
+    fun confirmImport(token: String) { backup?.confirmImport(token) }
+    fun cancelBackup() { backup?.cancel() }
+    private val operations = UiOperation(viewModelScope, persistence)
     val busy = operations.busy
     val operationFailed = operations.failed
     fun dismissError() = operations.dismissError()

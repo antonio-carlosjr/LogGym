@@ -1,4 +1,24 @@
 <resources>
+    <string name="backup_title">Backup e restauração</string>
+    <string name="backup_help">Completo: inclui planos, exercícios, configurações, histórico e treino em andamento. Sem histórico: inclui planos, exercícios e configurações, sem sessões.</string>
+    <string name="backup_plaintext">Este arquivo não está criptografado. Quem tiver acesso a ele poderá ler seus dados.</string>
+    <string name="backup_export">Exportar backup</string>
+    <string name="backup_import">Importar backup</string>
+    <string name="backup_full">Completo</string>
+    <string name="backup_without_history">Sem histórico</string>
+    <string name="backup_working">Processando backup. Aguarde a conclusão.</string>
+    <string name="backup_restoring">Restaurando dados. Aguarde a conclusão.</string>
+    <string name="backup_recovering">Verificando e recuperando a integridade dos dados. Aguarde.</string>
+    <string name="backup_success">Operação concluída com sucesso.</string>
+    <string name="backup_failed">Não foi possível concluir a operação. Confira o arquivo, os valores digitados no treino e o armazenamento e tente novamente.</string>
+    <string name="backup_rolled_back">A restauração falhou. Os dados anteriores foram preservados.</string>
+    <string name="backup_restore_confirm">Restaurar backup?</string>
+    <string name="backup_summary">Exercícios personalizados: %1$d. Planos: %2$d. Divisões: %3$d. Treinos concluídos: %4$d. Séries: %5$d.</string>
+    <string name="backup_has_draft">Inclui treino em andamento.</string>
+    <string name="backup_no_draft">Não inclui treino em andamento.</string>
+    <string name="backup_replace_warning">Todos os dados e configurações atuais serão substituídos. Não haverá mesclagem.</string>
+    <string name="backup_remove_sessions">O histórico e o treino em andamento atuais serão removidos.</string>
+    <string name="backup_replace">Substituir dados</string>
     <string name="app_name">LogGym</string>
     <string name="back">Voltar</string>
     <string name="retry">Tentar novamente</string>

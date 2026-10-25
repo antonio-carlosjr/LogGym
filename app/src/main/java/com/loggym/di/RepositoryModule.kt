@@ -20,6 +20,10 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindBackupRepository(impl: com.loggym.data.backup.BackupRepositoryImpl): com.loggym.domain.backup.BackupRepository
+
+    @Binds
+    @Singleton
     abstract fun bindExerciseRepository(impl: ExerciseRepositoryImpl): ExerciseRepository
 
     @Binds

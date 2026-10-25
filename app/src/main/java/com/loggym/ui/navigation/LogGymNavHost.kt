@@ -26,8 +26,14 @@ import com.loggym.ui.settings.SettingsScreen
 fun LogGymNavHost(
     startDestination: Any,
     navController: NavHostController = rememberNavController(),
+    openSettings: Boolean = false,
+    onSettingsOpened: () -> Unit = {},
 ) {
     val navigateBack: () -> Unit = { navController.popBackStack() }
+
+    LaunchedEffect(openSettings) {
+        if (openSettings) { navController.navigate(SettingsRoute); onSettingsOpened() }
+    }
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable<OnboardingRoute> {
