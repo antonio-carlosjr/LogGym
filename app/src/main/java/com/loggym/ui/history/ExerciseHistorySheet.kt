@@ -13,7 +13,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.loggym.R
 import com.loggym.domain.model.summary
-import com.loggym.ui.util.formatSessionDate
+import androidx.compose.ui.text.style.TextOverflow
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,11 +29,16 @@ fun ExerciseHistorySheet(name: String, state: ExerciseHistoryUiState, onClose: (
         LazyColumn(Modifier.fillMaxWidth().weight(1f, fill = false), contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             if (state.entries.isEmpty() && !state.loading && !state.failed) item { Text(stringResource(R.string.exercise_history_empty)) }
-            state.entries.forEach { entry ->
+            state.entries.forEachIndexed { sessionIndex, entry ->
+                if (sessionIndex > 0) item(key = "divider-${entry.session.id}") {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
                 item(key = "session-${entry.session.id}") {
-                    Text(entry.session.startedAt.formatSessionDate(), style = MaterialTheme.typography.titleMedium)
-                    Text(entry.session.planName)
-                    Text(entry.session.workoutName)
+                    Text(DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.systemDefault())
+                        .format(entry.session.startedAt), style = MaterialTheme.typography.titleMedium)
+                    val context = listOf(entry.session.planName, entry.session.workoutName)
+                        .map { it.trim() }.filter { it.isNotEmpty() }.joinToString(" | ")
+                    if (context.isNotEmpty()) Text(context, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 entry.occurrences.forEachIndexed { index, occurrence ->
                     item(key = "occurrence-${occurrence.id}") {

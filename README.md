@@ -207,4 +207,4 @@ Configurações oferece conclusão automática, **desativada por padrão**. Apó
 
 O backup público passa a **v2**, incluindo a preferência. Arquivos públicos v1 deixam de ser importáveis, com mensagem de incompatibilidade; gere um novo backup. Dados locais existentes continuam preservados, Room permanece v3. A recuperação privada de undo S5 pendente é mantida, assim como journal, rollback e consistência Room/DataStore. Não há criptografia.
 
-Escopo autorizado: 27 pontos e 12 de reserva. [Implementação/resultados](docs/S6-IMPLEMENTACAO.md), [contratos](docs/decisoes/S6-execucao.md) e [homologação pendente](docs/HOMOLOGACAO-S6.md). Navegação inferior de cinco abas fica candidata à S7; não foi implementada.
+Escopo autorizado: 27 pontos e 12 de reserva. [Implementação/resultados](docs/S6-IMPLEMENTACAO.md), [contratos](docs/decisoes/S6-execucao.md) e [homologação individual aprovada; reteste visual pendente](docs/HOMOLOGACAO-S6.md). Navegação inferior de cinco abas fica candidata à S7; não foi implementada.

@@ -1,6 +1,10 @@
 # Homologação da Sprint 6
 
-**Pendente pelo responsável.** Os aceites da S5, inclusive seu refinamento visual, não aprovam a S6. Registrar commit/versão, dispositivo/API, data, responsável, resultado e evidências. Automação e homologação humana são registros distintos.
+**Homologação funcional individual aprovada pelo responsável em 25/10/2026**, conforme relato na conversa, sem defeitos bloqueantes. Referência anterior aos refinamentos finais: commit `7831c64`, PR #15. Dispositivo/API e evidências adicionais não foram informados neste relato.
+
+Foram aprovados os 11 grupos: configuração da marcação automática; pré-preenchimento e conclusão automática; teclado e troca de séries; valores zero e duração; desmarcação manual; histórico individual; histórico sem interferência; borracha e persistência; regressão da execução; backup v2; aparência e acessibilidade nos cenários efetivamente testados. Esse aceite não presume todos os subcenários do roteiro abaixo, TalkBack abrangente, testes controlados de interrupção/reversão ou aprovação coletiva.
+
+**Reteste visual pendente:** painel com data sem horário, plano/divisão na mesma linha e divisor somente entre sessões. Conferir temas claro/escuro, nomes longos/ausentes, várias sessões e continuidade de campos, posição e descanso ao fechar. Os refinamentos foram solicitados após o aceite funcional e ainda não foram homologados pelo responsável. Merge manual e release permanecem separados.
 
 ## Preparação
 

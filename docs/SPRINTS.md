@@ -113,7 +113,7 @@ O responsável confirmou a aprovação individual, incluindo o refinamento visua
 
 Alternativa A autorizada: **27 pontos e 12 de reserva**, áreas técnicas Dev 1: 9; Dev 2: 10; Dev 3: 8. Histórico paginado por identidade/tipo em painel sobre a execução; automação opcional desativada por padrão, após edição efetiva e conclusão intencional. Backup público vigente v2, sem importação pública v1; recuperação privada de undo S5 pendente preservada. Room permanece v3, sem migração ou redefinição dos dados locais.
 
-Ver [implementação](S6-IMPLEMENTACAO.md), [decisão técnica](decisoes/S6-execucao.md) e [homologação pendente](HOMOLOGACAO-S6.md). Codex entrega PR; responsável homologa e faz merge manualmente no GitHub. Sem navegação inferior ou release nesta entrega.
+Ver [implementação](S6-IMPLEMENTACAO.md), [decisão técnica](decisoes/S6-execucao.md) e [homologação individual aprovada; reteste visual pendente](HOMOLOGACAO-S6.md). Codex entrega PR; responsável homologa e faz merge manualmente no GitHub. Sem navegação inferior ou release nesta entrega.
 
 ## Proposta posterior — navegação principal inferior
 

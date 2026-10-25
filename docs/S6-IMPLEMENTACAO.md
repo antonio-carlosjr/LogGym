@@ -34,7 +34,7 @@ Após o último refinamento de rótulo, build/lint foram repetidos sem erros (ci
 adb -s emulator-5560 shell am instrument -w com.loggym.test/com.loggym.HiltTestRunner
 ```
 
-Resultados automatizados não representam homologação individual da S6; [roteiro manual](HOMOLOGACAO-S6.md) permanece pendente. Merge e release não foram realizados.
+O responsável aprovou individualmente os 11 grupos funcionais em 25/10/2026, sem bloqueantes, conforme [registro e roteiro](HOMOLOGACAO-S6.md). O refinamento visual posterior do painel aguarda reteste específico. Merge e release não foram realizados.
 
 ## Implementação e rastreabilidade
 
@@ -51,4 +51,12 @@ O fluxo Compose combina preferência, pré-preenchimento sem marcação, ediçã
 
 Banco e esquema exportado continuam v3, sem alteração de entidade/índice ou migração; biblioteca Room e limites de backup preservados. Mutação passa pelos contratos existentes e pelo coordenador; leitura histórica usa snapshots, consulta em transação e cursor estável. Nenhuma navegação inferior, criptografia, chave privada, credencial ou arquivo local do Gradle foi incluído.
 
-Homologação funcional S6, TalkBack específico das novas telas e demais cenários manuais aguardam o responsável. Assinatura definitiva/custódia e ensaio anteriores continuam separados. O responsável homologa e integra o PR manualmente no GitHub.
+Homologação funcional individual S6 aprovada nos cenários relatados; refinamento visual final aguarda reteste. Não se presume TalkBack abrangente ou outros cenários humanos não confirmados. Assinatura definitiva/custódia e ensaio anteriores continuam separados. O responsável homologa e integra o PR manualmente no GitHub.
+
+## Refinamento visual após homologação individual — 25/10/2026
+
+No painel individual, a data passa a exibir somente `dd/MM/yyyy`; plano e divisão históricos compartilham uma linha, com elipse para nomes longos e sem separador quando falta um dos nomes (linha omitida se ambos vazios). Um divisor `outlineVariant` separa somente sessões, inclusive entre páginas, com o espaçamento existente. Nenhuma alteração em timestamps, ordenação, paginação, snapshots, automação ou persistência. O histórico geral conserva sua apresentação anterior.
+
+CI anterior aprovada em `7831c64`: [execução](https://github.com/antonio-carlosjr/LogGym/actions/runs/40223307752). Resultados das verificações do refinamento serão registrados no PR #15. Pendências humanas anteriores, aprovação coletiva e merge não são considerados concluídos.
+
+Verificação local do refinamento: `assembleDebug testDebugUnitTest lintDebug assembleDebugAndroidTest --max-workers=1 --no-configuration-cache --console=plain` aprovado; 192 testes JVM, zero falhas/erros/ignorados. Lint sem erros (cinco avisos existentes de dependências). APK de teste compilado; instrumentados serão executados pela CI em API 35 no novo HEAD, sem presumir execução local nesta rodada.

@@ -209,6 +209,6 @@ Base `35370e2`, integração do PR #14 e aprovação final da S5 confirmadas pel
 | S6-09 | Regressão combinada, documentação e homologação | 3 | Dev 3 |
 | Total | Reserva adicional: 12 sobre referência de 39 | **27** | **Dev 1: 9; Dev 2: 10; Dev 3: 8** |
 
-Responsabilidades técnicas, sem pressupor três profissionais simultâneos ou velocidade fixa em duas semanas. A preferência/formato passou de 5 para 3 pontos ao retirar importação pública v1, mantendo integralmente recuperação e testes do formato vigente. Contratos/critério de aceite em [decisão S6](decisoes/S6-execucao.md), resultados em [implementação](S6-IMPLEMENTACAO.md), [homologação](HOMOLOGACAO-S6.md) ainda pendente.
+Responsabilidades técnicas, sem pressupor três profissionais simultâneos ou velocidade fixa em duas semanas. A preferência/formato passou de 5 para 3 pontos ao retirar importação pública v1, mantendo integralmente recuperação e testes do formato vigente. Contratos/critério de aceite em [decisão S6](decisoes/S6-execucao.md), resultados em [implementação](S6-IMPLEMENTACAO.md), [homologação](HOMOLOGACAO-S6.md) individual aprovada, com reteste visual final pendente.
 
 UX-NAV-01 é candidata à S7 (13 pontos; referência anterior 11), com cinco abas e Voltar das raízes para Início. Não implementá-la nem usar a reserva automaticamente. Compactação, preferências individuais, fotos, distância e kg/lb permanecem separados.
