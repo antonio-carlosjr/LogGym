@@ -30,12 +30,12 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 2. Executa os testes automatizados e demais verificações pertinentes, tratando falhas antes da integração.
 3. Cria ou atualiza o PR destinado à `main`, com rastreabilidade e pendências documentadas.
 4. Realiza revisão técnica do diff e apresenta ao responsável um resumo das alterações, resultados dos testes e limitações.
-5. **Aguarda aprovação explícita do responsável na conversa antes de fazer merge.** Criar um PR, ter CI verde ou concluir a implementação não autoriza o merge de novos PRs. O responsável não precisa registrar aprovação nem executar o merge manualmente no GitHub, salvo exigência efetiva da plataforma. Registrar no PR a aprovação recebida, sua data e o escopo autorizado, sem simular uma revisão de outra pessoa.
-6. Após a aprovação, confere novamente o commit final, CI, conflitos, condições de integração e proteções efetivas do GitHub. Mudanças de escopo não cobertas pela aprovação exigem nova autorização; não presumir aprovação de novos PRs.
-7. Se todas as condições forem satisfeitas, o Codex integra por **merge commit**, conferindo o HEAD aprovado. Não usar force push, desativar proteções ou contornar exigências remotas. Se alguma proteção impedir o fluxo, informar exatamente a exigência e aguardar sua satisfação.
-8. Confirma o commit integrado e atualiza o repositório local por fast-forward, preservando alterações locais alheias à entrega. Consolida no PR o resultado da integração, CI e hash de merge; a documentação da sprint aponta para esse registro. Integração do código, homologação funcional e entrega/publicação do APK são estados separados.
+5. **O responsável realiza a homologação funcional e o merge manualmente no GitHub.** O Codex entrega o PR e o relatório; não executa merge nem habilita auto-merge. Política vigente por decisão expressa do responsável em 25/10/2026.
+6. A integração deve usar merge commit, com CI verde, HEAD conferido e proteções satisfeitas. Não usar force push, desativar proteções ou simular revisões.
+7. Aprovação de planejamento autoriza somente o escopo delegado, não publicação de release. Homologação individual, aprovação coletiva, integração e entrega são registros distintos.
+8. Preservar o resultado efetivo e hash de merge no PR. Sincronização local após integração depende do trabalho solicitado, preservando alterações locais alheias à entrega.
 
-A revisão técnica pelo Codex e a aprovação do responsável substituem a antiga exigência interna de revisão por outra pessoa; não representam um review `APPROVED` de terceiros no GitHub. Revisões voluntárias continuam possíveis. Publicar release exige autorização própria.
+Revisão independente continua opcional internamente. Os registros abaixo descrevem autorizações históricas; não autorizam o Codex a integrar novos PRs pela política atual.
 
 **Aplicação ao PR #12:** em 24/10/2026, o responsável aprovou expressamente o PR e seu merge, incluindo a atualização desta política na mesma branch. Essa autorização dispensa nova confirmação para esta integração, após a CI do commit atualizado e demais condições técnicas aprovadas. O resultado e o hash de merge são registrados no próprio PR.
 
