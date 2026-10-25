@@ -60,6 +60,7 @@ class TimedExerciseFlowTest {
         val editorVm = retain(PlanEditorViewModel(SavedStateHandle(mapOf("planId" to plan)), plans, exercises))
         var sessionVm: SessionViewModel? = null
         var finished = false
+        val historyVm = retain(com.loggym.ui.history.ExerciseHistoryViewModel(sessions))
         compose.setContent {
             var stage by remember { mutableStateOf(0) }
             MaterialTheme {
@@ -70,7 +71,7 @@ class TimedExerciseFlowTest {
                         sessionVm = retain(SessionViewModel(sessions, clock))
                         stage = 2
                     }, onCreateExercise = { error("Cadastro contextual pertence ao Sprint4FlowTest") }, viewModel = editorVm)
-                    2 -> SessionScreen(onBack = { finished = true; stage = 3 }, viewModel = sessionVm!!)
+                    2 -> SessionScreen(onBack = { finished = true; stage = 3 }, viewModel = sessionVm!!, historyViewModel = historyVm)
                 }
             }
         }

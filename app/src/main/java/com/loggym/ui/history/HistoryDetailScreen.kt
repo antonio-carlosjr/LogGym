@@ -12,8 +12,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.loggym.R
-import com.loggym.domain.logic.WeightFormat
-import com.loggym.domain.model.TrackingType
 import com.loggym.domain.model.summary
 import com.loggym.ui.util.formatSessionDate
 import com.loggym.ui.util.sessionDurationSeconds
@@ -46,16 +44,7 @@ fun HistoryDetailScreen(onBack: () -> Unit, viewModel: HistoryDetailViewModel = 
                         item(key = "set-${set.id}") {
                             Card(Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Text(stringResource(R.string.set_number, index + 1), style = MaterialTheme.typography.titleSmall)
-                                    if (exercise.trackingType == TrackingType.TIME) {
-                                        Text(if (set.durationSeconds == null) stringResource(R.string.history_set_duration_missing)
-                                            else stringResource(R.string.history_set_duration, set.durationSeconds.toString()))
-                                    } else {
-                                        Text(if (set.weightKg == null) stringResource(R.string.history_set_weight_missing)
-                                            else stringResource(R.string.history_set_weight, WeightFormat.format(set.weightKg)))
-                                        Text(if (set.reps == null) stringResource(R.string.history_set_reps_missing)
-                                            else stringResource(R.string.history_set_reps, set.reps.toString()))
-                                    }
+                                    HistorySetContent(index + 1, set, exercise.trackingType)
                                 }
                             }
                         }

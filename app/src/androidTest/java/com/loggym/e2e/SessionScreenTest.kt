@@ -64,12 +64,13 @@ class SessionScreenTest {
         plans.addExerciseToWorkout(workout, id, ExerciseTarget.Timed(2, 30, Duration.ofSeconds(60)))
         sessions.startSession(workout)
         vm = retain(SessionViewModel(sessions, clock))
+        val historyVm = retain(com.loggym.ui.history.ExerciseHistoryViewModel(sessions))
         compose.setContent {
             var open by remember { mutableStateOf(true) }
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale.value)) {
             LogGymTheme(darkTheme = dark.value, dynamicColor = dynamic.value) {
-                if (open) SessionScreen(onBack = { left = true; open = false }, viewModel = vm)
+                if (open) SessionScreen(onBack = { left = true; open = false }, viewModel = vm, historyViewModel = historyVm)
                 else Button(onClick = { vm = retain(SessionViewModel(sessions, clock)); open = true }) { Text("Retomar teste") }
             }
             }
