@@ -20,7 +20,7 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 
 - **Branch por tarefa:** `feature/<id>-descricao-curta`, por exemplo `feature/S1-05-lista-exercicios`.
 - **Commits:** atômicos, no padrão Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`…), em português.
-- **Pull requests:** seguem a política de aprovação do responsável pelo projeto abaixo, vigente desde 24/10/2026. Revisão independente é opcional como regra interna; aprovação explícita do responsável e verificações técnicas aprovadas são obrigatórias para merge.
+- **Pull requests:** Codex prepara a entrega; responsável homologa e realiza o merge manualmente no GitHub, conforme política vigente abaixo. Revisão independente é opcional internamente; verificações técnicas e proteções efetivas continuam obrigatórias.
 - **Arquivos compartilhados:** mudanças em `domain/` ou em interfaces de repositório são avisadas à equipe antes, porque afetam as três áreas.
 - **Rastreabilidade:** a descrição do PR cita os RFs atendidos.
 
@@ -166,19 +166,20 @@ Situação, testes e limites: [S4-IMPLEMENTACAO.md](S4-IMPLEMENTACAO.md). Aceite
 
 Em 25/10/2026, o responsável aprovou individualmente os sete grupos funcionais da S4, sem defeitos bloqueantes, e posteriormente autorizou expressamente o merge commit do PR #13, a sincronização local e o registro da CI pós-merge. Implementação e homologação funcional individual concluídas; o [registro de integração do PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolida execução efetiva, HEAD integrado, hash do merge, ancestralidade e CI. Não registrar aprovação coletiva ou cumprimento de critérios humanos/release não confirmados. A autorização cobre este encerramento documental; não autoriza novos PRs, publicação de release ou implementação da S5.
 
-## Sprint 5 candidata — backup sem criptografia
+## Sprint 5 — backup e restauração (autorizada em 25/10/2026)
 
-Estimativa preservada de **26 pontos**. Proteção por senha foi retirada do escopo comprometido por decisão expressa do responsável. O backup será sem criptografia, com aviso claro de que os dados ficam legíveis e devem ser guardados/compartilhados conscientemente. Não implementar backup na Sprint 4.
+Compromisso refinado de **34 pontos e 5 de reserva**; substitui a candidatura de 26 após detalhar coordenação/flush e recuperação Room/DataStore. Sem senha/criptografia. Os papéis são áreas técnicas, sem pressupor três pessoas simultâneas. Execução autônoma em branch, commits lógicos e PR consolidado; responsável homologa e faz merge manualmente no GitHub.
 
-| ID | Entrega candidata | Pontos |
-| --- | --- | ---: |
-| S5-01 | Formato versionado, modalidades e compatibilidade | 3 |
-| S5-02 | Exportação consistente e coordenação das gravações | 5 |
-| S5-03 | Validação completa e prévia da importação | 5 |
-| S5-04 | Substituição Room/DataStore e recuperação após falhas | 8 |
-| S5-05 | Seleção de arquivos, confirmação, aviso de ausência de criptografia e testes integrados | 5 |
+| ID | Entrega | Pontos | Responsabilidade técnica |
+| --- | --- | ---: | --- |
+| S5-01 | JSONL versionado, modalidades, integridade e compatibilidade | 3 | Dev 1: 1; Dev 2: 2 |
+| S5-02 | Coordenador, gerações, participantes, flush aguardável e captura consistente | 8 | Dev 1: 5; Dev 2: 3 |
+| S5-03 | Staging privado, validação integral e resumo | 5 | Dev 2 |
+| S5-04 | Migração/journal, aplicação, reversão e inicialização segura | 13 | Dev 1: 6; Dev 2: 2; Dev 3: 5 |
+| S5-05 | Configurações/SAF, acessibilidade, regressão, AGENTS e documentação | 5 | Dev 3 |
+| Total | Reserva adicional: 5 | **34** | **Dev 1: 12; Dev 2: 12; Dev 3: 10** |
 
-Completo inclui histórico e rascunho; sem histórico inclui planos, divisões, prescrições, exercícios e configurações, sem nenhuma sessão. Ambos substituem tudo após validação integral e confirmação: importar sem histórico também remove histórico e rascunho atuais, com aviso explícito. Preservar IDs, referências fracas históricas, snapshots, valores nulos/zero e integridade entre Room/DataStore. Não apagar dados antes da validação; preparar recuperação durável e impedir escritas tardias após restauração. Checksum não representa confidencialidade/autenticidade. Um plano técnico próprio precederá a execução da Sprint 5.
+Completo inclui histórico e rascunho; sem histórico não inclui sessões e remove as atuais ao restaurar, com aviso explícito. Ambas as modalidades aguardam edições válidas inclusive debounce; não confirmam formulários com Salvar explícito. Drenar participantes antes da exclusão global. IDs/snapshots/zeros/nulos preservados. Migração Room 2→3 acrescenta journal; undo durável permite reverter dados e preferências. Não presumir atomicidade conjunta Room/DataStore nem liberar telas com recuperação pendente. Checksum não autentica nem cifra. Contratos em [decisão S5](decisoes/S5-backup.md), resultados em [implementação](S5-IMPLEMENTACAO.md) e aceite pendente em [homologação](HOMOLOGACAO-S5.md).
 
 ## Backlog posterior preservado
 

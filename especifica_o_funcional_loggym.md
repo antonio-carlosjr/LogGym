@@ -416,3 +416,18 @@ RF-53 e RF-142 seguem as regras fixo/faixa e descanso livre aprovadas em S1-04. 
 RF-65 a RF-72 descrevem o pré-preenchimento quando RF-150 está ativado. Desativado, novos valores começam nulos e checks desmarcados. Retomar/limpar não reaplica histórico. Adicionar série extra mantém a cópia da última série do treino atual. Tempo manual preserva suas regras; distância, fotos, kg/lb, histórico individual e check automático não foram implementados nesta sprint.
 
 Backup completo/sem histórico permanece planejado para S5, sem criptografia e com aviso claro ao usuário. Nenhuma exportação/importação foi implementada na S4.
+
+## 24. Backup e restauração — Sprint 5
+
+Refinamento aprovado em 25/10/2026. Regras e limites na [decisão S5](docs/decisoes/S5-backup.md), preservando o escopo histórico das sprints anteriores.
+
+| ID | Requisito |
+| --- | --- |
+| RF-153 | Backup e restauração nas Configurações via SAF, sem permissões amplas ou nova navegação principal. |
+| RF-154 | Exportar completo (catálogo/notas, personalizados, planos, prescrições, preferências, histórico/rascunho) ou sem histórico (nenhuma sessão/série executada), em formato lógico versionado. |
+| RF-155 | Aguardar autossalvamentos válidos inclusive debounce antes da captura de ambas as modalidades; não confirmar formulários explícitos nem alterar checks/descanso. |
+| RF-156 | Validar integralmente entrada externa e apresentar resumo antes da confirmação da substituição total; sem histórico avisa que remove histórico/rascunho atuais. |
+| RF-157 | Repor estado anterior em falha/interrupção antes de COMMITTED, incluindo Room/DataStore, com journal/undo duráveis e inicialização bloqueada durante recuperação pendente. |
+| RF-158 | Avisar que o arquivo não é criptografado e pode ser lido por quem tiver acesso; sem senha nesta versão. |
+| RF-159 | Preservar IDs/pisos de alocação, relações fortes/fracas, snapshots, extras, posições, preferências e nulo/zero. |
+| RF-160 | Transferências manuais com estados/cancelamento/erros, tolerância à rotação e prevenção de callbacks duplicados; reiniciar transferência após morte do processo, sem retomada em background. |

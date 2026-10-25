@@ -167,7 +167,7 @@ O planejamento das próximas entregas está em [`docs/SPRINTS.md`](docs/SPRINTS.
 
 Distância (RF-136 parcial), fotos dos nativos e kg/lb continuam pendentes. Biblioteca/templates e convenção de carga já foram decididos em [S1-04](docs/decisoes/S1-04.md). Alarme de descanso com o app fechado segue fora do MVP.
 
-O banco está na versão **2**, com migração 1→2 que preserva planos, rascunhos e histórico. A sessão aceita campos vazios com aviso e usa debounce de 500 ms: uma morte antes do commit pode perder a última digitação ainda não salva. Consulte o [roteiro de recuperação](docs/reunioes/S2-06-recuperacao.md).
+O banco está na versão **3**: migrações 1→2→3 preservam planos, rascunhos e histórico; a versão 3 acrescenta somente o journal da restauração. A sessão usa debounce de 500 ms: morte antes do commit pode perder a última digitação. A exportação salva buffers válidos antes da captura. Consulte o [roteiro de recuperação](docs/reunioes/S2-06-recuperacao.md) e o [protocolo de backup](docs/decisoes/S5-backup.md).
 
 ## Validação e entrega da Sprint 3
 
@@ -177,9 +177,9 @@ O histórico apresenta apenas sessões concluídas, com detalhe somente leitura 
 .\gradlew.bat assembleDebug testDebugUnitTest lintDebug connectedDebugAndroidTest --no-configuration-cache --console=plain
 ```
 
-Consulte a [matriz RF → código/teste](docs/RASTREABILIDADE.md), o [roteiro de homologação](docs/HOMOLOGACAO-S3.md), a [preparação de assinatura](docs/RELEASE.md) e a [demonstração](docs/DEMONSTRACAO.md). O usuário aprovou individualmente as correções finais no emulador em 24/10/2026, sem bloqueantes, e aprovou explicitamente o PR #12 e seu merge. A [política de PRs](docs/TAREFAS.md#aprovação-e-integração-de-pull-requests) exige revisão técnica do Codex, aprovação explícita do responsável na conversa, CI verde e condições de integração satisfeitas; revisão independente é opcional internamente e proteções efetivas do GitHub continuam obrigatórias. O [PR #12](https://github.com/antonio-carlosjr/LogGym/pull/12) registra a conclusão efetiva e o hash de merge. TalkBack, assinatura definitiva e ensaio humano permanecem pendentes; não foi atribuído aceite coletivo. Não há publicação automática nem autorização de merge para PRs futuros.
+Consulte a [matriz RF → código/teste](docs/RASTREABILIDADE.md), o [roteiro de homologação](docs/HOMOLOGACAO-S3.md), a [preparação de assinatura](docs/RELEASE.md) e a [demonstração](docs/DEMONSTRACAO.md). O usuário aprovou individualmente as correções finais no emulador em 24/10/2026, sem bloqueantes, e aprovou explicitamente o PR #12 e seu merge. A [política vigente](docs/TAREFAS.md#aprovação-e-integração-de-pull-requests) exige revisão técnica, CI verde e proteções satisfeitas; o responsável homologa e faz merge manualmente no GitHub. A aprovação na conversa descrita nesta seção corresponde à autorização histórica do PR #12. O [PR #12](https://github.com/antonio-carlosjr/LogGym/pull/12) registra a conclusão efetiva e o hash de merge. TalkBack, assinatura definitiva e ensaio humano permanecem pendentes; não foi atribuído aceite coletivo. Não há publicação automática nem autorização de merge para PRs futuros.
 
-## Sprint 4 — homologação funcional individual aprovada; integração autorizada
+## Sprint 4 — homologação funcional individual aprovada; integrada pelo PR #13
 
 Prescrição fixa/faixa, descanso manual inteiro de 0 a 600 s com ±15, cadastro contextual, borracha por exercício e configurações persistentes de tema/pré-preenchimento. Banco Room v2 preservado, sem migração; snapshots existentes não mudam. Check continua manual e o aviso de descanso mantém aproximadamente 5 s.
 
@@ -190,3 +190,11 @@ Em 25/10/2026, o responsável aprovou os sete grupos funcionais da Sprint 4, sem
 Backup está reservado à Sprint 5: completo ou sem histórico, sem criptografia, com aviso claro sobre o conteúdo legível. Não foi implementado nesta sprint. Histórico individual, check automático, layout compacto, preferência por exercício, fotos, distância e kg/lb continuam no backlog.
 
 A nova proposta de navegação inferior está em [UX-NAV-01](docs/BACKLOG-UX.md), fora do escopo da Sprint 4 e sem implementação autorizada.
+
+## Sprint 5 — backup e restauração
+
+Configurações → Backup e restauração permite exportar completo (incluindo histórico e rascunho) ou sem histórico (nenhuma sessão), e importar por substituição integral após validação/resumo/confirmação. Arquivos `.loggym` são legíveis, **sem criptografia**. Guarde-os em local apropriado; SHA-256 detecta corrupção, sem autenticar o produtor. Limites: 64 MiB/arquivo, 1 MiB/registro, 500 mil registros.
+
+Exportar salva antes as edições válidas recebidas pelo autossalvamento; formulários com Salvar explícito continuam não confirmados. Restaurar sem histórico remove histórico e rascunho atuais. Não há mesclagem, cópia automática do Android, serviço de background ou retomada automática da transferência. Rotação preserva a operação; após morte do processo a transferência deve ser reiniciada. Recuperação de restauração interrompida ocorre antes das telas normais, revertendo dados e preferências anteriores quando necessário.
+
+Veja [implementação/testes](docs/S5-IMPLEMENTACAO.md), [decisão técnica](docs/decisoes/S5-backup.md), [homologação pendente](docs/HOMOLOGACAO-S5.md) e [AGENTS](AGENTS.md). Política atual: Codex implementa/testa/revisa, acompanha CI e abre PR; **o responsável homologa e faz merge manualmente no GitHub**. Os relatos e autorizações anteriores são históricos. Não há aceite da Sprint 5 nem cumprimento das pendências humanas anteriores presumidos.
