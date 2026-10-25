@@ -60,6 +60,8 @@ class HistoryViewModelTest {
     }
 
     private class FakeRepository : SessionRepository {
+        override suspend fun getExerciseHistoryPage(exerciseId: Long, trackingType: com.loggym.domain.model.TrackingType,
+            cursor: com.loggym.domain.model.ExerciseHistoryCursor?) = com.loggym.domain.model.ExerciseHistoryPage(emptyList(), null)
         var fail = false
         val history = MutableStateFlow<List<SessionSummary>>(emptyList())
         val session = MutableStateFlow<Session?>(null)

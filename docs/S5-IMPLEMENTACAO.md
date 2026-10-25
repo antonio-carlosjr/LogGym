@@ -1,6 +1,6 @@
 # Sprint 5 — backup e restauração
 
-Implementação autorizada pelo responsável em 25/10/2026. Base: `cd9d8ea624c3446a5d4d7c9d43aeadea020fc0f5` (PR #13, Sprint 4 integrada). Branch: `feature/S5-01-backup-e-restauracao`. Homologação funcional individual aprovada pelo responsável nos dez grupos relatados em [HOMOLOGACAO-S5](HOMOLOGACAO-S5.md), sem bloqueantes. Refinamento final de interface ainda requer reteste; merge manual do PR #14 permanece pendente.
+Implementação autorizada pelo responsável em 25/10/2026. Base: `cd9d8ea624c3446a5d4d7c9d43aeadea020fc0f5` (PR #13, Sprint 4 integrada). Branch: `feature/S5-01-backup-e-restauracao`. Homologação funcional individual aprovada pelo responsável nos dez grupos relatados em [HOMOLOGACAO-S5](HOMOLOGACAO-S5.md), sem bloqueantes. O responsável confirmou o refinamento visual final e realizou o merge do PR #14: 35370e2720d364e612dcaa7b7a392a0d5d08be02, com CI pós-merge aprovada. Não foi atribuído aceite coletivo nem cumprimento de pendências humanas anteriores.
 
 ## Compromisso
 
@@ -47,7 +47,7 @@ Os testes incluem flush antes de 500 ms sem espera arbitrária, revisão nova du
 
 ## Pendências humanas
 
-Retestar somente o refinamento final de interface descrito em [HOMOLOGACAO-S5](HOMOLOGACAO-S5.md) e revisar/integrar manualmente o PR com CI aprovada. O responsável confirmou os dez grupos funcionais, incluindo acessibilidade, sem especificar TalkBack abrangente ou todos os providers/subcenários do roteiro. Assinatura definitiva/custódia e ensaio anteriores permanecem não confirmados. Não foi atribuído aceite coletivo.
+O refinamento final e a integração foram confirmados pelo responsável. Os itens do roteiro [HOMOLOGACAO-S5](HOMOLOGACAO-S5.md) permanecem como evidência histórica; não há reteste/merge da S5 pendente. O responsável confirmou os dez grupos funcionais, incluindo acessibilidade, sem especificar TalkBack abrangente ou todos os providers/subcenários do roteiro. Assinatura definitiva/custódia e ensaio anteriores permanecem não confirmados. Não foi atribuído aceite coletivo.
 
 ## Refinamento após homologação individual
 

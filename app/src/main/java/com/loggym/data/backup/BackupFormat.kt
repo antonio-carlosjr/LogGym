@@ -14,9 +14,10 @@ import java.nio.charset.CodingErrorAction
 import java.security.MessageDigest
 
 @Serializable
-data class BackupPreferences(val theme: String, val prefillEnabled: Boolean)
+data class BackupPreferences(val theme: String, val prefillEnabled: Boolean, val autoCompleteEnabled: Boolean = false)
+class IncompatibleBackupVersion : IllegalArgumentException("Versão de backup incompatível")
 @Serializable
-data class BackupHeader(val magic: String = "LOGGYM_BACKUP", val version: Int = 1,
+data class BackupHeader(val magic: String = "LOGGYM_BACKUP", val version: Int = 2,
     val mode: BackupMode, val createdAt: Long, val appVersion: String = "0.1.0",
     val catalog: String, val floors: Map<String, Long>, val preferences: BackupPreferences,
     val previousOnboarding: Boolean? = null)
@@ -35,6 +36,7 @@ object BackupFormat {
     }.toByteArray(Charsets.UTF_8))
 
     fun write(output: OutputStream, header: BackupHeader, rows: Sequence<BackupRow>) {
+        require(header.version == 2) { "Somente o formato vigente pode ser exportado" }
         val digest = MessageDigest.getInstance("SHA-256")
         var size = 0L
         var count = 0
@@ -90,8 +92,14 @@ object BackupFormat {
             when {
                 metadata == null -> {
                     require(type == "header")
+                    val versionField = data.jsonObject.getValue("version").jsonPrimitive
+                    require(!versionField.isString)
+                    val version = requireNotNull(versionField.intOrNull)
+                    val legacyUndo = internal && version == 1
+                    if (version != 2 && !legacyUndo) throw IncompatibleBackupVersion()
                     require(data.jsonObject.keys == setOf("magic", "version", "mode", "createdAt", "appVersion", "catalog", "floors", "preferences", "previousOnboarding"))
-                    require(data.jsonObject.getValue("preferences").jsonObject.keys == setOf("theme", "prefillEnabled"))
+                    require(data.jsonObject.getValue("preferences").jsonObject.keys ==
+                        if (legacyUndo) setOf("theme", "prefillEnabled") else setOf("theme", "prefillEnabled", "autoCompleteEnabled"))
                     val fields = data.jsonObject
                     for (key in listOf("magic", "mode", "appVersion", "catalog")) require(fields.getValue(key).jsonPrimitive.isString)
                     for (key in listOf("version", "createdAt")) require(fields.getValue(key).jsonPrimitive.let { !it.isString && it.longOrNull != null })
@@ -99,9 +107,10 @@ object BackupFormat {
                     val prefs = fields.getValue("preferences").jsonObject
                     require(prefs.getValue("theme").jsonPrimitive.isString)
                     require(prefs.getValue("prefillEnabled").jsonPrimitive.let { !it.isString && it.booleanOrNull != null })
+                    if (!legacyUndo) require(prefs.getValue("autoCompleteEnabled").jsonPrimitive.let { !it.isString && it.booleanOrNull != null })
                     require(fields.getValue("previousOnboarding").let { it == JsonNull || it.jsonPrimitive.let { p -> !p.isString && p.booleanOrNull != null } })
                     metadata = json.decodeFromJsonElement<BackupHeader>(data)
-                    require(metadata.version == 1 && metadata.catalog == catalog) { "Versão ou catálogo incompatível" }
+                    require(metadata.catalog == catalog) { "Catálogo incompatível" }
                     require(metadata.magic == if (internal) "LOGGYM_UNDO" else "LOGGYM_BACKUP") { "Arquivo não é um backup LogGym" }
                     require(internal || metadata.previousOnboarding == null)
                     require(metadata.floors.keys == tables.toSet() && metadata.floors.values.all { it >= 0 && it < Long.MAX_VALUE })

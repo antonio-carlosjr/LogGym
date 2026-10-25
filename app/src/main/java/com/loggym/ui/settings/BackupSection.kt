@@ -58,8 +58,11 @@ fun BackupSection(state: BackupState, enabled: Boolean, export: (BackupMode) -> 
     val feedback = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
     if (state.busy) { LinearProgressIndicator(Modifier.fillMaxWidth()); Text(stringResource(R.string.backup_working), feedback) }
     if (state.step == BackupStep.SUCCESS) Text(stringResource(R.string.backup_success), feedback)
-    if (state.step == BackupStep.ERROR) Text(stringResource(if (state.error == BackupFailure.ROLLED_BACK)
-        R.string.backup_rolled_back else R.string.backup_failed), feedback, color = MaterialTheme.colorScheme.error)
+    if (state.step == BackupStep.ERROR) Text(stringResource(when (state.error) {
+        BackupFailure.ROLLED_BACK -> R.string.backup_rolled_back
+        BackupFailure.INCOMPATIBLE_VERSION -> R.string.backup_incompatible_version
+        else -> R.string.backup_failed
+    }), feedback, color = MaterialTheme.colorScheme.error)
     if (showInfo) AlertDialog(onDismissRequest = { showInfo = false },
         title = { Text(stringResource(R.string.backup_title)) },
         text = { BackupExplanation() },

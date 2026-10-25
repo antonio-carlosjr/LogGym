@@ -21,9 +21,28 @@ class BackupFormatTest {
         assertEquals(header(), metadata); assertEquals(row, restored)
     }
     @Test fun bothModalitiesRoundTrip() { BackupMode.entries.forEach { assertEquals(it, read(encode(it)).mode) } }
+    @Test fun publicV1IsRejectedAndOnlyPrivateUndoCanUseLegacyPreferences() {
+        val legacy = rewriteBackupHeader(encode(), ::s5Header)
+        assertTrue(runCatching { read(legacy) }.exceptionOrNull() is IncompatibleBackupVersion)
+        val undo = rewriteBackupHeader(legacy) { JsonObject(it + ("magic" to JsonPrimitive("LOGGYM_UNDO")) + ("previousOnboarding" to JsonPrimitive(true))) }
+        val restored = BackupFormat.read(undo.inputStream(), internal = true, header = {}, row = {})
+        assertFalse(restored.preferences.autoCompleteEnabled)
+        assertTrue(runCatching { read(undo) }.isFailure)
+    }
+    @Test fun v2PersistsBothAutomaticPreferenceValuesAndRequiresTheField() {
+        for (enabled in listOf(false, true)) {
+            val bytes = rewriteBackupHeader(encode()) { h -> JsonObject(h + ("preferences" to
+                JsonObject(h.getValue("preferences").jsonObject + ("autoCompleteEnabled" to JsonPrimitive(enabled))))) }
+            assertEquals(2, read(bytes).version)
+            assertEquals(enabled, read(bytes).preferences.autoCompleteEnabled)
+        }
+        val missing = rewriteBackupHeader(encode()) { h -> JsonObject(h + ("preferences" to
+            JsonObject(h.getValue("preferences").jsonObject - "autoCompleteEnabled"))) }
+        assertTrue(runCatching { read(missing) }.isFailure)
+    }
     @Test fun rejectsUnknownVersionAndCatalog() {
         val bytes = encode().toString(Charsets.UTF_8)
-        for (bad in listOf(bytes.replace("\"version\":1", "\"version\":2"), bytes.replace(BackupFormat.catalog, "unknown")))
+        for (bad in listOf(bytes.replace("\"version\":2", "\"version\":3"), bytes.replace(BackupFormat.catalog, "unknown")))
             assertTrue(runCatching { read(bad.toByteArray()) }.isFailure)
     }
     @Test fun requiresFooterAndChecksumAndNoTrailingData() {
@@ -35,9 +54,11 @@ class BackupFormatTest {
     }
     @Test fun rejectsDuplicateKeysMissingFieldsAndWrongTypes() {
         val text = encode().toString(Charsets.UTF_8)
-        listOf(text.replace("\"version\":1", "\"version\":1,\"version\":1"),
+        listOf(text.replace("\"version\":2", "\"version\":2,\"version\":2"),
             text.replace("\"magic\":\"LOGGYM_BACKUP\",", ""),
             text.replace("\"prefillEnabled\":false", "\"prefillEnabled\":\"false\""),
+            text.replace(",\"autoCompleteEnabled\":false", ""),
+            text.replace("\"autoCompleteEnabled\":false", "\"autoCompleteEnabled\":\"false\""),
             text.replace("\"theme\":\"dark\"", "\"theme\":\"pink\""),
             text.replace("\"floors\":{", "\"unknown\":1,\"floors\":{")).forEach {
             assertTrue(runCatching { read(it.toByteArray()) }.isFailure)

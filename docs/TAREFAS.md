@@ -183,11 +183,32 @@ Completo inclui histórico e rascunho; sem histórico não inclui sessões e rem
 
 ## Backlog posterior preservado
 
-- **S4-04:** histórico por exercício via ícone de relógio na execução, por identidade e tipo (referência: 5 pontos).
-- **S4-06:** marcação automática apenas após edição real válida e conclusão/saída da linha (8 pontos); pré-preenchimento, retomada e debounce não marcam séries; nova edição necessária após desmarcar.
+- **S4-04:** candidatura original de 5 pontos incorporada à S6-01/02/03, reestimada em 8 pontos, com painel e paginação.
+- **S4-06:** candidatura original de 8 pontos incorporada à S6-04 a S6-08, reestimada em 16 pontos com preferência, backup vigente e regressão; conferir regras atuais na decisão S6.
 - Compactação dos cards (3 pontos), sem reduzir legibilidade ou alvos de toque.
 - Pré-preenchimento por exercício (5–8 pontos a refinar), sem colunas/maps de override antecipados na S4.
 - Fotos, distância e kg/lb continuam pendentes; configurações não os incluem automaticamente.
 - **UX-NAV-01:** avaliar navegação principal inferior, com destinos, estado, Voltar e acessibilidade refinados antes da execução. Nova proposta de UX, fora da S4 e do backup comprometido para S5. Candidata à Sprint 6; referência preliminar de 11 pontos, sem aprovação de execução. Ver [BACKLOG-UX.md](BACKLOG-UX.md).
 
 Essas expansões não ocupam automaticamente a reserva da S4 nem o pacote de backup da S5. Pendências humanas/release da S3 permanecem separadas.
+
+## Sprint 6 — alternativa A autorizada
+
+Base `35370e2`, integração do PR #14 e aprovação final da S5 confirmadas pelo responsável. Execução autônoma em nova branch com commits lógicos; homologação e merge manual no GitHub pelo responsável, sem publicação de release pelo Codex.
+
+| ID | Entrega | Pontos | Área técnica |
+| --- | --- | ---: | --- |
+| S6-01 | Consulta histórica por identidade/tipo, 25 sessões por cursor | 3 | Dev 1 |
+| S6-02 | Painel modal sobre a execução, preservando buffers/posição/descanso | 3 | Dev 2 |
+| S6-03 | Testes de histórico, snapshots, ocorrências e paginação | 2 | Dev 2 |
+| S6-04 | Preferência desativada por padrão, backup v2 e undo privado S5 | 3 | Dev 1 |
+| S6-05 | Elegibilidade independente do debounce e conclusão idempotente | 5 | Dev 2 |
+| S6-06 | Concluído ou foco em outra série; proteger histórico/blur | 3 | Dev 3 |
+| S6-07 | Coordenação com borracha, flush e gerações | 3 | Dev 1 |
+| S6-08 | Regressão da marcação e configurações | 2 | Dev 3 |
+| S6-09 | Regressão combinada, documentação e homologação | 3 | Dev 3 |
+| Total | Reserva adicional: 12 sobre referência de 39 | **27** | **Dev 1: 9; Dev 2: 10; Dev 3: 8** |
+
+Responsabilidades técnicas, sem pressupor três profissionais simultâneos ou velocidade fixa em duas semanas. A preferência/formato passou de 5 para 3 pontos ao retirar importação pública v1, mantendo integralmente recuperação e testes do formato vigente. Contratos/critério de aceite em [decisão S6](decisoes/S6-execucao.md), resultados em [implementação](S6-IMPLEMENTACAO.md), [homologação](HOMOLOGACAO-S6.md) individual aprovada, com reteste visual final pendente.
+
+UX-NAV-01 é candidata à S7 (13 pontos; referência anterior 11), com cinco abas e Voltar das raízes para Início. Não implementá-la nem usar a reserva automaticamente. Compactação, preferências individuais, fotos, distância e kg/lb permanecem separados.

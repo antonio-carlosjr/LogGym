@@ -9,6 +9,21 @@ import org.junit.*
 import org.junit.Assert.*
 
 class SettingsViewModelTest {
+    @Test fun automaticPreferenceKeepsLastConfirmedValueOnFailureAndCanRetry() = runTest {
+        var fail = true
+        val preferences = object : FakeUserPreferences() {
+            override suspend fun setAutoCompleteEnabled(enabled: Boolean) {
+                if (fail) throw java.io.IOException()
+                super.setAutoCompleteEnabled(enabled)
+            }
+        }
+        val vm = SettingsViewModel(preferences)
+        vm.setAutoComplete(true)
+        vm.operationFailed.awaitFirst { it }; vm.busy.awaitFirst { !it }
+        assertFalse(vm.uiState.awaitFirst { it.settings != null }.settings!!.autoCompleteEnabled)
+        fail = false; vm.setAutoComplete(true)
+        assertTrue(vm.uiState.awaitFirst { it.settings?.autoCompleteEnabled == true }.settings!!.autoCompleteEnabled)
+    }
     @get:Rule val main = MainDispatcherRule()
     @Test fun failedWritePreservesConfirmedThemeAndAllowsRetry() = runTest {
         var fail = true

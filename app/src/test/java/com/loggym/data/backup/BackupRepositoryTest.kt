@@ -46,4 +46,19 @@ class BackupRepositoryTest {
             assertTrue(source.exists())
         } finally { source.delete() }
     }
+    @Test fun publicV1ReportsTypedIncompatibilityAndKeepsTheSourceAndLocalData() = runBlocking {
+        val source = File(context.filesDir, "old-version.loggym")
+        try {
+            repository.prepareExport(BackupMode.FULL)
+            val ready = repository.state.awaitFirst { it.step == BackupStep.DESTINATION || it.step == BackupStep.ERROR }
+            assertEquals(BackupStep.DESTINATION, ready.step)
+            repository.writeExport(ready.token!!, android.net.Uri.fromFile(source).toString())
+            repository.state.awaitFirst { it.step == BackupStep.SUCCESS }
+            source.writeBytes(rewriteBackupHeader(source.readBytes(), ::s5Header))
+            val before = db.exerciseDao().getAll()
+            repository.validateImport(android.net.Uri.fromFile(source).toString())
+            assertEquals(BackupFailure.INCOMPATIBLE_VERSION, repository.state.awaitFirst { it.step == BackupStep.ERROR }.error)
+            assertEquals(before, db.exerciseDao().getAll()); assertTrue(source.exists())
+        } finally { source.delete() }
+    }
 }

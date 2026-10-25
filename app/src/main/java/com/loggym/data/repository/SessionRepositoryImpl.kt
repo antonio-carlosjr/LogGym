@@ -46,6 +46,18 @@ class SessionRepositoryImpl @Inject constructor(
     override fun observeSession(sessionId: Long): Flow<Session?> =
         sessionDao.observeSession(sessionId).map { it?.toDomain() }
 
+    override suspend fun getExerciseHistoryPage(exerciseId: Long, trackingType: com.loggym.domain.model.TrackingType,
+        cursor: com.loggym.domain.model.ExerciseHistoryCursor?): com.loggym.domain.model.ExerciseHistoryPage = database.withTransaction {
+        require(exerciseId > 0)
+        val found = sessionDao.getExerciseHistorySessions(exerciseId, trackingType, cursor?.startedAt, cursor?.sessionId)
+        val page = found.take(25)
+        val occurrences = if (page.isEmpty()) emptyMap() else sessionDao.getExerciseHistoryOccurrences(page.map { it.id }, exerciseId, trackingType)
+            .groupBy { it.exercise.sessionId }
+        com.loggym.domain.model.ExerciseHistoryPage(page.map { row ->
+            com.loggym.domain.model.ExerciseHistoryEntry(row.toSummary(), occurrences[row.id].orEmpty().map { it.toDomain() })
+        }, if (found.size > 25) page.last().let { com.loggym.domain.model.ExerciseHistoryCursor(it.startedAt, it.id) } else null)
+    }
+
     override suspend fun startSession(workoutId: Long): StartSessionResult = coordinator.write {
         sessionDao.getDraftId()?.let { return@write StartSessionResult.DraftAlreadyExists(it) }
         // Uma única leitura, fora da transação, para todo o novo rascunho.

@@ -12,4 +12,5 @@ enum class ThemeMode(val key: String) {
     }
 }
 
-data class UserSettings(val themeMode: ThemeMode = ThemeMode.SYSTEM, val prefillEnabled: Boolean = true)
+data class UserSettings(val themeMode: ThemeMode = ThemeMode.SYSTEM, val prefillEnabled: Boolean = true,
+    val autoCompleteEnabled: Boolean = false)

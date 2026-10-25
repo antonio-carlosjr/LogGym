@@ -103,12 +103,18 @@ As tarefas S4-04/histórico individual e S4-06/marcação automática ficam no b
 
 Em 25/10/2026, o responsável confirmou os sete grupos funcionais da Sprint 4, incluindo regressão completa, sem defeitos bloqueantes, e posteriormente autorizou expressamente o merge commit do PR #13, a sincronização e a CI pós-merge. Consulte os limites da evidência em [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md). O [registro do PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolida o resultado da integração, o hash do merge e a CI pós-merge; a integração está concluída quando indicar `MERGED`. Não foi atribuído aceite coletivo. TalkBack, avaliação abrangente de acessibilidade, assinatura definitiva e ensaio humanos não foram confirmados por esse relato. Encerramento técnico é distinto dessas pendências e da entrega de release; a Sprint 5 não foi iniciada.
 
-## Sprint 5 — homologação funcional individual aprovada; refinamento final de UI
+## Sprint 5 — integrada e aprovada individualmente
 
 Planejamento refinado aprovado e implementação autorizada em 25/10/2026: **34 pontos e 5 de reserva**, substituindo a candidatura de 26 pontos. Backup completo (histórico/rascunho) ou sem histórico (nenhuma sessão), nas Configurações via SAF. Salvamento aguardável das edições precede a captura. Validação integral, confirmação da substituição e recuperação entre Room e DataStore com undo/journal. Sem criptografia/senha, com aviso de conteúdo legível.
 
-Consulte [implementação](S5-IMPLEMENTACAO.md), [decisão técnica](decisoes/S5-backup.md) e [homologação](HOMOLOGACAO-S5.md). Em 25/10/2026, o responsável confirmou aprovação funcional individual dos dez grupos relatados, sem bloqueantes, e solicitou refinamento das explicações de backup. Esse novo layout ainda requer reteste. Merge manual do PR #14, aceite coletivo e pendências humanas anteriores não são presumidos. Histórico individual, marcação automática e navegação inferior permanecem no backlog.
+O responsável confirmou a aprovação individual, incluindo o refinamento visual final, e integrou o PR #14 em `35370e2720d364e612dcaa7b7a392a0d5d08be02`, com CI pós-merge aprovada. Consulte [implementação](S5-IMPLEMENTACAO.md) e [homologação](HOMOLOGACAO-S5.md). Sem aceite coletivo ou cumprimento de pendências anteriores de TalkBack abrangente, assinatura definitiva/custódia e ensaio presumidos.
+
+## Sprint 6 — histórico individual e marcação automática
+
+Alternativa A autorizada: **27 pontos e 12 de reserva**, áreas técnicas Dev 1: 9; Dev 2: 10; Dev 3: 8. Histórico paginado por identidade/tipo em painel sobre a execução; automação opcional desativada por padrão, após edição efetiva e conclusão intencional. Backup público vigente v2, sem importação pública v1; recuperação privada de undo S5 pendente preservada. Room permanece v3, sem migração ou redefinição dos dados locais.
+
+Ver [implementação](S6-IMPLEMENTACAO.md), [decisão técnica](decisoes/S6-execucao.md) e [homologação individual aprovada; reteste visual pendente](HOMOLOGACAO-S6.md). Codex entrega PR; responsável homologa e faz merge manualmente no GitHub. Sem navegação inferior ou release nesta entrega.
 
 ## Proposta posterior — navegação principal inferior
 
-[UX-NAV-01](BACKLOG-UX.md#ux-nav-01--navegação-principal-inferior) registra a nova melhoria de UX solicitada em 25/10/2026. Recomenda-se avaliar sua inclusão em uma Sprint 6, após o backup, sem alterar os compromissos de S4/S5. Estimativa preliminar de 11 pontos, sujeita a refinamento e aprovação; sem implementação ou alocação automática de capacidade. Definir destinos, comportamento de Voltar, preservação de estado e acessibilidade antes de executar.
+[UX-NAV-01](BACKLOG-UX.md#ux-nav-01--navegação-principal-inferior) fica candidata à **Sprint 7**, fora da S6/reserva, sem execução autorizada. Referência revisada: 13 pontos (anterior: 11). Decisões confirmadas: cinco abas e Voltar das raízes para Início; integrar estados/insets e testar invalidação das pilhas salvas após restauração antes de executar.

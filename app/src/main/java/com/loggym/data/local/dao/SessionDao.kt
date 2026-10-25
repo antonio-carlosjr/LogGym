@@ -16,6 +16,24 @@ import java.time.Instant
  */
 @Dao
 interface SessionDao {
+    @Query("""
+        SELECT DISTINCT s.* FROM sessions s
+        INNER JOIN session_exercises se ON se.session_id=s.id
+        WHERE s.status='COMPLETED' AND se.exercise_id=:exerciseId AND se.tracking_type=:trackingType
+        AND (:beforeStartedAt IS NULL OR s.started_at<:beforeStartedAt OR (s.started_at=:beforeStartedAt AND s.id<:beforeId))
+        ORDER BY s.started_at DESC, s.id DESC LIMIT 26
+    """)
+    suspend fun getExerciseHistorySessions(exerciseId: Long, trackingType: com.loggym.domain.model.TrackingType,
+        beforeStartedAt: Instant?, beforeId: Long?): List<SessionEntity>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM session_exercises WHERE session_id IN (:sessionIds)
+        AND exercise_id=:exerciseId AND tracking_type=:trackingType ORDER BY position, id
+    """)
+    suspend fun getExerciseHistoryOccurrences(sessionIds: List<Long>, exerciseId: Long,
+        trackingType: com.loggym.domain.model.TrackingType): List<com.loggym.data.local.relation.SessionExerciseWithSets>
+
     @Transaction
     @Query("SELECT * FROM sessions WHERE status = 'DRAFT' LIMIT 1")
     fun observeDraft(): Flow<SessionWithExercises?>

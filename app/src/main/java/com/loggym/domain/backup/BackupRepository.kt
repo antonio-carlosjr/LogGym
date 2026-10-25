@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 enum class BackupMode { FULL, WITHOUT_HISTORY }
 enum class BackupStep { IDLE, PREPARING, DESTINATION, WRITING, VALIDATING, PREVIEW, RESTORING, SUCCESS, ERROR }
-enum class BackupFailure { OPERATION, ROLLED_BACK }
+enum class BackupFailure { OPERATION, ROLLED_BACK, INCOMPATIBLE_VERSION }
 data class BackupSummary(val token: String, val mode: BackupMode, val createdAt: Long,
     val customExercises: Long, val plans: Long, val workouts: Long, val sessions: Long,
     val sets: Long, val hasDraft: Boolean)

@@ -4,18 +4,18 @@ Estado em 25/10/2026: **homologação funcional individual aprovada pelo respons
 
 Grupos confirmados: interface nas Configurações; exportação completa; exportação sem histórico; restauração em instalação limpa; restauração em instalação ocupada; salvamento imediato; cancelamento e arquivos inválidos; integridade do treino restaurado; regressão da Sprint 4; rotação, arquivos e acessibilidade. Essa confirmação não é uma marcação automática de cada subcenário detalhado do roteiro original.
 
-## Refinamento final de interface
+## Refinamento final de interface — aprovado individualmente
 
 Solicitado após a aprovação funcional: explicações passam do texto fixo para diálogo pelo ícone “Sobre backup e restauração”, junto ao título. O modal de exportação separa as duas modalidades com uma linha em branco e mantém o aviso de ausência de criptografia. Nenhuma regra de backup/restauração é alterada.
 
-Reteste humano deste refinamento ainda pendente:
+O responsável confirmou o reteste final aprovado antes da S6. Os itens abaixo são o roteiro histórico, sem atribuir testes específicos adicionais:
 
 - Conferir que a seção não mostra explicações fixas; abrir o ícone e verificar as duas modalidades e o aviso de arquivo legível.
 - Fechar por “Entendi” ou Voltar/toque externo; conferir que nenhuma operação foi iniciada.
 - Abrir Exportar backup e conferir a separação dos parágrafos e o aviso; escolher/cancelar como antes.
 - Conferir temas, fonte ampliada, rolagem e rótulo acessível do ícone. O relato geral de acessibilidade não confirma especificamente TalkBack abrangente.
 
-O PR #14 permanece aberto para merge manual pelo responsável após as verificações do novo commit.
+O responsável integrou o PR #14 manualmente: 35370e2720d364e612dcaa7b7a392a0d5d08be02, com CI pós-merge aprovada em 25/10/2026. Sem aceite coletivo ou cumprimento das pendências humanas anteriores presumidos.
 
 Registrar para cada cenário: versão/commit, Android/AVD/aparelho, tema, data, responsável, resultado e evidência. Use instalação/AVD de teste e arquivos próprios; importar substitui todos os dados atuais. Nenhuma senha ou criptografia é oferecida.
 

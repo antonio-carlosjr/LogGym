@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
@@ -21,6 +23,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import com.loggym.ui.history.ExerciseHistoryViewModel
+import com.loggym.ui.history.ExerciseHistorySheet
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -34,9 +43,23 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewModel()) {
+fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewModel(),
+    historyViewModel: ExerciseHistoryViewModel = hiltViewModel()) {
     val resources = LocalResources.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val history by historyViewModel.uiState.collectAsStateWithLifecycle()
+    var historyId by rememberSaveable { mutableStateOf<Long?>(null) }
+    val focus = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
+    val selectedHistory = state.session?.exercises?.firstOrNull { it.id == historyId }
+    val closeHistory = {
+        viewModel.setHistoryOpen(false); historyViewModel.close(); historyId = null
+    }
+    LaunchedEffect(historyId, selectedHistory?.exerciseId, selectedHistory?.trackingType) {
+        if (historyId != null && !state.isLoading && selectedHistory == null) { closeHistory(); return@LaunchedEffect }
+        viewModel.setHistoryOpen(historyId != null)
+        selectedHistory?.exerciseId?.let { historyViewModel.open(it, selectedHistory.trackingType) }
+    }
     val snackbar = remember { SnackbarHostState() }
     val owner = LocalLifecycleOwner.current
     DisposableEffect(owner, viewModel) {
@@ -93,6 +116,10 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                 Text(resources.getString(error), color = MaterialTheme.colorScheme.error)
                 TextButton(onClick = viewModel::retry, enabled = !state.busy) { Text(resources.getString(R.string.retry)) }
             } }
+            state.preferenceError?.let { error -> item {
+                Text(stringResource(error), color = MaterialTheme.colorScheme.error)
+                TextButton(onClick = viewModel::retryPreference) { Text(stringResource(R.string.retry)) }
+            } }
             val session = state.session
             if (!state.isLoading && session == null) item {
                 Text(resources.getString(R.string.ui_nenhum_treino_em_andamento))
@@ -107,10 +134,17 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                     item(key = "exercise-${exercise.id}") {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(exercise.name, Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.titleLarge)
+                            IconButton(onClick = {
+                                viewModel.setHistoryOpen(true)
+                                focus.clearFocus(); keyboard?.hide(); historyId = exercise.id
+                            }, enabled = !state.busy && exercise.exerciseId != null) {
+                                Icon(painterResource(R.drawable.ic_history), stringResource(R.string.exercise_history_open, exercise.name))
+                            }
                             IconButton(onClick = { viewModel.requestClearExercise(exercise.id) }, enabled = !state.busy) {
                                 Icon(painterResource(R.drawable.ic_eraser), stringResource(R.string.clear_exercise_named, exercise.name))
                             }
                         }
+                        if (exercise.exerciseId == null) Text(stringResource(R.string.exercise_history_unavailable))
                         Text(resources.getString(R.string.session_prescription, exercise.target.summary(), exercise.target.rest.seconds))
                         if (exercise.trackingType == TrackingType.WEIGHT_REPS)
                             Text(resources.getString(R.string.ui_carga_em_kg_registre_o_peso_de_um_halter_lado_conforme_o_equipamento),
@@ -128,27 +162,31 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                                     Text(resources.getString(R.string.ui_serie_1_s, index), modifier = Modifier.weight(1f))
                                     Text(completionLabel, style = MaterialTheme.typography.labelMedium)
                                     Checkbox(checked = set.isCompleted, onCheckedChange = { viewModel.toggle(set.id) },
-                                        enabled = !state.busy,
+                                        enabled = !state.busy && set.id !in state.autoCompleting,
                                         modifier = Modifier.semantics {
                                             contentDescription = resources.getString(R.string.ui_concluir_serie_1_s_de_2_s, index, exercise.name)
                                             stateDescription = completionLabel
                                         })
                                 }
-                                val enabled = !set.isCompleted && !state.busy
+                                val enabled = !set.isCompleted && !state.busy && set.id !in state.autoCompleting
+                                val focused = Modifier.onFocusChanged { if (it.isFocused) viewModel.fieldFocused(set.id) }
+                                val done = { viewModel.finishEditing(set.id); focus.clearFocus(); keyboard?.hide(); Unit }
                                 if (exercise.trackingType == TrackingType.TIME) {
-                                    EntryField(resources.getString(R.string.ui_duracao_s), entry.duration, enabled, entry.error != null, KeyboardType.Number) {
+                                    EntryField(resources.getString(R.string.ui_duracao_s), entry.duration, enabled, entry.error != null, KeyboardType.Number,
+                                        modifier = focused.testTag("set-${set.id}-duration"), onDone = done) {
                                         value -> viewModel.edit(set.id) { it.copy(duration = value) }
                                     }
                                 } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     EntryField(resources.getString(R.string.ui_carga_kg), entry.weight, enabled, entry.error != null, KeyboardType.Decimal,
-                                        Modifier.weight(1f)) { value -> viewModel.edit(set.id) { it.copy(weight = value) } }
+                                        Modifier.weight(1f).then(focused).testTag("set-${set.id}-weight"), imeAction = ImeAction.Next,
+                                        onNext = { focus.moveFocus(FocusDirection.Next) }) { value -> viewModel.edit(set.id) { it.copy(weight = value) } }
                                     EntryField(resources.getString(R.string.ui_repeticoes), entry.reps, enabled, entry.error != null, KeyboardType.Number,
-                                        Modifier.weight(1f)) { value -> viewModel.edit(set.id) { it.copy(reps = value) } }
+                                        Modifier.weight(1f).then(focused).testTag("set-${set.id}-reps"), onDone = done) { value -> viewModel.edit(set.id) { it.copy(reps = value) } }
                                 }
                                 entry.error?.let { Text(resources.getString(it), color = MaterialTheme.colorScheme.error) }
                                 if (set.isCompleted && SetValues(set.weightKg, set.reps, set.durationSeconds).isIncomplete(exercise.trackingType))
                                     Text(resources.getString(R.string.ui_serie_marcada_com_campos_incompletos), color = MaterialTheme.colorScheme.error)
-                                if (!set.isCompleted) TextButton(onClick = { viewModel.remove(set.id) }, enabled = !state.busy) {
+                                if (!set.isCompleted) TextButton(onClick = { viewModel.remove(set.id) }, enabled = !state.busy && set.id !in state.autoCompleting) {
                                     Text(resources.getString(R.string.ui_remover_serie_1_s, index))
                                 }
                             }
@@ -160,6 +198,9 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                 }
             }
         }
+    }
+    if (historyId != null && selectedHistory != null) {
+        key(selectedHistory.id) { ExerciseHistorySheet(selectedHistory.name, history, closeHistory, historyViewModel::more, historyViewModel::retry) }
     }
     state.dialog?.let { dialog ->
         AlertDialog(
@@ -227,10 +268,12 @@ private fun RestBanner(seconds: Long, enabled: Boolean, onSkip: () -> Unit) {
 
 @Composable
 private fun EntryField(label: String, value: String, enabled: Boolean, isError: Boolean,
-    keyboardType: KeyboardType, modifier: Modifier = Modifier, onChange: (String) -> Unit) {
+    keyboardType: KeyboardType, modifier: Modifier = Modifier, imeAction: ImeAction = ImeAction.Done,
+    onDone: () -> Unit = {}, onNext: () -> Unit = {}, onChange: (String) -> Unit) {
     val resources = LocalResources.current
     OutlinedTextField(value = value, onValueChange = onChange, enabled = enabled, isError = isError,
-        label = { Text(label) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        label = { Text(label) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
+        keyboardActions = KeyboardActions(onDone = { onDone() }, onNext = { onNext() }),
         colors = OutlinedTextFieldDefaults.colors(
             disabledTextColor = MaterialTheme.colorScheme.onSurface,
             disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,

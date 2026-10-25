@@ -177,7 +177,7 @@ As metas de séries, repetições e descanso pertencem à **relação do exercí
 | **RF-77** | A quantidade de repetições deve ser um número inteiro não negativo. | `[I]` |
 | **RF-78** | O usuário deve poder alterar os valores pré-preenchidos antes de concluir a série. | `[I]` |
 | **RF-79** | Cada série deve possuir um estado indicando se foi concluída. | `[D]` |
-| **RF-80** | O usuário deve marcar explicitamente uma série como concluída por meio de um check. | `[D]` |
+| **RF-80** | O usuário pode marcar explicitamente uma série por check; comportamento padrão manual. A automação opcional segue RF-162. | `[D]` |
 | **RF-81** | Uma série não marcada como concluída não deve ser considerada executada no registro final. | `[I]` |
 | **RF-82** | O usuário deve poder desmarcar uma série marcada acidentalmente. | `[I]` |
 | **RF-83** | O usuário deve poder adicionar uma série extra durante uma sessão. | `[I]` |
@@ -431,3 +431,12 @@ Refinamento aprovado em 25/10/2026. Regras e limites na [decisão S5](docs/decis
 | RF-158 | Avisar que o arquivo não é criptografado e pode ser lido por quem tiver acesso; sem senha nesta versão. |
 | RF-159 | Preservar IDs/pisos de alocação, relações fortes/fracas, snapshots, extras, posições, preferências e nulo/zero. |
 | RF-160 | Transferências manuais com estados/cancelamento/erros, tolerância à rotação e prevenção de callbacks duplicados; reiniciar transferência após morte do processo, sem retomada em background. |
+
+## 25. Execução e histórico individual — Sprint 6
+
+| ID | Requisito |
+| --- | --- |
+| RF-161 | Consultar histórico por identidade original/tipo em painel sobre a execução, paginado em 25 sessões e agrupado por ocorrência, usando snapshots sem alterar buffers/posição/descanso. |
+| RF-162 | Preferência persistente de conclusão automática, desativada por padrão. Uma alteração efetiva basta; todos os valores aplicáveis devem estar preenchidos/válidos. Concluído ou foco em outra série podem concluir; pré-preenchimento, blur, histórico, debounce e ciclo de vida não. Desmarcação exige nova edição; duplicações/limpeza não podem produzir check/reinício indevido. |
+
+Refinamento de RF-154 a RF-160: formato público vigente v2, com preferência automática obrigatória booleana. Sem leitor público v1/conversão; versões incompatíveis são rejeitadas antes de modificar dados. Adaptador privado de undo v1 existe apenas para recuperação de journal S5 pendente, com SHA validado. Manter integralmente os limites, validações, substituição e recuperação entre Room/DataStore. Room v3 e dados locais existentes permanecem preservados. [Decisão S6](docs/decisoes/S6-execucao.md).

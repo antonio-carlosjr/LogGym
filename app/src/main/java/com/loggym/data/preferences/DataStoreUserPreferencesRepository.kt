@@ -29,28 +29,34 @@ class DataStoreUserPreferencesRepository(
     private val onboardingCompletedKey = booleanPreferencesKey("onboarding_completed")
     private val themeKey = stringPreferencesKey("theme_mode")
     private val prefillKey = booleanPreferencesKey("prefill_enabled")
+    private val autoCompleteKey = booleanPreferencesKey("auto_complete_enabled")
 
     override suspend fun snapshot(): PersistedPreferences {
         val data = store.data.first()
-        return PersistedPreferences(UserSettings(ThemeMode.fromKey(data[themeKey]), data[prefillKey] ?: true), data[onboardingCompletedKey] ?: false)
+        return PersistedPreferences(UserSettings(ThemeMode.fromKey(data[themeKey]), data[prefillKey] ?: true,
+            data[autoCompleteKey] ?: false), data[onboardingCompletedKey] ?: false)
     }
     override suspend fun replace(snapshot: PersistedPreferences) = coordinator.write {
         store.edit {
             it.clear()
             it[themeKey] = snapshot.settings.themeMode.key
             it[prefillKey] = snapshot.settings.prefillEnabled
+            it[autoCompleteKey] = snapshot.settings.autoCompleteEnabled
             it[onboardingCompletedKey] = snapshot.onboardingCompleted
         }
         Unit
     }
     override val settings: Flow<UserSettings> = store.data.map {
-        UserSettings(ThemeMode.fromKey(it[themeKey]), it[prefillKey] ?: true)
+        UserSettings(ThemeMode.fromKey(it[themeKey]), it[prefillKey] ?: true, it[autoCompleteKey] ?: false)
     }
     override suspend fun setThemeMode(mode: ThemeMode) = coordinator.write {
         store.edit { it[themeKey] = mode.key }; Unit
     }
     override suspend fun setPrefillEnabled(enabled: Boolean) = coordinator.write {
         store.edit { it[prefillKey] = enabled }; Unit
+    }
+    override suspend fun setAutoCompleteEnabled(enabled: Boolean) = coordinator.write {
+        store.edit { it[autoCompleteKey] = enabled }; Unit
     }
 
     override val onboardingCompleted: Flow<Boolean> =

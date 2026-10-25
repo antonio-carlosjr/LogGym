@@ -42,7 +42,7 @@ class PersistenceCoordinator @Inject constructor() {
     }
     fun command(scope: CoroutineScope, context: CoroutineContext, action: suspend () -> Unit): Job? {
         val job = synchronized(commands) {
-            if (!canEdit) return null
+            if (!canEdit || context[Generation]?.value?.let { it != epoch.value } == true) return null
             scope.launch(context, start = CoroutineStart.LAZY) { action() }.also { commands.add(it) }
         }
         job.invokeOnCompletion { synchronized(commands) { commands.remove(job) } }

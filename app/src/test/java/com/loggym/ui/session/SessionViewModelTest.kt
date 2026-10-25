@@ -22,15 +22,138 @@ class SessionViewModelTest {
     private val store = ViewModelStore()
     private lateinit var vm: SessionViewModel
     private val persistence = com.loggym.domain.backup.PersistenceCoordinator()
+    private val preferences = com.loggym.FakeUserPreferences()
+    private var failPreferenceRead = false
+    private val preferenceSource = object : com.loggym.domain.repository.UserPreferencesRepository by preferences {
+        override val settings: Flow<UserSettings> get() = flow {
+            if (failPreferenceRead) throw java.io.IOException()
+            emitAll(preferences.settings)
+        }
+    }
 
     @Before fun setup() {
         Dispatchers.setMain(dispatcher)
+        recreateModel()
+    }
+    private fun recreateModel() {
+        store.clear()
         vm = ViewModelProvider(store, object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = SessionViewModel(repository, clock, persistence) as T
+            override fun <T : ViewModel> create(modelClass: Class<T>): T = SessionViewModel(repository, clock, persistence, preferenceSource) as T
         })[SessionViewModel::class.java]
     }
     @After fun close() { store.clear(); Dispatchers.resetMain() }
+
+    @Test fun defaultOffAndPrefillOrIdenticalCallbackNeverMakesASetEligible() = runTest(dispatcher) {
+        repository.changeSet(10) { it.copy(weightKg = 0.0, reps = 8) }; recreateModel(); runCurrent()
+        assertFalse(vm.uiState.value.autoCompleteEnabled)
+        vm.edit(10) { it.copy(weight = "25") }; vm.finishEditing(10); runCurrent()
+        assertEquals(0, repository.completionCalls)
+        preferences.setAutoCompleteEnabled(true); runCurrent()
+        vm.finishEditing(10); runCurrent(); assertEquals(0, repository.completionCalls)
+        val revision = vm.uiState.value.entries[10L]!!.revision
+        vm.edit(10) { it.copy(weight = it.weight) }; vm.finishEditing(10); runCurrent()
+        assertEquals(revision, vm.uiState.value.entries[10L]!!.revision)
+        assertEquals(0, repository.completionCalls)
+    }
+    @Test fun oneEditedFieldAfterDebounceCompletesOnceAndManualUncheckRequiresNewEdit() = runTest(dispatcher) {
+        repository.changeSet(10) { it.copy(weightKg = 0.0, reps = 0) }; recreateModel(); runCurrent()
+        preferences.setAutoCompleteEnabled(true); runCurrent()
+        vm.edit(10) { it.copy(weight = "22,5") }; advanceTimeBy(500); runCurrent()
+        assertFalse(vm.uiState.value.dirty)
+        vm.finishEditing(10); vm.finishEditing(10); runCurrent(); vm.finishEditing(10); runCurrent()
+        assertEquals(1, repository.completionCalls)
+        assertEquals(SetValues(22.5, 0), repository.checkedValues)
+        vm.toggle(10); runCurrent()
+        vm.fieldFocused(10); vm.fieldFocused(11); vm.finishEditing(10); runCurrent()
+        assertEquals(2, repository.completionCalls)
+        assertFalse(repository.draft.value!!.exercises[0].sets[0].isCompleted)
+        vm.edit(10) { it.copy(weight = "25") }; vm.finishEditing(10); runCurrent()
+        assertEquals(3, repository.completionCalls)
+    }
+    @Test fun transferToOtherSeriesKeepsDestinationEditableWhileSourceCommits() = runTest(dispatcher) {
+        runCurrent(); preferences.setAutoCompleteEnabled(true); runCurrent()
+        vm.fieldFocused(10); vm.edit(10) { it.copy(weight = "0", reps = "0") }; vm.fieldFocused(10)
+        runCurrent(); assertEquals(0, repository.completionCalls)
+        val gate = CompletableDeferred<Unit>(); repository.checkGate = gate
+        vm.fieldFocused(11); runCurrent()
+        assertEquals(setOf(10L), vm.uiState.value.autoCompleting); assertFalse(vm.uiState.value.busy)
+        vm.edit(10) { it.copy(weight = "99") }; vm.remove(10)
+        assertEquals("0", vm.uiState.value.entries[10L]!!.weight); assertFalse(vm.uiState.value.busy)
+        vm.edit(11) { it.copy(duration = "45") }
+        assertEquals("45", vm.uiState.value.entries[11L]!!.duration)
+        gate.complete(Unit); runCurrent(); vm.finishEditing(11); runCurrent()
+        assertTrue(repository.draft.value!!.exercises.all { it.sets.single().isCompleted })
+        assertEquals(2, repository.completionCalls)
+    }
+    @Test fun missingFieldsAndInvalidDurationDoNotCompleteButManualIncompleteCheckStillWorks() = runTest(dispatcher) {
+        runCurrent(); preferences.setAutoCompleteEnabled(true); runCurrent()
+        vm.edit(10) { it.copy(weight = "0") }; vm.finishEditing(10)
+        vm.edit(11) { it.copy(duration = "0") }; vm.finishEditing(11); runCurrent()
+        assertEquals(0, repository.completionCalls); assertNotNull(vm.uiState.value.entries[11L]!!.error)
+        vm.edit(11) { it.copy(duration = "45") }; vm.finishEditing(11); runCurrent()
+        assertEquals(1, repository.completionCalls)
+        vm.toggle(10); runCurrent(); assertTrue(repository.draft.value!!.exercises[0].sets[0].isCompleted)
+        assertNotNull(vm.uiState.value.message)
+    }
+    @Test fun historyAndLifecycleAndBackupOnlySaveValuesWithoutCompleting() = runTest(dispatcher) {
+        runCurrent(); preferences.setAutoCompleteEnabled(true); runCurrent()
+        vm.fieldFocused(10); vm.edit(10) { it.copy(weight = "25", reps = "8") }
+        vm.setHistoryOpen(true); vm.finishEditing(10); vm.fieldFocused(11); runCurrent()
+        assertEquals(0, repository.completionCalls)
+        vm.setHistoryOpen(false); vm.fieldFocused(11); runCurrent(); assertEquals(0, repository.completionCalls)
+        vm.setActive(false); runCurrent()
+        persistence.capture { assertEquals(SetValues(25.0, 8), repository.updates[10L]) }
+        assertEquals(0, repository.completionCalls)
+        vm.finishEditing(10); runCurrent(); assertEquals(1, repository.completionCalls)
+    }
+    @Test fun clearInvalidatesAutomaticEventWaitingBehindOlderSave() = runTest(dispatcher) {
+        runCurrent(); preferences.setAutoCompleteEnabled(true); runCurrent()
+        val gate = CompletableDeferred<Unit>(); repository.saveGate = gate
+        vm.edit(10) { it.copy(weight = "20", reps = "8") }; advanceTimeBy(500); runCurrent()
+        vm.edit(10) { it.copy(weight = "25") }; vm.finishEditing(10); runCurrent()
+        vm.requestClearExercise(1); vm.confirmClearExercise(); runCurrent()
+        gate.complete(Unit); runCurrent(); advanceTimeBy(1000); runCurrent()
+        assertEquals(0, repository.completionCalls)
+        assertNull(repository.draft.value!!.exercises[0].sets[0].weightKg)
+        assertEquals("", vm.uiState.value.entries[10L]!!.weight)
+    }
+    @Test fun changingPreferenceInvalidatesQueuedIntentAndDoesNotCheckExistingValues() = runTest(dispatcher) {
+        runCurrent(); preferences.setAutoCompleteEnabled(true); runCurrent()
+        val gate = CompletableDeferred<Unit>(); repository.saveGate = gate
+        vm.edit(10) { it.copy(weight = "20", reps = "8") }; advanceTimeBy(500); runCurrent()
+        vm.edit(10) { it.copy(weight = "25") }; vm.finishEditing(10); runCurrent()
+        preferences.setAutoCompleteEnabled(false); runCurrent(); gate.complete(Unit); runCurrent()
+        assertEquals(0, repository.completionCalls)
+        preferences.setAutoCompleteEnabled(true); runCurrent(); vm.finishEditing(10); runCurrent()
+        assertEquals(0, repository.completionCalls)
+    }
+    @Test fun failedAutomaticWriteKeepsBuffersAndCanBeCheckedManually() = runTest(dispatcher) {
+        runCurrent(); preferences.setAutoCompleteEnabled(true); runCurrent()
+        vm.edit(10) { it.copy(weight = "25", reps = "8") }; repository.failWrites = true
+        vm.finishEditing(10); runCurrent(); vm.finishEditing(10); runCurrent()
+        assertEquals(1, repository.completionCalls); assertEquals("25", vm.uiState.value.entries[10L]!!.weight)
+        assertFalse(repository.draft.value!!.exercises[0].sets[0].isCompleted)
+        assertNotNull(vm.uiState.value.error); assertTrue(vm.uiState.value.autoCompleting.isEmpty())
+        repository.failWrites = false; vm.toggle(10); runCurrent()
+        assertTrue(repository.draft.value!!.exercises[0].sets[0].isCompleted)
+    }
+    @Test fun preferenceReadFailureDisablesAutomationAndCanRetryWithoutLosingManualControls() = runTest(dispatcher) {
+        failPreferenceRead = true; recreateModel(); runCurrent()
+        assertNotNull(vm.uiState.value.preferenceError); assertFalse(vm.uiState.value.autoCompleteEnabled)
+        vm.edit(10) { it.copy(weight = "0", reps = "0") }; vm.finishEditing(10); runCurrent()
+        assertEquals(0, repository.completionCalls)
+        failPreferenceRead = false; preferences.setAutoCompleteEnabled(true); vm.retryPreference(); runCurrent()
+        vm.finishEditing(10); runCurrent(); assertEquals(0, repository.completionCalls)
+        vm.toggle(10); runCurrent(); assertEquals(1, repository.completionCalls)
+    }
+    @Test fun staleViewModelCannotSubmitAutomaticWriteAfterGenerationChange() = runTest(dispatcher) {
+        runCurrent(); preferences.setAutoCompleteEnabled(true); runCurrent()
+        vm.edit(10) { it.copy(weight = "25", reps = "8") }
+        persistence.restore {}
+        vm.finishEditing(10); runCurrent()
+        assertEquals(0, repository.completionCalls); assertTrue(vm.uiState.value.autoCompleting.isEmpty())
+    }
 
     @Test fun exportBeforeDebounceFlushesZeroTimeAndNullWithoutCheckingOrChangingRest() = runTest(dispatcher) {
         runCurrent()
@@ -285,6 +408,7 @@ class SessionViewModelTest {
     }
 
     private class FakeRepository : SessionRepository {
+        override suspend fun getExerciseHistoryPage(exerciseId: Long, trackingType: TrackingType, cursor: ExerciseHistoryCursor?) = ExerciseHistoryPage(emptyList(), null)
         val draft = MutableStateFlow<Session?>(Session(1, SessionStatus.DRAFT, "Plano", "A", Instant.EPOCH,
             null, null, listOf(
                 SessionExercise(1, 1, "Halter", emptySet(), 0, ExerciseTarget.Repetitions(1, 8, 12, Duration.ofSeconds(30)),
@@ -299,6 +423,8 @@ class SessionViewModelTest {
         var saveGate: CompletableDeferred<Unit>? = null
         var observationGate: CompletableDeferred<Unit>? = null
         var failClear = false
+        var completionCalls = 0
+        var checkGate: CompletableDeferred<Unit>? = null
         override fun observeDraft(): Flow<Session?> = draft.map { session ->
             if (session?.exercises?.firstOrNull()?.sets?.firstOrNull()?.weightKg != null) observationGate?.await()
             session
@@ -323,12 +449,14 @@ class SessionViewModelTest {
             changeSet(setId) { it.copy(weightKg = values.weightKg, reps = values.reps, durationSeconds = values.durationSeconds) }
         }
         override suspend fun saveSetAndSetCompleted(setId: Long, values: SetValues, completed: Boolean) {
+            completionCalls++
+            checkGate?.await()
             check(!failWrites)
             checkedValues = values
             changeSet(setId) { it.copy(weightKg = values.weightKg, reps = values.reps,
                 durationSeconds = values.durationSeconds, isCompleted = completed) }
         }
-        private fun changeSet(id: Long, transform: (SessionSet) -> SessionSet) {
+        fun changeSet(id: Long, transform: (SessionSet) -> SessionSet) {
             draft.value = draft.value?.let { session -> session.copy(exercises = session.exercises.map { ex ->
                 ex.copy(sets = ex.sets.map { if (it.id == id) transform(it) else it })
             }) }

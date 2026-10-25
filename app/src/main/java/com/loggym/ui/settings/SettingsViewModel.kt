@@ -36,4 +36,5 @@ class SettingsViewModel @Inject constructor(private val preferences: UserPrefere
     fun retry() { refresh.update { it + 1 } }
     fun setTheme(mode: ThemeMode) = operations.launch { preferences.setThemeMode(mode) }
     fun setPrefill(enabled: Boolean) = operations.launch { preferences.setPrefillEnabled(enabled) }
+    fun setAutoComplete(enabled: Boolean) = operations.launch { preferences.setAutoCompleteEnabled(enabled) }
 }
