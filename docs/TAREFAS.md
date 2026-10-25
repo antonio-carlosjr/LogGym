@@ -212,3 +212,12 @@ Base `35370e2`, integração do PR #14 e aprovação final da S5 confirmadas pel
 Responsabilidades técnicas, sem pressupor três profissionais simultâneos ou velocidade fixa em duas semanas. A preferência/formato passou de 5 para 3 pontos ao retirar importação pública v1, mantendo integralmente recuperação e testes do formato vigente. Contratos/critério de aceite em [decisão S6](decisoes/S6-execucao.md), resultados em [implementação](S6-IMPLEMENTACAO.md), [homologação](HOMOLOGACAO-S6.md) individual aprovada, com reteste visual final pendente.
 
 UX-NAV-01 é candidata à S7 (13 pontos; referência anterior 11), com cinco abas e Voltar das raízes para Início. Não implementá-la nem usar a reserva automaticamente. Compactação, preferências individuais, fotos, distância e kg/lb permanecem separados.
+
+
+## Sprint 7 — navegação e usabilidade autorizadas
+
+Plano B aprovado em 25/10/2026: 33 pontos e 6 de reserva (referência 39). S7-01 contratos 3; S7-02 navegação 5; S7-03 estado/gerações 5; S7-04 linhas 5; S7-05 adaptação/acessibilidade 3; S7-06 padronização 5; S7-07 microinterações 2; S7-08 regressão/documentação 5. Dev 1: 10; Dev 2: 10; Dev 3: 13 — responsabilidades técnicas, não disponibilidade simultânea.
+
+Cinco raízes com rótulo Ajustes/título Configurações, séries em linhas e remoção direta. Sem alterações de dados/formato. [Contratos](decisoes/S7-usabilidade.md), [resultados](S7-IMPLEMENTACAO.md) e [homologação pendente](HOMOLOGACAO-S7.md). A candidatura UX-NAV-01 anterior foi incorporada a este compromisso. S6 integrada/homologada individualmente, inclusive refinamento final, conforme contexto do responsável; registros históricos preservados.
+
+Reserva para correções; não incorporar estatísticas, kg/lb, distância, fotos ou preferências por exercício. Codex implementa/testa/revisa e entrega PR; responsável homologa e faz merge manualmente.

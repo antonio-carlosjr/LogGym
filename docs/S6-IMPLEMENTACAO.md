@@ -62,3 +62,8 @@ CI anterior aprovada em `7831c64`: [execução](https://github.com/antonio-carlo
 Verificação local do refinamento: `assembleDebug testDebugUnitTest lintDebug assembleDebugAndroidTest --max-workers=1 --no-configuration-cache --console=plain` aprovado; 192 testes JVM, zero falhas/erros/ignorados. Lint sem erros (cinco avisos existentes de dependências). APK de teste compilado; instrumentados serão executados pela CI em API 35 no novo HEAD, sem presumir execução local nesta rodada.
 
 Primeira CI do refinamento (`59f5c98`): build/JVM/lint aprovados; 61/62 instrumentados aprovados, com uma falha `RootViewWithoutFocusException` no `Espresso.pressBack()` do fluxo S6 após abrir o modal. O teste passou a enviar a tecla Voltar por Instrumentation à janela ativa, preservando as assertivas de fechamento/buffers/descanso e sem atrasos arbitrários. Nova CI obrigatória após essa correção de teste; nenhum comportamento de produção adicional foi alterado.
+
+
+## Atualização de encerramento recebida no planejamento da S7 — 25/10/2026
+
+O contexto fornecido pelo responsável confirma homologação individual da S6 incluindo os refinamentos visuais finais. O PR #15 foi conferido como integrado à main em `902a809d903e924ace6ba1f8ea773726b1c18072`. As menções anteriores a reteste/merge pendentes descrevem o estado histórico anterior a esta confirmação. Sem atribuir aprovação coletiva, TalkBack abrangente, assinatura definitiva/custódia ou ensaio não relatados.

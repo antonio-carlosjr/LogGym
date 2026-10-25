@@ -57,3 +57,10 @@ Confirmar capacidade e reestimar após o refinamento. Não retirar testes nem de
 - Build, JVM, lint, instrumentação e CI do commit entregue, seguidos de homologação individual e aprovação explícita do responsável antes do merge.
 
 Histórico individual, marcação automática, compactação dos cards, pré-preenchimento por exercício, fotos, distância e kg/lb continuam separados deste item. Navegação inferior não implementa essas funcionalidades implicitamente.
+
+
+## Refinamento aprovado na S7 — 25/10/2026
+
+UX-NAV-01 incorporada ao plano B autorizado: cinco raízes, rótulo Ajustes/título Configurações, Voltar secundário ao Início, estado preservado e invalidação de pilhas após restauração. As recomendações iniciais acima ficam como histórico. Compromisso total S7: 33 pontos e 6 de reserva, incluindo linhas compactas, padronização pontual, duas microinterações e regressão. [Contrato vigente](decisoes/S7-usabilidade.md).
+
+Estatísticas candidatas à S8, internas à aba Histórico e sem sexta aba, dependem de planejamento próprio. Preferências por exercício, distância, kg/lb e fotos seguem separados.

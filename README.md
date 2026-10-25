@@ -207,4 +207,11 @@ Configurações oferece conclusão automática, **desativada por padrão**. Apó
 
 O backup público passa a **v2**, incluindo a preferência. Arquivos públicos v1 deixam de ser importáveis, com mensagem de incompatibilidade; gere um novo backup. Dados locais existentes continuam preservados, Room permanece v3. A recuperação privada de undo S5 pendente é mantida, assim como journal, rollback e consistência Room/DataStore. Não há criptografia.
 
-Escopo autorizado: 27 pontos e 12 de reserva. [Implementação/resultados](docs/S6-IMPLEMENTACAO.md), [contratos](docs/decisoes/S6-execucao.md) e [homologação individual aprovada; reteste visual pendente](docs/HOMOLOGACAO-S6.md). Navegação inferior de cinco abas fica candidata à S7; não foi implementada.
+Escopo autorizado: 27 pontos e 12 de reserva. [Implementação/resultados](docs/S6-IMPLEMENTACAO.md), [contratos](docs/decisoes/S6-execucao.md) e [homologação individual final aprovada](docs/HOMOLOGACAO-S6.md). Navegação inferior de cinco abas fica candidata à S7; não foi implementada.
+
+
+## Sprint 7 — navegação e usabilidade
+
+Implementação autorizada: cinco abas (Início, Planos, Exercícios, Histórico e Ajustes), estado preservado entre raízes, linhas de séries adaptativas e padronização pontual. Barra ausente em fluxos internos e com teclado aberto. Restauração descarta pilhas/ViewModels da geração anterior. Microinterações: fade de 120 ms entre raízes e cor de conclusão em 150 ms, respeitando a escala do sistema. Room v3 e backup v2 preservados.
+
+Consulte [contratos](docs/decisoes/S7-usabilidade.md), [implementação/resultados](docs/S7-IMPLEMENTACAO.md) e [roteiro de homologação](docs/HOMOLOGACAO-S7.md). Homologação S7 e merge manual pelo responsável; sem publicação automática.

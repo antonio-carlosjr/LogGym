@@ -29,3 +29,8 @@ Na S5, manter dados locais e uma restauração/treino de referência. Atualizar 
 | Fluxo combinado | Plano misto → pré-preenchimento → alteração de um campo → conclusão automática → histórico → limpeza → recuperação → finalização parcial → histórico geral → exportação/restauração v2. |
 
 Pendências humanas anteriores de assinatura definitiva/custódia e ensaio permanecem separadas. Não atribuir avaliação abrangente de TalkBack sem confirmação. O responsável fará homologação e merge manualmente no GitHub; sem merge/release pelo Codex.
+
+
+## Atualização de encerramento recebida no planejamento da S7 — 25/10/2026
+
+O contexto fornecido pelo responsável confirma homologação individual da S6 incluindo os refinamentos visuais finais. O PR #15 foi conferido como integrado à main em `902a809d903e924ace6ba1f8ea773726b1c18072`. As menções anteriores a reteste/merge pendentes descrevem o estado histórico anterior a esta confirmação. Sem atribuir aprovação coletiva, TalkBack abrangente, assinatura definitiva/custódia ou ensaio não relatados.
