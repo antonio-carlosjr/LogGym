@@ -4,7 +4,9 @@
 
 Planejamento e ajustes aprovados pelo responsável em 24/10/2026. Pacote de 32 pontos (Dev 1: 10, Dev 2: 11, Dev 3: 11) e reserva de 7 sobre referência provisória de 39. Papéis são áreas técnicas; não pressupor três pessoas simultâneas nem converter pontos em prazo garantido. A janela organizacional de duas semanas não reduz critérios de qualidade.
 
-Código implementado localmente na branch `feature/S4-01-prescricao-e-configuracoes`, com commits separados por entrega e PR consolidado. Homologação manual da S4 e autorização explícita para merge final ainda pendentes. Nenhuma release publicada.
+Código implementado e enviado na branch `feature/S4-01-prescricao-e-configuracoes`, com commits separados por entrega e [PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolidado. **Implementação e homologação funcional individual concluídas:** em 25/10/2026, o responsável confirmou aprovação de descanso manual, repetições fixas/faixa, cadastro contextual, borracha, tema, preferência de pré-preenchimento e regressão do fluxo completo, sem defeitos bloqueantes identificados. Evidência e limites em [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md).
+
+**Integração pendente de autorização explícita para merge.** Não declarar a sprint integralmente encerrada em todos os critérios: aceite de outros integrantes e critérios humanos/release não confirmados permanecem separados, sem atribuição de aprovação coletiva. A homologação funcional não autoriza o merge por si só. Nenhuma release publicada.
 
 | Tarefa | Componentes e comportamento |
 | --- | --- |
@@ -14,7 +16,7 @@ Código implementado localmente na branch `feature/S4-01-prescricao-e-configurac
 | S4-08 | `SessionRepositoryImpl`: leitura única antes da transação; revalidação de rascunho; flag padrão true; nenhum efeito em retomadas/limpeza |
 | S4-03 | `ExerciseEditorFields` compartilhado; `ExerciseCreateViewModel/Screen`; resultado por SavedStateHandle; contexto/posição preservados no cancelamento; salvar busca pelo novo nome, sem inserir prescrição |
 | S4-05 | `SessionRepository.clearExerciseSets`, DAO transacional, ViewModel/mutex e ícone: limpa somente ocorrência DRAFT, preservando IDs/ordem/quantidade e descanso; ignora emissões antigas |
-| S4-09 | Testes de regras, repositório, DataStore, ViewModels e fluxo Compose; documentos e roteiro manual |
+| S4-09 | Testes de regras, repositório, DataStore, ViewModels e fluxo Compose; documentos, roteiro e registro da homologação funcional individual dos sete grupos |
 
 ## Contratos e compatibilidade
 
@@ -32,7 +34,7 @@ Cadastro usa os mesmos campos, validações de repositório e mapeamento de erro
 
 Verificação local em 24/10/2026: build debug e APK instrumentado aprovados; **132 testes JVM e 24 instrumentados**, sem falhas, erros ou testes ignorados. Instrumentação executada no AVD isolado/read-only `Medium_Phone_API_37.0`, API 37, preservando os dados do AVD habitual. Lint sem erros; cinco avisos preexistentes sobre versões de dependências/Gradle. A referência anterior era 115 JVM e 18 instrumentados.
 
-A revisão técnica conferiu escopo, transações, buffers/debounce, estados de erro, consumo de resultado da navegação e ausência de mudança de schema. A CI API 35 deve ser conferida no commit final apresentado no PR; sua URL e resultado ficam no registro do PR consolidado. Evidência técnica automatizada não equivale a homologação manual individual.
+A revisão técnica conferiu escopo, transações, buffers/debounce, estados de erro, consumo de resultado da navegação e ausência de mudança de schema. A [CI da implementação](https://github.com/antonio-carlosjr/LogGym/actions/runs/40150749551) foi aprovada no commit `a0252b0`, incluindo build/JVM/lint e instrumentação API 35. As alterações documentais de encerramento passam por nova CI; seu HEAD e resultado final são registrados no PR consolidado. Evidência técnica automatizada e homologação individual são registros distintos.
 
 Smoke técnico no AVD isolado: tela de configurações inspecionada em tema escuro, com barras legíveis; tema escuro e pré-preenchimento desativado permaneceram após encerrar/reabrir o processo. Isso não declara homologação humana, TalkBack nem avaliação visual abrangente.
 
@@ -48,8 +50,9 @@ Testes novos cobrem 37±15, limites/entradas inválidas, fixo/faixa, persistênc
 
 ## Limites e pendências
 
-- Executar [homologação S4](HOMOLOGACAO-S4.md) e registrar somente cenários efetivamente confirmados pelo responsável.
+- [Homologação funcional individual S4](HOMOLOGACAO-S4.md) aprovada nos sete grupos informados em 25/10/2026; não presumir execução de subcasos específicos não detalhados.
 - Revisão técnica e CI verde precedem aprovação explícita do responsável para o merge final. A aprovação do planejamento não é autorização de merge.
 - Backup fica na S5, **sem criptografia**, com aviso claro. Proteção por senha removida do escopo comprometido. Completo inclui histórico/rascunho; sem histórico não inclui sessões; importação substitui tudo após validação/confirmacão e recuperação segura.
 - Histórico individual (S4-04), marcação automática (S4-06), compactação, pré-preenchimento por exercício, fotos, distância e kg/lb não implementados.
 - TalkBack/avaliação abrangente, assinatura definitiva/custódia e ensaio humanos da S3 permanecem separados; não foram presumidos concluídos.
+- Reorganização da navegação principal por barra inferior registrada como nova proposta [UX-NAV-01](BACKLOG-UX.md#ux-nav-01--navegação-principal-inferior). Não integra os 32 pontos da S4 e não foi implementada.

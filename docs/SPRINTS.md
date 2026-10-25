@@ -95,12 +95,18 @@ Seção 18 da especificação, mais a decisão pendente 4: alarme de descanso co
 - **O Sprint 1 é o mais pesado.** Se apertar, a reordenação de divisões e exercícios (RF-44, RF-48) passa para o início do Sprint 2.
 - **Interrupções antes do commit:** a última digitação pode não sobreviver à janela de debounce. Validar recuperação conforme o roteiro S2-06.
 
-## Sprint 4 — implementação local; revisão e homologação pendentes
+## Sprint 4 — implementação e homologação funcional individual concluídas; integração pendente
 
 Pacote aprovado: descanso livre de 0 a 600 s mantendo ±15; repetições fixas/faixa; cadastro pela seleção; borracha por exercício; configurações de tema e pré-preenchimento. São 32 pontos e 7 de reserva sobre a referência provisória de 39; os papéis Dev 1/2/3 são áreas técnicas, sem presumir execução humana simultânea. Consulte [tarefas](TAREFAS.md#sprint-4--prescrição-cadastro-limpeza-e-configurações), [implementação](S4-IMPLEMENTACAO.md) e [homologação](HOMOLOGACAO-S4.md).
 
 As tarefas S4-04/histórico individual e S4-06/marcação automática ficam no backlog; cards compactos, preferências por exercício, fotos, distância e kg/lb também continuam fora desta entrega. Não há migração Room: banco v2 e snapshots preservados. Merge final exige aprovação explícita após o resumo técnico e CI verde.
 
+Em 25/10/2026, o responsável confirmou os sete grupos funcionais da Sprint 4, incluindo regressão completa, sem defeitos bloqueantes. Consulte os limites da evidência em [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md). O [PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) aguarda autorização explícita para merge; não foi atribuído aceite coletivo. TalkBack, avaliação abrangente de acessibilidade, assinatura definitiva e ensaio humanos não foram confirmados por esse relato.
+
 ## Sprint 5 — proposta de backup sem criptografia
 
 Backup completo (com histórico/rascunho) ou sem histórico (sem sessões), por substituição integral após validação e confirmação, com recuperação segura de falhas. Estimativa de 26 pontos. Por decisão do responsável, não incluir senha ou criptografia no escopo comprometido; apresentar aviso claro sobre os dados legíveis. Implementação reservada à S5, após refinamento próprio; não foi iniciada na S4.
+
+## Proposta posterior — navegação principal inferior
+
+[UX-NAV-01](BACKLOG-UX.md#ux-nav-01--navegação-principal-inferior) registra a nova melhoria de UX solicitada em 25/10/2026. Recomenda-se avaliar sua inclusão em uma Sprint 6, após o backup, sem alterar os compromissos de S4/S5. Estimativa preliminar de 11 pontos, sujeita a refinamento e aprovação; sem implementação ou alocação automática de capacidade. Definir destinos, comportamento de Voltar, preservação de estado e acessibilidade antes de executar.

@@ -1,6 +1,26 @@
 # Homologação manual da Sprint 4
 
-Todos os casos abaixo estão **pendentes de confirmação humana**. Registrar data, responsável, commit/APK, dispositivo/API, resultado por caso e evidência disponível. Automação/CI não substituem esse registro.
+## Homologação funcional individual aprovada — relato de 25/10/2026
+
+O responsável pelo projeto informou nesta conversa que concluiu a homologação manual da Sprint 4, aprovou os comportamentos abaixo e não identificou defeitos bloqueantes.
+
+| Grupo confirmado | Referência | Resultado informado |
+| --- | --- | --- |
+| Descanso manual | S4-02 | Aprovado individualmente |
+| Repetições fixas e em faixa | S4-01 | Aprovado individualmente |
+| Cadastro contextual | S4-03 | Aprovado individualmente |
+| Borracha por exercício | S4-05 | Aprovado individualmente |
+| Tema do aplicativo | S4-07 | Aprovado individualmente |
+| Preferência de pré-preenchimento | S4-08 | Aprovado individualmente |
+| Regressão do fluxo completo | S4-09 | Aprovado individualmente |
+
+**Evidência:** declaração explícita do responsável nesta conversa, registrada em 25/10/2026. A última implementação disponibilizada era o commit `a0252b0adc02c0aac5eec9d8281a430e207ed9c8` do [PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13). O relato não informa identificador exato do APK testado, dispositivo/API, capturas/logs ou data exata de execução; não atribuir esses dados ao usuário por inferência.
+
+Esta aprovação abrange os sete grupos relatados. Não confirma individualmente cada subcaso do roteiro, nem TalkBack, avaliação abrangente de acessibilidade, assinatura definitiva, ensaio ou aceite de outros integrantes. As pendências humanas/release anteriores permanecem abertas. A política atual exige aprovação explícita para integrar: **o merge do PR #13 ainda não foi autorizado**.
+
+## Roteiro detalhado de referência
+
+O roteiro abaixo é preservado para rastreabilidade e verificações complementares. Seus subcasos não recebem aprovação individual por dedução do relato agregado. Em novas verificações, registrar data real, responsável, commit/APK, dispositivo/API, resultado por caso e evidência disponível. Automação/CI não substituem o registro humano.
 
 Use uma divisão com exercícios de carga/repetições e tempo, três séries de cada, e histórico anterior com valores conhecidos. Preserve o mesmo plano para aproveitar os casos.
 

@@ -164,6 +164,8 @@ Contratos precedem telas; S4-02/S4-01 alteram o formulário compartilhado em seq
 
 Situação, testes e limites: [S4-IMPLEMENTACAO.md](S4-IMPLEMENTACAO.md). Aceite manual: [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md). A implementação e a CI não equivalem à homologação individual ou à autorização de merge.
 
+Em 25/10/2026, o responsável aprovou individualmente os sete grupos funcionais da S4, sem defeitos bloqueantes. Implementação e homologação funcional individual concluídas; o PR #13 aguarda autorização explícita para merge. Não registrar aprovação coletiva ou cumprimento de critérios humanos/release não confirmados.
+
 ## Sprint 5 candidata — backup sem criptografia
 
 Estimativa preservada de **26 pontos**. Proteção por senha foi retirada do escopo comprometido por decisão expressa do responsável. O backup será sem criptografia, com aviso claro de que os dados ficam legíveis e devem ser guardados/compartilhados conscientemente. Não implementar backup na Sprint 4.
@@ -185,5 +187,6 @@ Completo inclui histórico e rascunho; sem histórico inclui planos, divisões, 
 - Compactação dos cards (3 pontos), sem reduzir legibilidade ou alvos de toque.
 - Pré-preenchimento por exercício (5–8 pontos a refinar), sem colunas/maps de override antecipados na S4.
 - Fotos, distância e kg/lb continuam pendentes; configurações não os incluem automaticamente.
+- **UX-NAV-01:** avaliar navegação principal inferior, com destinos, estado, Voltar e acessibilidade refinados antes da execução. Nova proposta de UX, fora da S4 e do backup comprometido para S5. Candidata à Sprint 6; referência preliminar de 11 pontos, sem aprovação de execução. Ver [BACKLOG-UX.md](BACKLOG-UX.md).
 
 Essas expansões não ocupam automaticamente a reserva da S4 nem o pacote de backup da S5. Pendências humanas/release da S3 permanecem separadas.
