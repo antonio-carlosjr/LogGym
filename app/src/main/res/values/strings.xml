@@ -199,4 +199,5 @@
     <string name="theme_dark">Escuro</string>
     <string name="prefill_label">Usar valores do último treino</string>
     <string name="prefill_help">Aplica-se somente ao iniciar um novo treino. Não altera treinos em andamento.</string>
+    <string name="create_exercise">Cadastrar exercício</string>
 </resources>

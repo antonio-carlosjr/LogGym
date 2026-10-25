@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -47,6 +48,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,6 +73,7 @@ import com.loggym.ui.util.restLabel
 @Composable
 fun PlanEditorScreen(
     onBack: () -> Unit,
+    onCreateExercise: () -> Unit,
     viewModel: PlanEditorViewModel = hiltViewModel(),
 ) {
     val resources = LocalResources.current
@@ -150,6 +156,10 @@ fun PlanEditorScreen(
                 onDismiss = viewModel::dismissDialog,
                 failed = libraryFailed,
                 onRetry = viewModel::retry,
+                initialIndex = viewModel.pickerIndex,
+                initialOffset = viewModel.pickerOffset,
+                onPosition = viewModel::rememberPickerPosition,
+                onCreate = onCreateExercise,
             )
         }
         is PlanEditorDialog.Target -> TargetDialog(
@@ -321,8 +331,21 @@ private fun PickExerciseDialog(
     onDismiss: () -> Unit,
     failed: Boolean,
     onRetry: () -> Unit,
+    initialIndex: Int,
+    initialOffset: Int,
+    onPosition: (Int, Int) -> Unit,
+    onCreate: () -> Unit,
 ) {
     val resources = LocalResources.current
+    val listState = rememberLazyListState(initialIndex, initialOffset)
+    var previousQuery by remember { mutableStateOf(query) }
+    LaunchedEffect(query) {
+        if (previousQuery != query) { listState.scrollToItem(0); previousQuery = query }
+    }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (index, offset) -> onPosition(index, offset) }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(resources.getString(R.string.ui_adicionar_exercicio)) },
@@ -338,7 +361,11 @@ private fun PickExerciseDialog(
                 )
                 if (failed) LoadError(onRetry)
                 else if (exercises.isEmpty()) Text(resources.getString(R.string.ui_nenhum_exercicio_encontrado))
-                LazyColumn(Modifier.heightIn(max = 360.dp)) {
+                TextButton(onClick = {
+                    onPosition(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
+                    onCreate()
+                }) { Text(resources.getString(R.string.create_exercise)) }
+                LazyColumn(Modifier.heightIn(max = 360.dp), state = listState) {
                     items(exercises, key = { it.id }) { exercise ->
                         ListItem(
                             headlineContent = { Text(exercise.name) },

@@ -1,11 +1,18 @@
 package com.loggym.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.Lifecycle
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.loggym.ui.exercises.ExerciseLibraryScreen
+import com.loggym.ui.exercises.ExerciseCreateScreen
+import com.loggym.ui.plans.PlanEditorViewModel
 import com.loggym.ui.history.HistoryDetailScreen
 import com.loggym.ui.history.HistoryScreen
 import com.loggym.ui.home.HomeScreen
@@ -54,8 +61,26 @@ fun LogGymNavHost(
                 onOpenPlan = { planId -> navController.navigate(PlanEditorRoute(planId)) },
             )
         }
-        composable<PlanEditorRoute> {
-            PlanEditorScreen(onBack = navigateBack)
+        composable<PlanEditorRoute> { entry ->
+            val viewModel = hiltViewModel<PlanEditorViewModel>(entry)
+            val lifecycle by entry.lifecycle.currentStateFlow.collectAsState()
+            val created by entry.savedStateHandle.getStateFlow<Long?>("createdExerciseId", null).collectAsState()
+            LaunchedEffect(lifecycle, created) {
+                if (lifecycle == Lifecycle.State.RESUMED) {
+                    viewModel.resumePicker(created)
+                    entry.savedStateHandle["createdExerciseId"] = null
+                }
+            }
+            PlanEditorScreen(onBack = navigateBack, viewModel = viewModel, onCreateExercise = {
+                viewModel.suspendPicker()
+                navController.navigate(ExerciseCreateRoute)
+            })
+        }
+        composable<ExerciseCreateRoute> {
+            ExerciseCreateScreen(onBack = navigateBack, onSaved = { id ->
+                navController.previousBackStackEntry?.savedStateHandle?.set("createdExerciseId", id)
+                navController.popBackStack()
+            })
         }
         composable<SessionRoute> {
             SessionScreen(onBack = navigateBack)

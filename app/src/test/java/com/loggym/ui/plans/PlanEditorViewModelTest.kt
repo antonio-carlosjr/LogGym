@@ -181,6 +181,28 @@ class PlanEditorViewModelTest {
             as PlanEditorUiState.Loaded).plan
     }
 
+    @Test fun `cadastro cancelado preserva busca e posicao e salvar nao adiciona ao plano`() = runTest {
+        val workout = workoutWithLibraryLoaded("A")
+        viewModel.openPickExercise(workout)
+        viewModel.onPickQueryChange("busca anterior")
+        viewModel.rememberPickerPosition(4, 20)
+        viewModel.suspendPicker()
+        assertNull(viewModel.dialog.value)
+        viewModel.resumePicker(null)
+        assertEquals("busca anterior", (viewModel.dialog.value as PlanEditorDialog.PickExercise).query)
+        assertEquals(4, viewModel.pickerIndex)
+        assertEquals(20, viewModel.pickerOffset)
+        viewModel.suspendPicker()
+        val id = (ExerciseRepositoryImpl(database, database.exerciseDao()).createCustom(
+            com.loggym.domain.repository.ExerciseDraft("Novo exercício S4")) as com.loggym.domain.repository.SaveExerciseResult.Saved).exerciseId
+        viewModel.resumePicker(id)
+        viewModel.library.awaitFirst { list -> list.any { it.id == id } }
+        val pick = viewModel.dialog.awaitFirst { (it as? PlanEditorDialog.PickExercise)?.query == "Novo exercício S4" } as PlanEditorDialog.PickExercise
+        assertEquals(workout.id, pick.workoutId)
+        assertEquals(0, viewModel.pickerIndex)
+        assertTrue(awaitPlan { it.workouts.isNotEmpty() }.workouts.single().exercises.isEmpty())
+    }
+
     private suspend fun workoutWithLibraryLoaded(name: String) = run {
         plans.addWorkout(planId, name)
         viewModel.library.awaitFirst { it.isNotEmpty() }

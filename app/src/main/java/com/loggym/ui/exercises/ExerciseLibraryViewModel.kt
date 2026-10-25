@@ -122,12 +122,8 @@ class ExerciseLibraryViewModel @Inject constructor(
             val result = editor.editingId
                 ?.let { repository.updateCustom(it, draft) }
                 ?: repository.createCustom(draft)
-            when (result) {
-                is SaveExerciseResult.Saved -> _dialog.value = null
-                SaveExerciseResult.BlankName -> setEditorError(EditorError.BLANK_NAME)
-                SaveExerciseResult.DuplicateName -> setEditorError(EditorError.DUPLICATE_NAME)
-                SaveExerciseResult.NotEditable -> setEditorError(EditorError.NOT_EDITABLE)
-            }
+            if (result is SaveExerciseResult.Saved) _dialog.value = null
+            else result.editorError()?.let(::setEditorError)
         }
     }
 
