@@ -13,6 +13,7 @@ import com.loggym.ui.onboarding.OnboardingScreen
 import com.loggym.ui.plans.PlanEditorScreen
 import com.loggym.ui.plans.PlansScreen
 import com.loggym.ui.session.SessionScreen
+import com.loggym.ui.settings.SettingsScreen
 
 @Composable
 fun LogGymNavHost(
@@ -41,6 +42,7 @@ fun LogGymNavHost(
                 onOpenPlans = { navController.navigate(PlansRoute) },
                 onOpenExercises = { navController.navigate(ExerciseLibraryRoute) },
                 onOpenHistory = { navController.navigate(HistoryRoute) },
+                onOpenSettings = { navController.navigate(SettingsRoute) },
             )
         }
         composable<ExerciseLibraryRoute> {
@@ -64,5 +66,6 @@ fun LogGymNavHost(
         composable<HistoryDetailRoute> {
             HistoryDetailScreen(onBack = navigateBack)
         }
+        composable<SettingsRoute> { SettingsScreen(onBack = navigateBack) }
     }
 }

@@ -23,8 +23,7 @@ class OnboardingViewModelTest {
     @Test fun retryAfterPreferenceFailureDoesNotCreateAnotherTemplateCopy() = runTest {
         val plans = PlanRepositoryImpl(db, db.planDao(), db.exerciseDao(), fixedClock)
         var fail = true
-        val preferences = object : UserPreferencesRepository {
-            override val onboardingCompleted = MutableStateFlow(false)
+        val preferences = object : com.loggym.FakeUserPreferences() {
             override suspend fun setOnboardingCompleted() {
                 if (fail) throw java.io.IOException("Falha simulada")
                 onboardingCompleted.value = true

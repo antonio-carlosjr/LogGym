@@ -1,52 +1,56 @@
 package com.loggym.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import com.loggym.ui.components.LoadError
-import kotlinx.coroutines.flow.*
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.loggym.domain.model.ThemeMode
+import com.loggym.domain.model.UserSettings
 import com.loggym.domain.repository.UserPreferencesRepository
-import com.loggym.ui.navigation.HomeRoute
-import com.loggym.ui.navigation.LogGymNavHost
-import com.loggym.ui.navigation.OnboardingRoute
+import com.loggym.ui.components.LoadError
+import com.loggym.ui.navigation.*
+import com.loggym.ui.theme.LogGymTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class AppViewModel @Inject constructor(
-    preferences: UserPreferencesRepository,
-) : ViewModel() {
+data class AppUiState(val startDestination: Any? = null, val settings: UserSettings? = null, val failed: Boolean = false)
 
-    /** Lido uma única vez: o destino inicial não deve mudar enquanto o NavHost está montado (RF-03, RF-08). */
-    private val refresh = MutableStateFlow(0)
-    private val failure = MutableStateFlow(false)
-    val failed = failure.asStateFlow()
-    fun retry() { refresh.update { it + 1 } }
-    val startDestination: StateFlow<Any?> = refresh.flatMapLatest { flow {
-        failure.value = false
-        emit(if (preferences.onboardingCompleted.first()) HomeRoute else OnboardingRoute)
-    }.catch { failure.value = true } }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+@HiltViewModel
+class AppViewModel @Inject constructor(private val preferences: UserPreferencesRepository) : ViewModel() {
+    private val state = MutableStateFlow(AppUiState())
+    val uiState = state.asStateFlow()
+    private var loading: Job? = null
+    init { retry() }
+    fun retry() {
+        loading?.cancel()
+        loading = viewModelScope.launch {
+            try {
+                val destination = state.value.startDestination ?: if (preferences.onboardingCompleted.first()) HomeRoute else OnboardingRoute
+                preferences.settings.collect { settings -> state.value = AppUiState(destination, settings) }
+            } catch (error: Exception) {
+                if (error is CancellationException) throw error
+                state.update { it.copy(failed = true) }
+            }
+        }
+    }
 }
 
 @Composable
-fun LogGymApp(viewModel: AppViewModel = hiltViewModel()) {
-    val startDestination by viewModel.startDestination.collectAsStateWithLifecycle()
-    val failed by viewModel.failed.collectAsStateWithLifecycle()
-
-    when (val destination = startDestination) {
-        null -> Box(Modifier.fillMaxSize()) { if (failed) LoadError(viewModel::retry) }
-        else -> LogGymNavHost(startDestination = destination)
+fun LogGymApp(onThemeApplied: (Boolean) -> Unit = {}, viewModel: AppViewModel = hiltViewModel()) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val dark = (state.settings?.themeMode ?: ThemeMode.SYSTEM).isDark(isSystemInDarkTheme())
+    SideEffect { onThemeApplied(dark) }
+    LogGymTheme(darkTheme = dark) {
+        Column(Modifier.fillMaxSize()) {
+            if (state.failed) LoadError(viewModel::retry)
+            val destination = state.startDestination
+            if (destination != null) Box(Modifier.weight(1f)) { LogGymNavHost(startDestination = destination) }
+        }
     }
 }

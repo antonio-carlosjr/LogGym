@@ -191,4 +191,12 @@
     <string name="reps_fixed">Fixas</string>
     <string name="reps_range">Faixa</string>
     <string name="invalid_reps_prescription">Informe repetições fixas positivas, ou mínimo ≥ 0 e máximo positivo.</string>
+    <string name="settings_title">Configurações</string>
+    <string name="settings_appearance">Aparência</string>
+    <string name="settings_training">Preferências de treino</string>
+    <string name="theme_system">Automático (sistema)</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Escuro</string>
+    <string name="prefill_label">Usar valores do último treino</string>
+    <string name="prefill_help">Aplica-se somente ao iniciar um novo treino. Não altera treinos em andamento.</string>
 </resources>

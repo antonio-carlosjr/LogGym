@@ -37,11 +37,7 @@ object TestDatabaseModule {
 
     // Estado próprio de cada componente de teste: não apaga preferências do app real.
     @Provides @Singleton
-    fun providePreferences(): UserPreferencesRepository = object : UserPreferencesRepository {
-        private val completed = MutableStateFlow(false)
-        override val onboardingCompleted = completed.asStateFlow()
-        override suspend fun setOnboardingCompleted() { completed.value = true }
-    }
+    fun providePreferences(): UserPreferencesRepository = com.loggym.FakeUserPreferences()
 
     @Provides
     @Singleton
