@@ -15,7 +15,7 @@ Limites de leitura e escrita: 64 MiB por arquivo, 1 MiB por linha e 500 mil regi
 
 IDs, referências históricas fracas, snapshots, posições com lacunas, extras e nulos/zeros são preservados. Os pisos de `sqlite_sequence` não recuam abaixo do estado importado nem do destino. A compatibilidade é da versão de formato/catálogo reconhecida; futuras versões exigem adaptação explícita. Não existe promessa de importação em versões antigas do aplicativo.
 
-O aviso visível é: “Este arquivo não está criptografado. Quem tiver acesso a ele poderá ler seus dados.” Exportação lógica não copia o banco aberto. SQL e caminhos nunca são obtidos do arquivo.
+O aviso é: “Este arquivo não está criptografado. Quem tiver acesso a ele poderá ler seus dados.” Após refinamento solicitado em 25/10/2026, aparece no diálogo de informação junto ao título e no modal de exportação, junto das modalidades separadas por linha em branco; não há bloco explicativo fixo na seção. Exportação lógica não copia o banco aberto. SQL e caminhos nunca são obtidos do arquivo.
 
 ## Salvamento e captura
 

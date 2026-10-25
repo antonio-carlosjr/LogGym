@@ -1,6 +1,21 @@
 # Homologação da Sprint 5
 
-Estado em 25/10/2026: **pendente de execução pelo responsável**. Implementação/testes automatizados não equivalem a aceite funcional individual. Não reutilizar a aprovação da Sprint 4 como aceite desta entrega.
+Estado em 25/10/2026: **homologação funcional individual aprovada pelo responsável**, sem defeitos bloqueantes identificados, conforme relato nesta conversa. Evidência: confirmação textual dos dez grupos abaixo; versão exata, aparelho/API e evidências anexas não foram informados. Não atribuir aceite coletivo, merge ou aprovação de testes específicos não relatados.
+
+Grupos confirmados: interface nas Configurações; exportação completa; exportação sem histórico; restauração em instalação limpa; restauração em instalação ocupada; salvamento imediato; cancelamento e arquivos inválidos; integridade do treino restaurado; regressão da Sprint 4; rotação, arquivos e acessibilidade. Essa confirmação não é uma marcação automática de cada subcenário detalhado do roteiro original.
+
+## Refinamento final de interface
+
+Solicitado após a aprovação funcional: explicações passam do texto fixo para diálogo pelo ícone “Sobre backup e restauração”, junto ao título. O modal de exportação separa as duas modalidades com uma linha em branco e mantém o aviso de ausência de criptografia. Nenhuma regra de backup/restauração é alterada.
+
+Reteste humano deste refinamento ainda pendente:
+
+- Conferir que a seção não mostra explicações fixas; abrir o ícone e verificar as duas modalidades e o aviso de arquivo legível.
+- Fechar por “Entendi” ou Voltar/toque externo; conferir que nenhuma operação foi iniciada.
+- Abrir Exportar backup e conferir a separação dos parágrafos e o aviso; escolher/cancelar como antes.
+- Conferir temas, fonte ampliada, rolagem e rótulo acessível do ícone. O relato geral de acessibilidade não confirma especificamente TalkBack abrangente.
+
+O PR #14 permanece aberto para merge manual pelo responsável após as verificações do novo commit.
 
 Registrar para cada cenário: versão/commit, Android/AVD/aparelho, tema, data, responsável, resultado e evidência. Use instalação/AVD de teste e arquivos próprios; importar substitui todos os dados atuais. Nenhuma senha ou criptografia é oferecida.
 
@@ -10,7 +25,7 @@ Criar um plano misto, exercícios personalizados de carga e tempo, prescrição 
 
 | # | Fazer | Resultado que define aprovação | Rastreabilidade |
 | --- | --- | --- | --- |
-| 1 | Abrir Configurações, rolar até Backup e restauração; conferir temas claro/escuro/sistema | Seção após preferências, duas ações, explicação das modalidades e aviso de arquivo legível; sem botão na Home | S5-05, RF-153/158 |
+| 1 | Abrir Configurações, rolar até Backup e restauração; conferir temas e abrir o ícone de informação | Seção após preferências, duas ações; explicações/aviso no diálogo de informação e na exportação; sem botão na Home | S5-05, RF-153/158 |
 | 2 | Exportar completo; escolher destino pelo Android | Seletor só após preparação; sucesso apenas ao terminar; arquivo `.loggym` disponível, com tamanho não nulo | S5-01/02/05 |
 | 3 | Alterar valores da sessão e solicitar exportação o mais cedo possível; restaurar esse arquivo | Últimos valores válidos recebidos pelo editor reaparecem, inclusive zero/decimal/tempo; nenhum check/descanso iniciado pelo flush | S5-02, RF-155 |
 | 4 | Deixar entrada inválida, solicitar exportação e corrigir/tentar novamente | Sem seletor nem backup publicado no erro; texto permanece corrigível; tentativa posterior funciona | S5-02 |

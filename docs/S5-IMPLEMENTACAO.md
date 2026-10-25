@@ -1,6 +1,6 @@
 # Sprint 5 — backup e restauração
 
-Implementação autorizada pelo responsável em 25/10/2026. Base: `cd9d8ea624c3446a5d4d7c9d43aeadea020fc0f5` (PR #13, Sprint 4 integrada). Branch: `feature/S5-01-backup-e-restauracao`. Homologação da Sprint 5 e merge ainda dependem do responsável; nenhum aceite humano é presumido.
+Implementação autorizada pelo responsável em 25/10/2026. Base: `cd9d8ea624c3446a5d4d7c9d43aeadea020fc0f5` (PR #13, Sprint 4 integrada). Branch: `feature/S5-01-backup-e-restauracao`. Homologação funcional individual aprovada pelo responsável nos dez grupos relatados em [HOMOLOGACAO-S5](HOMOLOGACAO-S5.md), sem bloqueantes. Refinamento final de interface ainda requer reteste; merge manual do PR #14 permanece pendente.
 
 ## Compromisso
 
@@ -47,4 +47,10 @@ Os testes incluem flush antes de 500 ms sem espera arbitrária, revisão nova du
 
 ## Pendências humanas
 
-Executar [HOMOLOGACAO-S5](HOMOLOGACAO-S5.md), incluindo instalação limpa/ocupada e providers SAF reais; registrar versão/data/resultados. Revisar e integrar manualmente o PR no GitHub somente com CI aprovada. TalkBack, acessibilidade abrangente, assinatura definitiva/custódia e ensaio anteriores permanecem não confirmados. Não foi atribuído aceite coletivo.
+Retestar somente o refinamento final de interface descrito em [HOMOLOGACAO-S5](HOMOLOGACAO-S5.md) e revisar/integrar manualmente o PR com CI aprovada. O responsável confirmou os dez grupos funcionais, incluindo acessibilidade, sem especificar TalkBack abrangente ou todos os providers/subcenários do roteiro. Assinatura definitiva/custódia e ensaio anteriores permanecem não confirmados. Não foi atribuído aceite coletivo.
+
+## Refinamento após homologação individual
+
+Em 25/10/2026, `BackupSection` passou a apresentar as explicações em diálogo acessível pelo ícone junto ao título, retirando o bloco fixo. `backup_help` separa as modalidades com linha em branco; informação e modal de exportação reutilizam o conteúdo, incluindo o aviso de ausência de criptografia. `BackupSettingsTest` verifica abertura/fechamento sem iniciar operação e conteúdo do modal. Persistência, formato e protocolo de recuperação permanecem intactos.
+
+Rodada local do refinamento: build debug/APK de teste e 169 JVM aprovados; lint sem erros (cinco avisos de versões); 4/4 testes instrumentados de `BackupSettingsTest` aprovados no API 37, em instância isolada read-only (`emulator-5560`), preservando o emulador do usuário. A nova CI será registrada no PR #14; os 52 instrumentados completos acima são a evidência anterior ao refinamento, sem confundir com esta rodada direcionada. Não presumir aprovação humana do novo layout.

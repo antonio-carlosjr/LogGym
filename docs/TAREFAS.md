@@ -179,7 +179,7 @@ Compromisso refinado de **34 pontos e 5 de reserva**; substitui a candidatura de
 | S5-05 | Configurações/SAF, acessibilidade, regressão, AGENTS e documentação | 5 | Dev 3 |
 | Total | Reserva adicional: 5 | **34** | **Dev 1: 12; Dev 2: 12; Dev 3: 10** |
 
-Completo inclui histórico e rascunho; sem histórico não inclui sessões e remove as atuais ao restaurar, com aviso explícito. Ambas as modalidades aguardam edições válidas inclusive debounce; não confirmam formulários com Salvar explícito. Drenar participantes antes da exclusão global. IDs/snapshots/zeros/nulos preservados. Migração Room 2→3 acrescenta journal; undo durável permite reverter dados e preferências. Não presumir atomicidade conjunta Room/DataStore nem liberar telas com recuperação pendente. Checksum não autentica nem cifra. Contratos em [decisão S5](decisoes/S5-backup.md), resultados em [implementação](S5-IMPLEMENTACAO.md) e aceite pendente em [homologação](HOMOLOGACAO-S5.md).
+Completo inclui histórico e rascunho; sem histórico não inclui sessões e remove as atuais ao restaurar, com aviso explícito. Ambas as modalidades aguardam edições válidas inclusive debounce; não confirmam formulários com Salvar explícito. Drenar participantes antes da exclusão global. IDs/snapshots/zeros/nulos preservados. Migração Room 2→3 acrescenta journal; undo durável permite reverter dados e preferências. Não presumir atomicidade conjunta Room/DataStore nem liberar telas com recuperação pendente. Checksum não autentica nem cifra. Contratos em [decisão S5](decisoes/S5-backup.md), resultados em [implementação](S5-IMPLEMENTACAO.md) e relato de aceite individual/refinamento final em [homologação](HOMOLOGACAO-S5.md).
 
 ## Backlog posterior preservado
 
