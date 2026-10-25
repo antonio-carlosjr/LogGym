@@ -45,8 +45,10 @@ class Sprint4FlowTest {
         click("Cadastrar exercício")
         compose.onNodeWithText("Nome").performTextInput("Prancha S4")
         click("Tempo (segundos)")
+        compose.onNodeWithText("Tempo (segundos)").assertIsSelected()
         compose.activityRule.scenario.recreate()
         waitFor("Prancha S4")
+        compose.onNodeWithText("Tempo (segundos)").assertIsSelected()
         click("Salvar")
         waitFor("Prancha S4")
         assertEquals(1, runBlocking { plans.observeActivePlan().first()!!.workouts.single().exercises.size })
@@ -109,7 +111,10 @@ class Sprint4FlowTest {
         waitFor(text)
         val target = matching(text) and !hasSetTextAction() and hasClickAction() and isEnabled()
         compose.waitUntil(10_000) { compose.onAllNodes(target).fetchSemanticsNodes().isNotEmpty() }
-        compose.onAllNodes(target).onFirst().performClick()
+        val node = compose.onAllNodes(target).onFirst()
+        // Elementos de Column podem estar compostos, mas fora da área visível com o IME aberto.
+        runCatching { node.performScrollTo() }
+        node.assertIsDisplayed().performClick()
         compose.waitForIdle()
     }
     private fun type(text: String) { compose.onAllNodes(hasSetTextAction()).onFirst().performTextInput(text); compose.waitForIdle() }
