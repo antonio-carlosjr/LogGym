@@ -1,5 +1,8 @@
 package com.loggym.ui.plans
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 import com.loggym.ui.components.LoadError
 import com.loggym.ui.components.OperationError
 import com.loggym.R

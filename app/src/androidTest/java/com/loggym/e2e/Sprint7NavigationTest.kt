@@ -70,7 +70,24 @@ class Sprint7NavigationTest {
         compose.onNode(hasSetTextAction()).assertTextContains("supino")
         compose.onNodeWithText("Peito").assertIsSelected()
     }
-    @Test fun backupPreviewLocksTabsAndCancelPreservesContext() {
+    @Test fun libraryScrollSurvivesTabSwitchAndActivityRecreation() {
+        tab("exercises")
+        fun loaded() = compose.waitUntil(10000) {
+            compose.onAllNodesWithText("Nativo").fetchSemanticsNodes().isNotEmpty()
+        }
+        fun position() = compose.onAllNodes(hasScrollAction()).onLast().fetchSemanticsNode()
+            .config[androidx.compose.ui.semantics.SemanticsProperties.VerticalScrollAxisRange].value()
+        loaded()
+        compose.onAllNodes(hasScrollAction()).onLast().performScrollToIndex(35)
+        val expected = position()
+        assertTrue(expected > 0f)
+        tab("plans"); tab("exercises"); loaded()
+        assertEquals(expected, position(), 1f)
+        compose.activityRule.scenario.recreate()
+        awaitTab("exercises"); loaded()
+        assertEquals(expected, position(), 1f)
+    }
+    @Test fun backupDestinationLocksNavigationAndCancelPreservesContext() {
         tab("settings")
         compose.runOnIdle { backup.prepareExport(BackupMode.FULL) }
         compose.waitUntil(15000) { backup.state.value.step == BackupStep.DESTINATION || backup.state.value.step == BackupStep.ERROR }

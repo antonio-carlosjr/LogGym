@@ -1,5 +1,8 @@
 package com.loggym.ui.exercises
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 import com.loggym.ui.navigation.RootNavigationLock
 
 import com.loggym.ui.components.LoadError

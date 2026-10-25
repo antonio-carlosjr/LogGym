@@ -16,9 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -36,7 +34,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.loggym.domain.logic.SetValues
 import com.loggym.domain.model.*
 import com.loggym.R
 import java.util.Locale
@@ -92,7 +89,7 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
         snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             if (state.session != null) Surface(tonalElevation = 3.dp) {
-                Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp)) {
+                Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 16.dp, vertical = 8.dp)) {
                     Text(when {
                         state.saving -> resources.getString(R.string.ui_salvando)
                         state.error != null -> resources.getString(R.string.ui_falha_ao_salvar)
@@ -109,8 +106,8 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
             }
         },
     ) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding).imePadding(),
-            contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
+            contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(0.dp)) {
             if (state.isLoading) item { CircularProgressIndicator() }
             state.error?.let { error -> item {
                 Text(resources.getString(error), color = MaterialTheme.colorScheme.error)
@@ -129,11 +126,19 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                 item {
                     Text(session.planName, style = MaterialTheme.typography.titleMedium)
                     Text(resources.getQuantityString(R.plurals.completed_sets, session.completedSetCount + session.pendingSetCount, session.completedSetCount, session.completedSetCount + session.pendingSetCount))
+                    if (session.exercises.any { it.trackingType == TrackingType.WEIGHT_REPS })
+                        Text(resources.getString(R.string.ui_carga_em_kg_registre_o_peso_de_um_halter_lado_conforme_o_equipamento),
+                            style = MaterialTheme.typography.bodySmall)
+                    Spacer(Modifier.height(12.dp))
                 }
                 session.exercises.forEach { exercise ->
                     item(key = "exercise-${exercise.id}") {
+                        Surface(Modifier.fillMaxWidth().padding(top = 12.dp).testTag("exercise-header-${exercise.id}"),
+                            color = MaterialTheme.colorScheme.surfaceContainerLow,
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)) {
+                        Column(Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(exercise.name, Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.titleLarge)
+                            Text(exercise.name, Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.titleMedium)
                             IconButton(onClick = {
                                 viewModel.setHistoryOpen(true)
                                 focus.clearFocus(); keyboard?.hide(); historyId = exercise.id
@@ -146,54 +151,37 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                         }
                         if (exercise.exerciseId == null) Text(stringResource(R.string.exercise_history_unavailable))
                         Text(resources.getString(R.string.session_prescription, exercise.target.summary(), exercise.target.rest.seconds))
-                        if (exercise.trackingType == TrackingType.WEIGHT_REPS)
-                            Text(resources.getString(R.string.ui_carga_em_kg_registre_o_peso_de_um_halter_lado_conforme_o_equipamento),
-                                style = MaterialTheme.typography.bodySmall)
+                        }
+                        }
                     }
                     items(exercise.sets, key = { "set-${it.id}" }) { set ->
                         val index = exercise.sets.indexOfFirst { it.id == set.id } + 1
                         val entry = state.entries[set.id] ?: SetEntry.from(set)
-                        val completionLabel = stringResource(if (set.isCompleted) R.string.set_completed else R.string.set_pending)
-                        Card(Modifier.fillMaxWidth().semantics { isTraversalGroup = true },
-                            colors = CardDefaults.cardColors(containerColor = if (set.isCompleted)
-                                MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow)) {
-                            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(resources.getString(R.string.ui_serie_1_s, index), modifier = Modifier.weight(1f))
-                                    Text(completionLabel, style = MaterialTheme.typography.labelMedium)
-                                    Checkbox(checked = set.isCompleted, onCheckedChange = { viewModel.toggle(set.id) },
-                                        enabled = !state.busy && set.id !in state.autoCompleting,
-                                        modifier = Modifier.semantics {
-                                            contentDescription = resources.getString(R.string.ui_concluir_serie_1_s_de_2_s, index, exercise.name)
-                                            stateDescription = completionLabel
-                                        })
+                        val enabled = !set.isCompleted && !state.busy && set.id !in state.autoCompleting
+                        val focused = Modifier.onFocusChanged { if (it.isFocused) viewModel.fieldFocused(set.id) }
+                        val done = { viewModel.finishEditing(set.id); focus.clearFocus(); keyboard?.hide(); Unit }
+                        SessionSetRow(exercise, set, index, entry, state.busy, set.id in state.autoCompleting,
+                            onToggle = { viewModel.toggle(set.id) }, onRemove = { viewModel.remove(set.id) }) {
+                            if (exercise.trackingType == TrackingType.TIME) {
+                                EntryField(resources.getString(R.string.ui_duracao_s), entry.duration, enabled, entry.error != null, KeyboardType.Number,
+                                    modifier = focused.testTag("set-${set.id}-duration"), onDone = done) {
+                                    value -> viewModel.edit(set.id) { it.copy(duration = value) }
                                 }
-                                val enabled = !set.isCompleted && !state.busy && set.id !in state.autoCompleting
-                                val focused = Modifier.onFocusChanged { if (it.isFocused) viewModel.fieldFocused(set.id) }
-                                val done = { viewModel.finishEditing(set.id); focus.clearFocus(); keyboard?.hide(); Unit }
-                                if (exercise.trackingType == TrackingType.TIME) {
-                                    EntryField(resources.getString(R.string.ui_duracao_s), entry.duration, enabled, entry.error != null, KeyboardType.Number,
-                                        modifier = focused.testTag("set-${set.id}-duration"), onDone = done) {
-                                        value -> viewModel.edit(set.id) { it.copy(duration = value) }
-                                    }
-                                } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    EntryField(resources.getString(R.string.ui_carga_kg), entry.weight, enabled, entry.error != null, KeyboardType.Decimal,
-                                        Modifier.weight(1f).then(focused).testTag("set-${set.id}-weight"), imeAction = ImeAction.Next,
-                                        onNext = { focus.moveFocus(FocusDirection.Next) }) { value -> viewModel.edit(set.id) { it.copy(weight = value) } }
-                                    EntryField(resources.getString(R.string.ui_repeticoes), entry.reps, enabled, entry.error != null, KeyboardType.Number,
-                                        Modifier.weight(1f).then(focused).testTag("set-${set.id}-reps"), onDone = done) { value -> viewModel.edit(set.id) { it.copy(reps = value) } }
-                                }
-                                entry.error?.let { Text(resources.getString(it), color = MaterialTheme.colorScheme.error) }
-                                if (set.isCompleted && SetValues(set.weightKg, set.reps, set.durationSeconds).isIncomplete(exercise.trackingType))
-                                    Text(resources.getString(R.string.ui_serie_marcada_com_campos_incompletos), color = MaterialTheme.colorScheme.error)
-                                if (!set.isCompleted) TextButton(onClick = { viewModel.remove(set.id) }, enabled = !state.busy && set.id !in state.autoCompleting) {
-                                    Text(resources.getString(R.string.ui_remover_serie_1_s, index))
-                                }
+                            } else {
+                                EntryField(resources.getString(R.string.ui_carga_kg), entry.weight, enabled, entry.error != null, KeyboardType.Decimal,
+                                    focused.testTag("set-${set.id}-weight"), imeAction = ImeAction.Next,
+                                    onNext = { focus.moveFocus(FocusDirection.Next) }) { value -> viewModel.edit(set.id) { it.copy(weight = value) } }
+                                EntryField(resources.getString(R.string.ui_repeticoes), entry.reps, enabled, entry.error != null, KeyboardType.Number,
+                                    focused.testTag("set-${set.id}-reps"), onDone = done) { value -> viewModel.edit(set.id) { it.copy(reps = value) } }
                             }
                         }
                     }
                     item(key = "add-${exercise.id}") {
-                        TextButton(onClick = { viewModel.add(exercise.id) }, enabled = !state.busy) { Text(resources.getString(R.string.ui_adicionar_serie)) }
+                        Surface(Modifier.fillMaxWidth().testTag("exercise-footer-${exercise.id}"),
+                            color = MaterialTheme.colorScheme.surfaceContainerLow,
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)) {
+                            TextButton(onClick = { viewModel.add(exercise.id) }, enabled = !state.busy) { Text(resources.getString(R.string.ui_adicionar_serie)) }
+                        }
                     }
                 }
             }
