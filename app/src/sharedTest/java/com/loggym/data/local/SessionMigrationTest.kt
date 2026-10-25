@@ -19,18 +19,20 @@ import java.time.Clock
 
 @RunWith(AndroidJUnit4::class)
 class SessionMigrationTest {
-    @Test fun migrationPreservesV1DraftHistoryAndForeignKeys() = runBlocking {
+    @Test fun migrationPreservesV1DraftHistoryAndForeignKeys() = migrate(1)
+    @Test fun migrationPreservesV2DraftHistoryAndForeignKeys() = migrate(2)
+    private fun migrate(version: Int) = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val name = "sprint2-migration-test.db"
         context.deleteDatabase(name)
-        val schemaPath = "com.loggym.data.local.LogGymDatabase/1.json"
+        val schemaPath = "com.loggym.data.local.LogGymDatabase/$version.json"
         val stream = try { androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().context.assets.open(schemaPath) } catch (_: java.io.IOException) {
             requireNotNull(javaClass.classLoader!!.getResourceAsStream(schemaPath))
         }
         val schema = stream.bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }
         val helper = FrameworkSQLiteOpenHelperFactory().create(
             SupportSQLiteOpenHelper.Configuration.builder(context).name(name).callback(
-                object : SupportSQLiteOpenHelper.Callback(1) {
+                object : SupportSQLiteOpenHelper.Callback(version) {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         val entities = schema.getJSONArray("entities")
                         for (i in 0 until entities.length()) {
@@ -59,7 +61,7 @@ class SessionMigrationTest {
                 execSQL("INSERT INTO session_sets (id,session_exercise_id,position,weight_kg,reps,is_completed) VALUES (1,1,0,22.5,8,1), (2,2,0,25,10,1)")
             }
         } finally { helper.close() }
-        val db = Room.databaseBuilder(context, LogGymDatabase::class.java, name).addMigrations(MIGRATION_1_2).build()
+        val db = Room.databaseBuilder(context, LogGymDatabase::class.java, name).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
         try {
             val repository = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), Clock.systemUTC(), com.loggym.FakeUserPreferences())
             val draft = repository.observeDraft().first()!!

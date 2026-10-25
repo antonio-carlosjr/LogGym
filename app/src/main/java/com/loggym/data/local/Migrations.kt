@@ -25,3 +25,10 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         db.execSQL("""DROP TABLE session_sets_backup""")
     }
 }
+
+/** Journal pequeno; dados de negócio e referências históricas permanecem inalterados. */
+val MIGRATION_2_3 = object : androidx.room.migration.Migration(2, 3) {
+    override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS `restore_journal` (`id` INTEGER NOT NULL, `operation_id` TEXT NOT NULL, `undo_sha256` TEXT NOT NULL, `phase` TEXT NOT NULL, `protocol_version` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+    }
+}

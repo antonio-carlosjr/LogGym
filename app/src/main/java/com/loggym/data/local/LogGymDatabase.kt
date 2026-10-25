@@ -16,6 +16,7 @@ import com.loggym.data.local.entity.WorkoutExerciseEntity
 
 @Database(
     entities = [
+        com.loggym.data.local.entity.RestoreJournalEntity::class,
         ExerciseEntity::class,
         PlanEntity::class,
         WorkoutEntity::class,
@@ -24,7 +25,7 @@ import com.loggym.data.local.entity.WorkoutExerciseEntity
         SessionExerciseEntity::class,
         SessionSetEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
