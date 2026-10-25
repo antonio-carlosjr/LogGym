@@ -14,8 +14,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ExerciseCreateViewModel @Inject constructor(
     private val savedState: SavedStateHandle, private val repository: ExerciseRepository,
+    private val persistence: com.loggym.domain.backup.PersistenceCoordinator = com.loggym.domain.backup.PersistenceCoordinator(),
 ) : ViewModel() {
-    private val operations = UiOperation(viewModelScope)
+    private val operations = UiOperation(viewModelScope, persistence)
     val busy = operations.busy
     val failed = operations.failed
     fun dismissError() = operations.dismissError()

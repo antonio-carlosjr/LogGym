@@ -32,7 +32,10 @@ data class HomeUiState(
 class HomeViewModel @Inject constructor(
     planRepository: PlanRepository,
     private val sessionRepository: SessionRepository,
+    private val persistence: com.loggym.domain.backup.PersistenceCoordinator = com.loggym.domain.backup.PersistenceCoordinator(),
 ) : ViewModel() {
+    private val persistenceContext = persistence.context()
+
 
     private val busy = MutableStateFlow(false)
     private val message = MutableStateFlow<Int?>(null)
@@ -51,9 +54,9 @@ class HomeViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     fun startWorkout(workoutId: Long, onStarted: () -> Unit) {
-        if (busy.value) return
+        if (!persistence.canEdit || busy.value) return
         busy.value = true
-        viewModelScope.launch {
+        persistence.command(viewModelScope, persistenceContext) {
             try {
                 when (sessionRepository.startSession(workoutId)) {
                     is StartSessionResult.Started -> onStarted()
@@ -72,9 +75,9 @@ class HomeViewModel @Inject constructor(
     }
 
     fun discardDraft(sessionId: Long) {
-        if (busy.value) return
+        if (!persistence.canEdit || busy.value) return
         busy.value = true
-        viewModelScope.launch {
+        persistence.command(viewModelScope, persistenceContext) {
             try {
                 check(sessionRepository.discardSession(sessionId)) { "O treino não está mais em andamento." }
             } catch (error: Exception) {

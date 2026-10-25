@@ -16,7 +16,9 @@ import javax.inject.Inject
 class OnboardingViewModel @Inject constructor(
     private val planRepository: PlanRepository,
     private val preferences: UserPreferencesRepository,
+    private val persistence: com.loggym.domain.backup.PersistenceCoordinator = com.loggym.domain.backup.PersistenceCoordinator(),
 ) : ViewModel() {
+    private val persistenceContext = persistence.context()
 
     val templates: List<PlanTemplate> = planRepository.templates()
 
@@ -39,9 +41,9 @@ class OnboardingViewModel @Inject constructor(
     fun complete(onDone: () -> Unit) = completeOnce(onDone) {}
 
     private fun completeOnce(onDone: () -> Unit, action: suspend () -> Unit) {
-        if (_isWorking.value) return
+        if (_isWorking.value || !persistence.canEdit) return
         _isWorking.value = true
-        viewModelScope.launch {
+        persistence.command(viewModelScope, persistenceContext) {
             failure.value = false
             try {
                 action()

@@ -1,5 +1,6 @@
 package com.loggym.data.repository
 
+import com.loggym.domain.backup.PersistenceCoordinator
 import androidx.room.withTransaction
 import com.loggym.data.local.LogGymDatabase
 import com.loggym.data.local.dao.ExerciseDao
@@ -25,6 +26,7 @@ class PlanRepositoryImpl @Inject constructor(
     private val planDao: PlanDao,
     private val exerciseDao: ExerciseDao,
     private val clock: Clock,
+    private val coordinator: PersistenceCoordinator = PersistenceCoordinator(),
 ) : PlanRepository {
 
     override fun templates(): List<PlanTemplate> = PlanTemplates.all
@@ -36,10 +38,11 @@ class PlanRepositoryImpl @Inject constructor(
 
     override fun observePlan(planId: Long): Flow<Plan?> = planDao.observePlan(planId).map { it?.toDomain() }
 
-    override suspend fun createPlan(name: String): Long =
+    override suspend fun createPlan(name: String): Long = coordinator.write {
         planDao.insertPlan(PlanEntity(name = requireName(name), createdAt = clock.instant()))
+    }
 
-    override suspend fun createFromTemplate(templateKey: String, activate: Boolean): Long =
+    override suspend fun createFromTemplate(templateKey: String, activate: Boolean): Long = coordinator.write {
         database.withTransaction {
             val template = requireNotNull(PlanTemplates.byKey(templateKey)) { "Template desconhecido: $templateKey" }
             val nativeKeys = template.workouts.flatMap { workout -> workout.exercises.map { it.nativeKey } }.distinct()
@@ -61,36 +64,45 @@ class PlanRepositoryImpl @Inject constructor(
             if (activate) activatePlan(planId)
             planId
         }
+    }
 
-    override suspend fun renamePlan(planId: Long, name: String) = planDao.renamePlan(planId, requireName(name))
+    override suspend fun renamePlan(planId: Long, name: String) = coordinator.write { planDao.renamePlan(planId, requireName(name))
+    }
 
-    override suspend fun deletePlan(planId: Long) = planDao.deletePlan(planId)
+    override suspend fun deletePlan(planId: Long) = coordinator.write { planDao.deletePlan(planId)
+    }
 
-    override suspend fun setActivePlan(planId: Long) = database.withTransaction { activatePlan(planId) }
+    override suspend fun setActivePlan(planId: Long) = coordinator.write { database.withTransaction { activatePlan(planId) }
+    }
 
-    override suspend fun addWorkout(planId: Long, name: String): Long = database.withTransaction {
+    override suspend fun addWorkout(planId: Long, name: String): Long = coordinator.write { database.withTransaction {
         planDao.insertWorkout(
             WorkoutEntity(planId = planId, name = requireName(name), position = planDao.nextWorkoutPosition(planId)),
         )
     }
-
-    override suspend fun renameWorkout(workoutId: Long, name: String) =
-        planDao.renameWorkout(workoutId, requireName(name))
-
-    override suspend fun deleteWorkout(workoutId: Long) = planDao.deleteWorkout(workoutId)
-
-    override suspend fun reorderWorkouts(orderedWorkoutIds: List<Long>) = database.withTransaction {
-        orderedWorkoutIds.forEachIndexed { position, workoutId -> planDao.updateWorkoutPosition(workoutId, position) }
     }
 
-    override suspend fun addExerciseToWorkout(workoutId: Long, exerciseId: Long, target: ExerciseTarget): Long =
+    override suspend fun renameWorkout(workoutId: Long, name: String) = coordinator.write {
+        planDao.renameWorkout(workoutId, requireName(name))
+    }
+
+    override suspend fun deleteWorkout(workoutId: Long) = coordinator.write { planDao.deleteWorkout(workoutId)
+    }
+
+    override suspend fun reorderWorkouts(orderedWorkoutIds: List<Long>) = coordinator.write { database.withTransaction {
+        orderedWorkoutIds.forEachIndexed { position, workoutId -> planDao.updateWorkoutPosition(workoutId, position) }
+    }
+    }
+
+    override suspend fun addExerciseToWorkout(workoutId: Long, exerciseId: Long, target: ExerciseTarget): Long = coordinator.write {
         database.withTransaction {
             require(exerciseDao.getById(exerciseId)?.trackingType == target.trackingType)
             val position = planDao.nextWorkoutExercisePosition(workoutId)
             planDao.insertWorkoutExercise(target.toEntity(workoutId, exerciseId, position))
         }
+    }
 
-    override suspend fun updateWorkoutExercise(workoutExerciseId: Long, target: ExerciseTarget) = database.withTransaction {
+    override suspend fun updateWorkoutExercise(workoutExerciseId: Long, target: ExerciseTarget) = coordinator.write { database.withTransaction {
         val item = requireNotNull(planDao.getWorkoutExercise(workoutExerciseId))
         require(exerciseDao.getById(item.exerciseId)?.trackingType == target.trackingType)
         planDao.updateWorkoutExerciseTarget(
@@ -103,12 +115,15 @@ class PlanRepositoryImpl @Inject constructor(
         )
 
     }
+    }
 
-    override suspend fun removeExerciseFromWorkout(workoutExerciseId: Long) =
+    override suspend fun removeExerciseFromWorkout(workoutExerciseId: Long) = coordinator.write {
         planDao.deleteWorkoutExercise(workoutExerciseId)
+    }
 
-    override suspend fun reorderWorkoutExercises(orderedWorkoutExerciseIds: List<Long>) = database.withTransaction {
+    override suspend fun reorderWorkoutExercises(orderedWorkoutExerciseIds: List<Long>) = coordinator.write { database.withTransaction {
         orderedWorkoutExerciseIds.forEachIndexed { position, id -> planDao.updateWorkoutExercisePosition(id, position) }
+    }
     }
 
     /** RF-145: "Nome", "Nome (2)", "Nome (3)"… para distinguir instâncias do mesmo template. */
