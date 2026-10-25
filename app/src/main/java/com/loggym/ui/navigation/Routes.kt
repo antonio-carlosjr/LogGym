@@ -25,3 +25,9 @@ data object HistoryRoute
 
 @Serializable
 data class HistoryDetailRoute(val sessionId: Long)
+
+@Serializable
+data object SettingsRoute
+
+@Serializable
+data object ExerciseCreateRoute

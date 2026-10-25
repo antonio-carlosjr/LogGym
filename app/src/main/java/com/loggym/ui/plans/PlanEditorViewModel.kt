@@ -64,7 +64,7 @@ sealed interface PlanEditorDialog {
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PlanEditorViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val planRepository: PlanRepository,
     exerciseRepository: ExerciseRepository,
 ) : ViewModel() {
@@ -88,17 +88,21 @@ class PlanEditorViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanEditorUiState.Loading)
 
     val library: StateFlow<List<Exercise>> = refresh.flatMapLatest {
-        exerciseRepository.observeAll().onStart { libraryFailure.value = false }
+        exerciseRepository.observeAll().onEach(::resolveCreated).onStart { libraryFailure.value = false }
             .catch { libraryFailure.value = true; emit(emptyList()) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     fun retry() { refresh.update { it + 1 } }
 
-    private val _dialog = MutableStateFlow<PlanEditorDialog?>(null)
+    private val _dialog = MutableStateFlow<PlanEditorDialog?>(
+        savedStateHandle.get<Long>("pickerWorkout")?.takeIf { savedStateHandle.get<Boolean>("pickerSuspended") != true }
+            ?.let { PlanEditorDialog.PickExercise(it, savedStateHandle["pickerQuery"] ?: "") })
     val dialog: StateFlow<PlanEditorDialog?> = _dialog.asStateFlow()
 
     private val plan: Plan? get() = (uiState.value as? PlanEditorUiState.Loaded)?.plan
 
     fun dismissDialog() {
+        savedStateHandle.remove<Long>("pickerWorkout")
+        savedStateHandle.remove<Long>("pickerCreated")
         _dialog.value = null
     }
 
@@ -174,15 +178,51 @@ class PlanEditorViewModel @Inject constructor(
     // Exercícios da divisão
 
     fun openPickExercise(workout: Workout) {
+        savedStateHandle["pickerWorkout"] = workout.id
+        savedStateHandle["pickerQuery"] = ""
+        rememberPickerPosition(0, 0)
         _dialog.value = PlanEditorDialog.PickExercise(workout.id)
     }
 
     fun onPickQueryChange(query: String) {
+        savedStateHandle["pickerQuery"] = query
+        rememberPickerPosition(0, 0)
         _dialog.update { if (it is PlanEditorDialog.PickExercise) it.copy(query = query) else it }
+    }
+
+    val pickerIndex: Int get() = savedStateHandle["pickerIndex"] ?: 0
+    val pickerOffset: Int get() = savedStateHandle["pickerOffset"] ?: 0
+    fun rememberPickerPosition(index: Int, offset: Int) {
+        savedStateHandle["pickerIndex"] = index
+        savedStateHandle["pickerOffset"] = offset
+    }
+    fun suspendPicker() {
+        savedStateHandle["pickerSuspended"] = true
+        _dialog.value = null
+    }
+    fun resumePicker(createdId: Long?) {
+        if (savedStateHandle.get<Boolean>("pickerSuspended") != true) return
+        val workout = savedStateHandle.get<Long>("pickerWorkout") ?: return
+        savedStateHandle["pickerSuspended"] = false
+        _dialog.value = PlanEditorDialog.PickExercise(workout, savedStateHandle["pickerQuery"] ?: "")
+        if (createdId != null) {
+            savedStateHandle["pickerCreated"] = createdId
+            resolveCreated(library.value)
+        }
+    }
+    private fun resolveCreated(exercises: List<Exercise>) {
+        val id = savedStateHandle.get<Long>("pickerCreated") ?: return
+        val exercise = exercises.firstOrNull { it.id == id } ?: return
+        val workout = savedStateHandle.get<Long>("pickerWorkout") ?: return
+        savedStateHandle["pickerQuery"] = exercise.name
+        rememberPickerPosition(0, 0)
+        _dialog.value = PlanEditorDialog.PickExercise(workout, exercise.name)
+        savedStateHandle.remove<Long>("pickerCreated")
     }
 
     fun pickExercise(exercise: Exercise) {
         val pick = _dialog.value as? PlanEditorDialog.PickExercise ?: return
+        savedStateHandle.remove<Long>("pickerWorkout")
         _dialog.value = PlanEditorDialog.Target(
             workoutId = pick.workoutId,
             workoutExerciseId = null,

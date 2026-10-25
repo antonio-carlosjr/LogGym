@@ -68,6 +68,7 @@ class Sprint3FlowTest {
         compose.onAllNodesWithText("Duração (s)").onFirst().performTextInput("45")
         click("Concluir série 1 de Prancha S3")
         click("Concluir série 2 de Prancha S3")
+        compose.waitUntil(10_000) { runBlocking { sessions.observeDraft().first()?.completedSetCount == 3 } }
         click("Finalizar treino")
         waitFor("3 séries não concluídas serão excluídas.")
         waitFor("1 série será salva com campos vazios.")
@@ -108,6 +109,14 @@ class Sprint3FlowTest {
             }
         }
     }
-    private fun click(text: String) { waitFor(text); compose.onAllNodes(matching(text) and !hasSetTextAction()).onFirst().performClick(); compose.waitForIdle() }
+    private fun click(text: String) {
+        waitFor(text)
+        val target = matching(text) and !hasSetTextAction() and hasClickAction() and isEnabled()
+        compose.waitUntil(10_000) { compose.onAllNodes(target).fetchSemanticsNodes().isNotEmpty() }
+        val node = compose.onAllNodes(target).onFirst()
+        runCatching { node.performScrollTo() }
+        node.assertIsDisplayed().performClick()
+        compose.waitForIdle()
+    }
     private fun type(text: String) { compose.onAllNodes(hasSetTextAction()).onFirst().performTextInput(text); compose.waitForIdle() }
 }

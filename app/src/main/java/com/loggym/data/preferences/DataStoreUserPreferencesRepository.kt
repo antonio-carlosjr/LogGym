@@ -5,6 +5,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import com.loggym.domain.model.ThemeMode
+import com.loggym.domain.model.UserSettings
 import androidx.datastore.preferences.preferencesDataStore
 import com.loggym.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,6 +22,18 @@ class DataStoreUserPreferencesRepository @Inject constructor(
 ) : UserPreferencesRepository {
 
     private val onboardingCompletedKey = booleanPreferencesKey("onboarding_completed")
+    private val themeKey = stringPreferencesKey("theme_mode")
+    private val prefillKey = booleanPreferencesKey("prefill_enabled")
+
+    override val settings: Flow<UserSettings> = context.dataStore.data.map {
+        UserSettings(ThemeMode.fromKey(it[themeKey]), it[prefillKey] ?: true)
+    }
+    override suspend fun setThemeMode(mode: ThemeMode) {
+        context.dataStore.edit { it[themeKey] = mode.key }
+    }
+    override suspend fun setPrefillEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[prefillKey] = enabled }
+    }
 
     override val onboardingCompleted: Flow<Boolean> =
         context.dataStore.data.map { preferences -> preferences[onboardingCompletedKey] ?: false }

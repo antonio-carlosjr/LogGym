@@ -20,7 +20,7 @@ sealed interface ExerciseTarget {
         override val trackingType = TrackingType.WEIGHT_REPS
         init {
             validateCommon(targetSets, rest)
-            require(repMin > 0 && repMax >= repMin) { "Faixa de repetições inválida." }
+            require(repMin >= 0 && repMax > 0 && repMax >= repMin) { "Faixa de repetições inválida." }
         }
     }
 
@@ -39,11 +39,12 @@ sealed interface ExerciseTarget {
 
 private fun validateCommon(sets: Int, rest: Duration) {
     require(sets > 0) { "A quantidade de séries deve ser positiva." }
-    require(!rest.isNegative && rest.nano == 0 && rest.seconds <= InputRules.REST_MAX_SECONDS &&
-        rest.seconds % InputRules.REST_STEP_SECONDS == 0L) { "Descanso entre 0 e 600 s em passos de 15 s." }
+    require(!rest.isNegative && rest.nano == 0 && rest.seconds <= InputRules.REST_MAX_SECONDS) {
+        "Descanso inteiro entre 0 e 600 s."
+    }
 }
 
 fun ExerciseTarget.summary(): String = when (this) {
-    is ExerciseTarget.Repetitions -> "$targetSets × $repMin–$repMax"
+    is ExerciseTarget.Repetitions -> if (repMin == repMax) "$targetSets × $repMax" else "$targetSets × $repMin–$repMax"
     is ExerciseTarget.Timed -> "$targetSets × $durationSeconds s"
 }

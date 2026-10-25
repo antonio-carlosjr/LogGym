@@ -182,6 +182,54 @@ class SessionViewModelTest {
         vm.setActive(false); runCurrent()
     }
 
+    @Test fun clearCancelsDebounceAndInvalidInputWithoutTouchingOtherExercise() = runTest(dispatcher) {
+        runCurrent()
+        vm.edit(10) { it.copy(weight = "invalid") }
+        vm.edit(11) { it.copy(duration = "45") }
+        vm.requestClearExercise(1)
+        vm.confirmClearExercise(); runCurrent()
+        advanceTimeBy(1_000); runCurrent()
+        assertEquals("", vm.uiState.value.entries[10L]!!.weight)
+        assertFalse(vm.uiState.value.entries[10L]!!.dirty)
+        assertFalse(repository.updates.containsKey(10))
+        assertEquals(45, repository.updates[11L]!!.durationSeconds)
+        assertNull(vm.uiState.value.dialog)
+    }
+
+    @Test fun clearWaitsForInFlightSaveAndDropsOldObservation() = runTest(dispatcher) {
+        runCurrent()
+        val gate = CompletableDeferred<Unit>()
+        val observation = CompletableDeferred<Unit>()
+        repository.saveGate = gate
+        repository.observationGate = observation
+        vm.edit(10) { it.copy(weight = "25", reps = "8") }
+        advanceTimeBy(500); runCurrent()
+        vm.requestClearExercise(1)
+        vm.confirmClearExercise(); runCurrent()
+        assertTrue(vm.uiState.value.busy)
+        gate.complete(Unit); runCurrent()
+        observation.complete(Unit); runCurrent()
+        assertNull(repository.draft.value!!.exercises[0].sets[0].weightKg)
+        assertNull(vm.uiState.value.session!!.exercises[0].sets[0].weightKg)
+        assertEquals("", vm.uiState.value.entries[10L]!!.weight)
+        assertFalse(vm.uiState.value.dirty)
+    }
+
+    @Test fun failedClearPreservesBuffersAndConfirmationThenCanRetry() = runTest(dispatcher) {
+        runCurrent()
+        vm.edit(10) { it.copy(weight = "12,5", reps = "0") }
+        repository.failClear = true
+        vm.requestClearExercise(1)
+        vm.confirmClearExercise(); runCurrent()
+        assertEquals("12,5", vm.uiState.value.entries[10L]!!.weight)
+        assertEquals(SessionDialog.CLEAR_EXERCISE, vm.uiState.value.dialog)
+        assertNotNull(vm.uiState.value.error)
+        repository.failClear = false
+        vm.confirmClearExercise(); runCurrent()
+        assertEquals("", vm.uiState.value.entries[10L]!!.weight)
+        assertNull(vm.uiState.value.dialog)
+    }
+
     private class MutableClock(var now: Instant = Instant.parse("2026-10-22T12:00:00Z")) : Clock() {
         override fun instant() = now
         override fun getZone(): ZoneId = ZoneOffset.UTC
@@ -201,7 +249,22 @@ class SessionViewModelTest {
         var failWrites = false
         var failFinish = false
         var saveGate: CompletableDeferred<Unit>? = null
-        override fun observeDraft(): Flow<Session?> = draft
+        var observationGate: CompletableDeferred<Unit>? = null
+        var failClear = false
+        override fun observeDraft(): Flow<Session?> = draft.map { session ->
+            if (session?.exercises?.firstOrNull()?.sets?.firstOrNull()?.weightKg != null) observationGate?.await()
+            session
+        }
+        override suspend fun clearExerciseSets(sessionExerciseId: Long): Boolean {
+            check(!failClear)
+            val session = draft.value ?: return false
+            draft.value = session.copy(exercises = session.exercises.map { ex ->
+                if (ex.id != sessionExerciseId) ex else ex.copy(sets = ex.sets.map {
+                    it.copy(weightKg = null, reps = null, durationSeconds = null, isCompleted = false)
+                })
+            })
+            return true
+        }
         override fun observeHistory(): Flow<List<SessionSummary>> = flowOf(emptyList())
         override fun observeSession(sessionId: Long): Flow<Session?> = draft
         override suspend fun startSession(workoutId: Long): StartSessionResult = StartSessionResult.DraftAlreadyExists(1)

@@ -61,7 +61,7 @@ class SessionMigrationTest {
         } finally { helper.close() }
         val db = Room.databaseBuilder(context, LogGymDatabase::class.java, name).addMigrations(MIGRATION_1_2).build()
         try {
-            val repository = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), Clock.systemUTC())
+            val repository = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), Clock.systemUTC(), com.loggym.FakeUserPreferences())
             val draft = repository.observeDraft().first()!!
             assertEquals(1L, draft.id)
             assertEquals(22.5, draft.exercises.single().sets.single().weightKg!!, 0.0)

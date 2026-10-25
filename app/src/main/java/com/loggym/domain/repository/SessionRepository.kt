@@ -30,6 +30,9 @@ interface SessionRepository {
     /** RF-84: remove uma série ainda não concluída. */
     suspend fun removeSet(setId: Long): Boolean
 
+    /** Limpa apenas a ocorrência do exercício em um rascunho, sem alterar séries ou descanso. */
+    suspend fun clearExerciseSets(sessionExerciseId: Long): Boolean
+
     /** RF-92: encerra manualmente o descanso. */
     suspend fun skipRest(sessionId: Long)
 

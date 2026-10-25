@@ -178,3 +178,15 @@ O histórico apresenta apenas sessões concluídas, com detalhe somente leitura 
 ```
 
 Consulte a [matriz RF → código/teste](docs/RASTREABILIDADE.md), o [roteiro de homologação](docs/HOMOLOGACAO-S3.md), a [preparação de assinatura](docs/RELEASE.md) e a [demonstração](docs/DEMONSTRACAO.md). O usuário aprovou individualmente as correções finais no emulador em 24/10/2026, sem bloqueantes, e aprovou explicitamente o PR #12 e seu merge. A [política de PRs](docs/TAREFAS.md#aprovação-e-integração-de-pull-requests) exige revisão técnica do Codex, aprovação explícita do responsável na conversa, CI verde e condições de integração satisfeitas; revisão independente é opcional internamente e proteções efetivas do GitHub continuam obrigatórias. O [PR #12](https://github.com/antonio-carlosjr/LogGym/pull/12) registra a conclusão efetiva e o hash de merge. TalkBack, assinatura definitiva e ensaio humano permanecem pendentes; não foi atribuído aceite coletivo. Não há publicação automática nem autorização de merge para PRs futuros.
+
+## Sprint 4 — homologação funcional individual aprovada; integração autorizada
+
+Prescrição fixa/faixa, descanso manual inteiro de 0 a 600 s com ±15, cadastro contextual, borracha por exercício e configurações persistentes de tema/pré-preenchimento. Banco Room v2 preservado, sem migração; snapshots existentes não mudam. Check continua manual e o aviso de descanso mantém aproximadamente 5 s.
+
+Consulte [implementação e testes](docs/S4-IMPLEMENTACAO.md), [homologação](docs/HOMOLOGACAO-S4.md) e [tarefas/roadmap](docs/TAREFAS.md). Entrega em branch com commits separados; CI e revisão técnica precedem sua aprovação explícita para merge final. Aprovação do plano não equivale a homologação nem merge autorizado.
+
+Em 25/10/2026, o responsável aprovou os sete grupos funcionais da Sprint 4, sem defeitos bloqueantes, e autorizou expressamente o merge commit do PR #13. O [registro de integração do PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolida o resultado efetivo, hash do merge e CI pós-merge; a integração está concluída quando indicar `MERGED`. A autorização inclui sincronização e encerramento técnico documental, sem publicação de release ou início da implementação da Sprint 5. O relato não confirma TalkBack, avaliação abrangente de acessibilidade, assinatura definitiva, ensaio ou aprovação de outros integrantes.
+
+Backup está reservado à Sprint 5: completo ou sem histórico, sem criptografia, com aviso claro sobre o conteúdo legível. Não foi implementado nesta sprint. Histórico individual, check automático, layout compacto, preferência por exercício, fotos, distância e kg/lb continuam no backlog.
+
+A nova proposta de navegação inferior está em [UX-NAV-01](docs/BACKLOG-UX.md), fora do escopo da Sprint 4 e sem implementação autorizada.

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +32,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,6 +48,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,6 +73,7 @@ import com.loggym.ui.util.restLabel
 @Composable
 fun PlanEditorScreen(
     onBack: () -> Unit,
+    onCreateExercise: () -> Unit,
     viewModel: PlanEditorViewModel = hiltViewModel(),
 ) {
     val resources = LocalResources.current
@@ -149,6 +156,10 @@ fun PlanEditorScreen(
                 onDismiss = viewModel::dismissDialog,
                 failed = libraryFailed,
                 onRetry = viewModel::retry,
+                initialIndex = viewModel.pickerIndex,
+                initialOffset = viewModel.pickerOffset,
+                onPosition = viewModel::rememberPickerPosition,
+                onCreate = onCreateExercise,
             )
         }
         is PlanEditorDialog.Target -> TargetDialog(
@@ -320,8 +331,21 @@ private fun PickExerciseDialog(
     onDismiss: () -> Unit,
     failed: Boolean,
     onRetry: () -> Unit,
+    initialIndex: Int,
+    initialOffset: Int,
+    onPosition: (Int, Int) -> Unit,
+    onCreate: () -> Unit,
 ) {
     val resources = LocalResources.current
+    val listState = rememberLazyListState(initialIndex, initialOffset)
+    var previousQuery by remember { mutableStateOf(query) }
+    LaunchedEffect(query) {
+        if (previousQuery != query) { listState.scrollToItem(0); previousQuery = query }
+    }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (index, offset) -> onPosition(index, offset) }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(resources.getString(R.string.ui_adicionar_exercicio)) },
@@ -337,7 +361,11 @@ private fun PickExerciseDialog(
                 )
                 if (failed) LoadError(onRetry)
                 else if (exercises.isEmpty()) Text(resources.getString(R.string.ui_nenhum_exercicio_encontrado))
-                LazyColumn(Modifier.heightIn(max = 360.dp)) {
+                TextButton(onClick = {
+                    onPosition(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
+                    onCreate()
+                }) { Text(resources.getString(R.string.create_exercise)) }
+                LazyColumn(Modifier.heightIn(max = 360.dp), state = listState) {
                     items(exercises, key = { it.id }) { exercise ->
                         ListItem(
                             headlineContent = { Text(exercise.name) },
@@ -377,21 +405,34 @@ private fun TargetDialog(
                 NumberField(resources.getString(R.string.ui_series), form.sets) { value -> onChange { it.copy(sets = value) } }
                 if (form.trackingType == TrackingType.TIME) {
                     NumberField(resources.getString(R.string.ui_duracao_por_serie_s), form.durationSeconds, maxDigits = 6) { value -> onChange { it.copy(durationSeconds = value) } }
-                } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    NumberField(resources.getString(R.string.ui_rep_min), form.repMin, Modifier.weight(1f)) { value -> onChange { it.copy(repMin = value) } }
-                    NumberField(resources.getString(R.string.ui_rep_max), form.repMax, Modifier.weight(1f)) { value -> onChange { it.copy(repMax = value) } }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        RepetitionMode.entries.forEach { mode ->
+                            FilterChip(selected = form.repetitionMode == mode,
+                                onClick = { onChange { it.copy(repetitionMode = mode) } },
+                                label = { Text(resources.getString(if (mode == RepetitionMode.FIXED) R.string.reps_fixed else R.string.reps_range)) })
+                        }
+                    }
+                    if (form.repetitionMode == RepetitionMode.FIXED) {
+                        NumberField(resources.getString(R.string.ui_repeticoes), form.fixedReps) { value -> onChange { it.copy(fixedReps = value) } }
+                    } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        NumberField(resources.getString(R.string.ui_rep_min), form.repMin, Modifier.weight(1f)) { value -> onChange { it.copy(repMin = value) } }
+                        NumberField(resources.getString(R.string.ui_rep_max), form.repMax, Modifier.weight(1f)) { value -> onChange { it.copy(repMax = value) } }
+                    }
                 }
                 Text(resources.getString(R.string.rest_title), style = MaterialTheme.typography.labelLarge)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedButton(onClick = { onChange { it.adjustRest(-1) } }) { Text(resources.getString(R.string.ui_15_s)) }
-                    Text(
-                        restLabel(form.restSeconds),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 8.dp),
-                    )
-                    OutlinedButton(onClick = { onChange { it.adjustRest(+1) } }) { Text(resources.getString(R.string.ui_15_s_2)) }
+                OutlinedTextField(
+                        value = form.restSeconds,
+                        onValueChange = { value -> onChange { it.copy(restSeconds = value) } },
+                        label = { Text(resources.getString(R.string.rest_seconds)) },
+                        singleLine = true,
+                        isError = form.restValue == null,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { onChange { it.adjustRest(-1) } }, enabled = form.restValue != null) { Text(resources.getString(R.string.ui_15_s)) }
+                    OutlinedButton(onClick = { onChange { it.adjustRest(+1) } }, enabled = form.restValue != null) { Text(resources.getString(R.string.ui_15_s_2)) }
                 }
                 dialog.error?.let { error ->
                     Text(error.message(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
@@ -410,7 +451,7 @@ private fun NumberField(label: String, value: String, modifier: Modifier = Modif
     val resources = LocalResources.current
     OutlinedTextField(
         value = value,
-        onValueChange = { onChange(it.filter(Char::isDigit).take(maxDigits)) },
+        onValueChange = { if (it.length <= maxDigits) onChange(it) },
         label = { Text(label) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -422,11 +463,12 @@ private fun NumberField(label: String, value: String, modifier: Modifier = Modif
 private fun TargetFormError.message(): String {
     val resources = LocalResources.current
     return when (this) {
+    TargetFormError.INVALID_REST -> resources.getString(R.string.invalid_rest)
     TargetFormError.INVALID_DURATION -> resources.getString(R.string.ui_informe_uma_duracao_em_segundos_maior_que_zero)
     TargetFormError.MISSING_SETS -> resources.getString(R.string.ui_informe_a_quantidade_de_series)
     TargetFormError.INVALID_SETS -> resources.getString(R.string.ui_as_series_devem_ser_maiores_que_zero)
     TargetFormError.MISSING_REPS -> resources.getString(R.string.ui_informe_a_faixa_de_repeticoes)
-    TargetFormError.INVALID_REPS -> resources.getString(R.string.ui_as_repeticoes_devem_ser_maiores_que_zero)
+    TargetFormError.INVALID_REPS -> resources.getString(R.string.invalid_reps_prescription)
     TargetFormError.MIN_GREATER_THAN_MAX -> resources.getString(R.string.ui_a_repeticao_minima_nao_pode_ser_maior_que_a_maxima)
 }
 

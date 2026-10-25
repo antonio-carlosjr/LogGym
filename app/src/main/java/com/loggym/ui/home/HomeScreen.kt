@@ -48,6 +48,7 @@ fun HomeScreen(
     onOpenPlans: () -> Unit,
     onOpenExercises: () -> Unit,
     onOpenHistory: () -> Unit,
+    onOpenSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val resources = LocalResources.current
@@ -105,6 +106,7 @@ fun HomeScreen(
                     OutlinedButton(onClick = onOpenPlans, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.ui_planos)) }
                     OutlinedButton(onClick = onOpenExercises, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.ui_exercicios)) }
                     OutlinedButton(onClick = onOpenHistory, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.history_title)) }
+                    OutlinedButton(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.settings_title)) }
                 }
             }
         }

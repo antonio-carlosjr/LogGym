@@ -1,11 +1,18 @@
 package com.loggym.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.Lifecycle
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.loggym.ui.exercises.ExerciseLibraryScreen
+import com.loggym.ui.exercises.ExerciseCreateScreen
+import com.loggym.ui.plans.PlanEditorViewModel
 import com.loggym.ui.history.HistoryDetailScreen
 import com.loggym.ui.history.HistoryScreen
 import com.loggym.ui.home.HomeScreen
@@ -13,6 +20,7 @@ import com.loggym.ui.onboarding.OnboardingScreen
 import com.loggym.ui.plans.PlanEditorScreen
 import com.loggym.ui.plans.PlansScreen
 import com.loggym.ui.session.SessionScreen
+import com.loggym.ui.settings.SettingsScreen
 
 @Composable
 fun LogGymNavHost(
@@ -41,6 +49,7 @@ fun LogGymNavHost(
                 onOpenPlans = { navController.navigate(PlansRoute) },
                 onOpenExercises = { navController.navigate(ExerciseLibraryRoute) },
                 onOpenHistory = { navController.navigate(HistoryRoute) },
+                onOpenSettings = { navController.navigate(SettingsRoute) },
             )
         }
         composable<ExerciseLibraryRoute> {
@@ -52,8 +61,26 @@ fun LogGymNavHost(
                 onOpenPlan = { planId -> navController.navigate(PlanEditorRoute(planId)) },
             )
         }
-        composable<PlanEditorRoute> {
-            PlanEditorScreen(onBack = navigateBack)
+        composable<PlanEditorRoute> { entry ->
+            val viewModel = hiltViewModel<PlanEditorViewModel>(entry)
+            val lifecycle by entry.lifecycle.currentStateFlow.collectAsState()
+            val created by entry.savedStateHandle.getStateFlow<Long?>("createdExerciseId", null).collectAsState()
+            LaunchedEffect(lifecycle, created) {
+                if (lifecycle == Lifecycle.State.RESUMED) {
+                    viewModel.resumePicker(created)
+                    entry.savedStateHandle["createdExerciseId"] = null
+                }
+            }
+            PlanEditorScreen(onBack = navigateBack, viewModel = viewModel, onCreateExercise = {
+                viewModel.suspendPicker()
+                navController.navigate(ExerciseCreateRoute)
+            })
+        }
+        composable<ExerciseCreateRoute> {
+            ExerciseCreateScreen(onBack = navigateBack, onSaved = { id ->
+                navController.previousBackStackEntry?.savedStateHandle?.set("createdExerciseId", id)
+                navController.popBackStack()
+            })
         }
         composable<SessionRoute> {
             SessionScreen(onBack = navigateBack)
@@ -64,5 +91,6 @@ fun LogGymNavHost(
         composable<HistoryDetailRoute> {
             HistoryDetailScreen(onBack = navigateBack)
         }
+        composable<SettingsRoute> { SettingsScreen(onBack = navigateBack) }
     }
 }

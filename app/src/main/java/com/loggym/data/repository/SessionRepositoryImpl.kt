@@ -20,8 +20,10 @@ import com.loggym.domain.model.SessionStatus
 import com.loggym.domain.model.SessionSummary
 import com.loggym.domain.model.StartSessionResult
 import com.loggym.domain.repository.SessionRepository
+import com.loggym.domain.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import java.time.Clock
 import java.time.Duration
 import javax.inject.Inject
@@ -31,6 +33,7 @@ class SessionRepositoryImpl @Inject constructor(
     private val sessionDao: SessionDao,
     private val planDao: PlanDao,
     private val clock: Clock,
+    private val preferences: UserPreferencesRepository,
 ) : SessionRepository {
 
     override fun observeDraft(): Flow<Session?> = sessionDao.observeDraft().map { it?.toDomain() }
@@ -41,20 +44,25 @@ class SessionRepositoryImpl @Inject constructor(
     override fun observeSession(sessionId: Long): Flow<Session?> =
         sessionDao.observeSession(sessionId).map { it?.toDomain() }
 
-    override suspend fun startSession(workoutId: Long): StartSessionResult = database.withTransaction {
-        val draftId = sessionDao.getDraftId()
-        val activePlan = planDao.getActivePlan()
-        val workout = planDao.getWorkoutWithExercises(workoutId)
-        when {
-            draftId != null -> StartSessionResult.DraftAlreadyExists(draftId)
-            activePlan == null -> StartSessionResult.NoActivePlan
-            workout == null || workout.workout.planId != activePlan.id -> StartSessionResult.WorkoutNotInActivePlan
-            else -> StartSessionResult.Started(createDraft(activePlan, workout))
+    override suspend fun startSession(workoutId: Long): StartSessionResult {
+        sessionDao.getDraftId()?.let { return StartSessionResult.DraftAlreadyExists(it) }
+        // Uma única leitura, fora da transação, para todo o novo rascunho.
+        val prefillEnabled = preferences.settings.first().prefillEnabled
+        return database.withTransaction {
+            val draftId = sessionDao.getDraftId()
+            val activePlan = planDao.getActivePlan()
+            val workout = planDao.getWorkoutWithExercises(workoutId)
+            when {
+                draftId != null -> StartSessionResult.DraftAlreadyExists(draftId)
+                activePlan == null -> StartSessionResult.NoActivePlan
+                workout == null || workout.workout.planId != activePlan.id -> StartSessionResult.WorkoutNotInActivePlan
+                else -> StartSessionResult.Started(createDraft(activePlan, workout, prefillEnabled))
+            }
         }
     }
 
     /** RF-59 a RF-61 e RF-65 a RF-72. Deve ser chamada dentro de uma transação. */
-    private suspend fun createDraft(plan: PlanEntity, workout: WorkoutWithExercises): Long {
+    private suspend fun createDraft(plan: PlanEntity, workout: WorkoutWithExercises, prefillEnabled: Boolean): Long {
         val sessionId = sessionDao.insertSession(
             SessionEntity(
                 status = SessionStatus.DRAFT,
@@ -84,8 +92,8 @@ class SessionRepositoryImpl @Inject constructor(
                         trackingType = item.exercise.trackingType,
                     ),
                 )
-                val previous = sessionDao.getLastCompletedSets(item.exercise.id, item.exercise.trackingType)
-                    .map { SetValues(weightKg = it.weightKg, reps = it.reps, durationSeconds = it.durationSeconds) }
+                val previous = if (prefillEnabled) sessionDao.getLastCompletedSets(item.exercise.id, item.exercise.trackingType)
+                    .map { SetValues(weightKg = it.weightKg, reps = it.reps, durationSeconds = it.durationSeconds) } else emptyList()
                 val sets = SetPrefill.build(prescription.targetSets, previous).mapIndexed { setPosition, values ->
                     SessionSetEntity(
                         sessionExerciseId = sessionExerciseId,
@@ -141,6 +149,12 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun removeSet(setId: Long): Boolean = sessionDao.deleteUncompletedSet(setId) > 0
+
+    override suspend fun clearExerciseSets(sessionExerciseId: Long): Boolean = database.withTransaction {
+        if (sessionDao.countDraftExercise(sessionExerciseId) == 0) return@withTransaction false
+        sessionDao.clearExerciseSets(sessionExerciseId)
+        true
+    }
 
     override suspend fun skipRest(sessionId: Long) = sessionDao.updateRest(sessionId, startedAt = null, endsAt = null)
 

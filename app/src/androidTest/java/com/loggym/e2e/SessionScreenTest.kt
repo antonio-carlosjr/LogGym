@@ -56,7 +56,7 @@ class SessionScreenTest {
         db = Room.inMemoryDatabaseBuilder(context, LogGymDatabase::class.java).build()
         val exercises = ExerciseRepositoryImpl(db, db.exerciseDao())
         val plans = PlanRepositoryImpl(db, db.planDao(), db.exerciseDao(), clock)
-        sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock)
+        sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock, com.loggym.FakeUserPreferences())
         val plan = plans.createPlan("Plano misto")
         plans.setActivePlan(plan)
         val workout = plans.addWorkout(plan, "Treino A")

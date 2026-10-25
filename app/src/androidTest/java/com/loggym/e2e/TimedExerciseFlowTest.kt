@@ -50,7 +50,7 @@ class TimedExerciseFlowTest {
         val clock = Clock.systemUTC()
         val exercises = ExerciseRepositoryImpl(db, db.exerciseDao())
         val plans = PlanRepositoryImpl(db, db.planDao(), db.exerciseDao(), clock)
-        val sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock)
+        val sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock, com.loggym.FakeUserPreferences())
         val (plan, workout) = runBlocking {
             val id = plans.createPlan("Plano S2")
             plans.setActivePlan(id)
@@ -69,7 +69,7 @@ class TimedExerciseFlowTest {
                         runBlocking { sessions.startSession(workout) }
                         sessionVm = retain(SessionViewModel(sessions, clock))
                         stage = 2
-                    }, viewModel = editorVm)
+                    }, onCreateExercise = { error("Cadastro contextual pertence ao Sprint4FlowTest") }, viewModel = editorVm)
                     2 -> SessionScreen(onBack = { finished = true; stage = 3 }, viewModel = sessionVm!!)
                 }
             }
@@ -89,7 +89,8 @@ class TimedExerciseFlowTest {
         compose.onNodeWithContentDescription("Voltar").performClick()
         compose.waitUntil(10_000) { compose.onAllNodesWithText("Duração (s)").fetchSemanticsNodes().isNotEmpty() }
         compose.onAllNodesWithText("Duração (s)").onFirst().performTextInput("40")
-        compose.onNodeWithContentDescription("Concluir série 1 de Prancha S2").performClick()
+        click("Concluir série 1 de Prancha S2")
+        compose.waitUntil(10_000) { runBlocking { sessions.observeDraft().first()?.completedSetCount == 1 } }
         click("Finalizar treino")
         click("Finalizar")
         compose.waitUntil(10_000) { finished }
@@ -101,7 +102,11 @@ class TimedExerciseFlowTest {
         }
     }
     private fun click(text: String) {
-        compose.waitUntil(10_000) { compose.onAllNodes(hasText(text) or hasContentDescription(text)).fetchSemanticsNodes().isNotEmpty() }
-        compose.onNode(hasText(text) or hasContentDescription(text)).performClick()
+        val target = (hasText(text) or hasContentDescription(text)) and !hasSetTextAction() and hasClickAction() and isEnabled()
+        compose.waitUntil(10_000) { compose.onAllNodes(target).fetchSemanticsNodes().isNotEmpty() }
+        val node = compose.onAllNodes(target).onFirst()
+        runCatching { node.performScrollTo() }
+        node.assertIsDisplayed().performClick()
+        compose.waitForIdle()
     }
 }

@@ -24,6 +24,7 @@ class SessionRepositoryTest {
     private val clock = MutableClock()
     private var workoutId = 0L
     private var planId = 0L
+    private val preferences = com.loggym.FakeUserPreferences()
 
     @Before fun setup() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -41,7 +42,7 @@ class SessionRepositoryTest {
     private fun repositories() {
         plans = PlanRepositoryImpl(db, db.planDao(), db.exerciseDao(), clock)
         exercises = ExerciseRepositoryImpl(db, db.exerciseDao())
-        sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock)
+        sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock, preferences)
     }
     @After fun close() { db.close() }
     private suspend fun start(): Session {
@@ -70,6 +71,26 @@ class SessionRepositoryTest {
         assertEquals(45, next.exercises[1].sets[0].durationSeconds)
         assertNull(next.exercises[1].sets[1].durationSeconds)
         assertFalse(next.exercises[1].sets[0].isCompleted)
+        preferences.setPrefillEnabled(false)
+        assertEquals(next, draft())
+        sessions.discardSession(next.id)
+        val empty = start()
+        assertTrue(empty.exercises.flatMap { it.sets }.all { it.weightKg == null && it.reps == null && it.durationSeconds == null && !it.isCompleted })
+        preferences.setPrefillEnabled(true)
+        assertEquals(empty, draft())
+        sessions.discardSession(empty.id)
+        assertEquals(45, start().exercises[1].sets[0].durationSeconds)
+    }
+
+    @Test fun preferenceReadFailureDoesNotCreatePartialDraft() = runBlocking {
+        val broken = object : UserPreferencesRepository by preferences {
+            override val settings = kotlinx.coroutines.flow.flow<com.loggym.domain.model.UserSettings> { throw java.io.IOException() }
+        }
+        val repository = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock, broken)
+        assertTrue(runCatching { repository.startSession(workoutId) }.isFailure)
+        assertNull(sessions.observeDraft().first())
+        val existing = start()
+        assertEquals(StartSessionResult.DraftAlreadyExists(existing.id), repository.startSession(workoutId))
     }
 
     @Test fun incompleteSetsStayNullAndEmptySessionsCannotFinish() = runBlocking {
@@ -242,6 +263,78 @@ class SessionRepositoryTest {
         sessions.saveSetAndSetCompleted(last.exercises[1].sets[0].id, SetValues(durationSeconds = 45), true)
         sessions.finishSession(last.id)
         assertEquals(listOf(last.id, first.id), sessions.observeHistory().first().map { it.id })
+    }
+
+    @Test fun clearAffectsOnlySelectedOccurrenceAndPreservesRestPlanAndHistory() = runBlocking {
+        val before = start()
+        val weight = before.exercises[0]
+        sessions.saveSetAndSetCompleted(weight.sets[0].id, SetValues(0.0, 0), true)
+        sessions.addSet(weight.id)
+        sessions.saveSetAndSetCompleted(before.exercises[1].sets[0].id, SetValues(durationSeconds = 45), true)
+        val populated = draft()
+        val plan = plans.observePlan(planId).first()
+        assertTrue(sessions.clearExerciseSets(weight.id))
+        assertTrue(sessions.clearExerciseSets(weight.id))
+        val cleared = draft()
+        assertEquals(populated.restTimer, cleared.restTimer)
+        assertEquals(populated.exercises[0].sets.map { it.id }, cleared.exercises[0].sets.map { it.id })
+        assertEquals(populated.exercises[1], cleared.exercises[1])
+        assertTrue(cleared.exercises[0].sets.all { it.weightKg == null && it.reps == null && !it.isCompleted })
+        assertEquals(plan, plans.observePlan(planId).first())
+        sessions.finishSession(before.id)
+        val completed = sessions.observeSession(before.id).first()
+        assertFalse(sessions.clearExerciseSets(before.exercises[1].id))
+        assertFalse(sessions.clearExerciseSets(Long.MAX_VALUE))
+        assertEquals(completed, sessions.observeSession(before.id).first())
+    }
+
+    @Test fun clearingTimedOccurrenceDoesNotClearAnotherOccurrenceOfSameExercise() = runBlocking {
+        val timedPrescription = plans.observePlan(planId).first()!!.workouts.single().exercises[1]
+        plans.addExerciseToWorkout(workoutId, timedPrescription.exercise.id,
+            ExerciseTarget.Timed(2, 30, Duration.ofSeconds(37)))
+        val before = start()
+        val timed = before.exercises[1]
+        val repeated = before.exercises[2]
+        sessions.saveSetAndSetCompleted(timed.sets[0].id, SetValues(durationSeconds = 45), true)
+        sessions.addSet(timed.id)
+        sessions.saveSetAndSetCompleted(repeated.sets[0].id, SetValues(durationSeconds = 60), true)
+        val populated = draft()
+        assertTrue(sessions.clearExerciseSets(timed.id))
+        val cleared = draft()
+        assertEquals(populated.restTimer, cleared.restTimer)
+        assertEquals(populated.exercises[2], cleared.exercises[2])
+        assertEquals(populated.exercises[1].sets.map { it.id }, cleared.exercises[1].sets.map { it.id })
+        assertTrue(cleared.exercises[1].sets.all {
+            it.durationSeconds == null && it.weightKg == null && it.reps == null && !it.isCompleted
+        })
+        // Nova instância do repositório lê a limpeza persistida, sem reaplicar histórico.
+        repositories()
+        assertEquals(cleared, draft())
+    }
+
+    @Test fun failedClearRollsBackAllSets() = runBlocking {
+        val before = start()
+        val exercise = before.exercises[0]
+        exercise.sets.forEach { sessions.updateSetValues(it.id, SetValues(12.5, 0)) }
+        val snapshot = draft()
+        db.openHelper.writableDatabase.execSQL("""CREATE TRIGGER fail_clear BEFORE UPDATE ON session_sets
+            WHEN OLD.session_exercise_id = ${exercise.id} AND OLD.position = 1
+            BEGIN SELECT RAISE(ABORT, 'clear failure'); END""")
+        assertTrue(runCatching { sessions.clearExerciseSets(exercise.id) }.isFailure)
+        assertEquals(snapshot, draft())
+        db.openHelper.writableDatabase.execSQL("DROP TRIGGER fail_clear")
+        assertTrue(sessions.clearExerciseSets(exercise.id))
+    }
+
+    @Test fun newPrescriptionsDoNotModifyAlreadyStartedSnapshots() = runBlocking {
+        val snapshot = start()
+        val prescription = plans.observePlan(planId).first()!!.workouts.single().exercises[0]
+        plans.updateWorkoutExercise(prescription.id, ExerciseTarget.Repetitions(3, 0, 10, Duration.ofSeconds(37)))
+        assertEquals(snapshot, draft())
+        sessions.discardSession(snapshot.id)
+        val next = start()
+        assertEquals(0, next.exercises[0].target.repMin)
+        assertEquals(37L, next.exercises[0].target.rest.seconds)
     }
 
     private class MutableClock(var now: Instant = Instant.parse("2026-10-22T12:00:00Z")) : Clock() {
