@@ -2,7 +2,8 @@ package com.loggym.e2e
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
-import androidx.test.espresso.Espresso
+import android.view.KeyEvent
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.loggym.MainActivity
 import com.loggym.domain.logic.SetValues
@@ -71,7 +72,9 @@ class Sprint6FlowTest {
         assertEquals(1, draft().completedSetCount); assertEquals(rest, draft().restTimer)
         field("Carga (kg)", 1).performTextReplacement("30,")
         click("Ver histórico de Halter S6"); waitFor("Histórico de Halter S6")
-        Espresso.pressBack()
+        // The modal owns window focus; dispatch the real Back key without Espresso's Activity-root matcher.
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        compose.waitForIdle()
         compose.onNodeWithText("30,").assertExists()
         assertEquals(1, draft().completedSetCount); assertEquals(rest, draft().restTimer)
         compose.activityRule.scenario.recreate()
