@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,6 +52,6 @@ class OnboardingViewModel @Inject constructor(
                 if (error is kotlinx.coroutines.CancellationException) throw error
                 failure.value = true
             } finally { _isWorking.value = false }
-        }
+        } ?: run { _isWorking.value = false }
     }
 }

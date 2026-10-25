@@ -71,7 +71,7 @@ class HomeViewModel @Inject constructor(
                 if (error is kotlinx.coroutines.CancellationException) throw error
                 message.value = R.string.session_start_error
             } finally { busy.value = false }
-        }
+        } ?: run { busy.value = false }
     }
 
     fun discardDraft(sessionId: Long) {
@@ -84,7 +84,7 @@ class HomeViewModel @Inject constructor(
                 if (error is kotlinx.coroutines.CancellationException) throw error
                 message.value = R.string.session_discard_error
             } finally { busy.value = false }
-        }
+        } ?: run { busy.value = false }
     }
 
     fun onMessageShown() {

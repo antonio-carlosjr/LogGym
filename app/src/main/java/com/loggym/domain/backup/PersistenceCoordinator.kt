@@ -41,13 +41,16 @@ class PersistenceCoordinator @Inject constructor() {
         return AutoCloseable { synchronized(owners) { owners.remove(owner) } }
     }
     fun command(scope: CoroutineScope, context: CoroutineContext, action: suspend () -> Unit): Job? {
-        if (!canEdit) return null
-        val job = scope.launch(context, start = CoroutineStart.LAZY) { action() }
-        synchronized(commands) { commands.add(job) }
+        val job = synchronized(commands) {
+            if (!canEdit) return null
+            scope.launch(context, start = CoroutineStart.LAZY) { action() }.also { commands.add(it) }
+        }
         job.invokeOnCompletion { synchronized(commands) { commands.remove(job) } }
         job.start()
         return job
     }
+    /** Mesmo ponto de corte da admissão de comandos, sem suspender durante a edição local. */
+    fun edit(action: () -> Unit) = synchronized(commands) { if (canEdit) action() }
     suspend fun <T> write(block: suspend () -> T): T {
         val context = currentCoroutineContext()
         if (context[Lease]?.coordinator === this) return block()
@@ -70,9 +73,9 @@ class PersistenceCoordinator @Inject constructor() {
         val leases = mutableListOf<PreparedWrites>()
         val failuresBefore = writeFailures.get()
         var exclusiveStarted = false
-        state.value = PersistencePhase.PREPARING
+        val accepted = synchronized(commands) { state.value = PersistencePhase.PREPARING; commands.toList() }
         try {
-            synchronized(commands) { commands.toList() }.joinAll()
+            accepted.joinAll()
             val participants = synchronized(owners) { owners.toList() }
             for (owner in participants) {
                 // O retorno de uma lease não pode ser perdido por cancelamento na troca de dispatcher.

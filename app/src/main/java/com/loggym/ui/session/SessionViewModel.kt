@@ -146,6 +146,9 @@ class SessionViewModel @Inject constructor(
     }
 
     fun edit(setId: Long, transform: (SetEntry) -> SetEntry) {
+        persistence.edit { editNow(setId, transform) }
+    }
+    private fun editNow(setId: Long, transform: (SetEntry) -> SetEntry) {
         if (!persistence.canEdit || state.value.busy || find(setId)?.second?.isCompleted != false) return
         val before = state.value.entries[setId] ?: return
         val next = transform(before).copy(revision = before.revision + 1, error = null)
@@ -214,7 +217,7 @@ class SessionViewModel @Inject constructor(
                 if (error is CancellationException) throw error
                 fail(error)
             } finally { state.update { it.copy(busy = false) } }
-        }
+        } ?: state.update { it.copy(busy = false) }
     }
 
     private fun fail(error: Exception) { state.update { it.copy(error = R.string.session_save_error) } }
