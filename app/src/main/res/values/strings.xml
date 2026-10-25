@@ -1,4 +1,15 @@
 <resources>
+    <string name="exercise_history_title">Histórico de %1$s</string>
+    <string name="exercise_history_open">Ver histórico de %1$s</string>
+    <string name="exercise_history_close">Fechar histórico</string>
+    <string name="exercise_history_empty">Nenhum treino anterior para este exercício.</string>
+    <string name="exercise_history_more">Carregar mais</string>
+    <string name="exercise_history_occurrence">Ocorrência %1$d nesta sessão</string>
+    <string name="exercise_history_unavailable">Histórico indisponível: exercício sem identidade de origem.</string>
+    <string name="auto_complete_label">Concluir séries automaticamente</string>
+    <string name="auto_complete_help">Após editar um valor válido, use Concluído no teclado ou entre nos campos de outra série. Valores apenas pré-preenchidos não concluem séries.</string>
+    <string name="auto_complete_read_error">Não foi possível ler a preferência de conclusão automática. A marcação manual continua disponível.</string>
+    <string name="backup_incompatible_version">Versão de backup incompatível. Gere um novo arquivo com a versão atual do LogGym.</string>
     <string name="backup_title">Backup e restauração</string>
     <string name="backup_help">Completo: inclui planos, exercícios, configurações, histórico e treino em andamento.\n\nSem histórico: inclui planos, exercícios e configurações, sem sessões.</string>
     <string name="backup_info">Sobre backup e restauração</string>

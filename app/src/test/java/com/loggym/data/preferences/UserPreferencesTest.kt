@@ -15,6 +15,8 @@ class UserPreferencesTest {
         val first = DataStoreUserPreferencesRepository(context)
         assertFalse(first.onboardingCompleted.first())
         assertEquals(com.loggym.domain.model.UserSettings(), first.settings.first())
+        assertFalse(first.settings.first().autoCompleteEnabled)
+        first.setAutoCompleteEnabled(true)
         first.setThemeMode(com.loggym.domain.model.ThemeMode.DARK)
         first.setPrefillEnabled(false)
         first.setOnboardingCompleted()
@@ -22,5 +24,6 @@ class UserPreferencesTest {
         assertTrue(reopened.onboardingCompleted.first())
         assertEquals(com.loggym.domain.model.ThemeMode.DARK, reopened.settings.first().themeMode)
         assertFalse(reopened.settings.first().prefillEnabled)
+        assertTrue(reopened.settings.first().autoCompleteEnabled)
     }
 }

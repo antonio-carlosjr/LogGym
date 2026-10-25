@@ -14,5 +14,6 @@ open class FakeUserPreferences : UserPreferencesRepository {
     override val onboardingCompleted = MutableStateFlow(false)
     override suspend fun setThemeMode(mode: ThemeMode) { settings.value = settings.value.copy(themeMode = mode) }
     override suspend fun setPrefillEnabled(enabled: Boolean) { settings.value = settings.value.copy(prefillEnabled = enabled) }
+    override suspend fun setAutoCompleteEnabled(enabled: Boolean) { settings.value = settings.value.copy(autoCompleteEnabled = enabled) }
     override suspend fun setOnboardingCompleted() { onboardingCompleted.value = true }
 }

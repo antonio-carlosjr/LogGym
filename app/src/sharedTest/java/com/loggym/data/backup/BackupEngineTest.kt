@@ -219,4 +219,48 @@ class BackupEngineTest {
         engine.recover()
         assertEquals(PersistencePhase.READY, coordinator.phase.value)
     }
+    @Test fun bothModalitiesRestoreAutomaticPreferenceAndPreserveItsValueOnRollback() = runBlocking {
+        fixture()
+        for (mode in BackupMode.entries) {
+            preferences.setAutoCompleteEnabled(true)
+            val t = exported(mode)
+            preferences.setAutoCompleteEnabled(false)
+            engine.checkpoint = { if (it == "preferences_applied") throw IOException() }
+            assertFalse(engine.restore(t))
+            assertFalse(preferences.snapshot().settings.autoCompleteEnabled)
+            engine.checkpoint = {}
+            val retry = exported(mode)
+            preferences.setAutoCompleteEnabled(true)
+            assertTrue(engine.restore(retry))
+            assertFalse(preferences.snapshot().settings.autoCompleteEnabled)
+            preferences.setAutoCompleteEnabled(true)
+            val enabled = exported(mode)
+            preferences.setAutoCompleteEnabled(false)
+            assertTrue(engine.restore(enabled))
+            assertTrue(preferences.snapshot().settings.autoCompleteEnabled)
+        }
+    }
+    @Test fun v1PublicImportNeverChangesLocalDataButInterruptedS5UndoStillRecovers() = runBlocking {
+        val plan = fixture()
+        val t = exported(BackupMode.FULL)
+        val source = engine.file(t, "import")
+        source.writeBytes(rewriteBackupHeader(source.readBytes(), ::s5Header))
+        val original = sessions.observeDraft().first()
+        val settings = preferences.snapshot()
+        assertTrue(runCatching { engine.restore(t) }.exceptionOrNull() is IncompatibleBackupVersion)
+        assertEquals(original, sessions.observeDraft().first()); assertEquals(settings, preferences.snapshot())
+
+        val applying = exported(BackupMode.FULL)
+        plans.renamePlan(plan, "Destino anterior")
+        preferences.setAutoCompleteEnabled(false)
+        engine.checkpoint = { if (it == "room_applied") throw ProcessDeath() }
+        assertTrue(runCatching { engine.restore(applying) }.exceptionOrNull() is ProcessDeath)
+        val undo = engine.file(applying, "undo")
+        undo.writeBytes(rewriteBackupHeader(undo.readBytes(), ::s5Header))
+        db.withTransaction { db.openHelper.writableDatabase.execSQL("UPDATE restore_journal SET undo_sha256=? WHERE id=1", arrayOf(engine.hash(undo))) }
+        restart()
+        assertEquals("Destino anterior", plans.observePlan(plan).first()!!.name)
+        assertFalse(preferences.snapshot().settings.autoCompleteEnabled)
+        assertEquals(original, sessions.observeDraft().first())
+    }
 }

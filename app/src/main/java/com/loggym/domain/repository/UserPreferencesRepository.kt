@@ -11,6 +11,7 @@ interface UserPreferencesRepository {
     val settings: Flow<UserSettings>
     suspend fun setThemeMode(mode: ThemeMode)
     suspend fun setPrefillEnabled(enabled: Boolean)
+    suspend fun setAutoCompleteEnabled(enabled: Boolean)
     /** RF-08: o onboarding só aparece até ser concluído. */
     val onboardingCompleted: Flow<Boolean>
 

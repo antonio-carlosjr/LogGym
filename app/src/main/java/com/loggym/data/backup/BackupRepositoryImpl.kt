@@ -30,10 +30,11 @@ class BackupRepositoryImpl @Inject constructor(
         work = scope.launch {
             try { withContext(Dispatchers.IO) { action() } }
             catch (error: CancellationException) { throw error }
-            catch (_: Exception) {
+            catch (error: Exception) {
                 engine.file(token, "export").delete()
                 engine.file(token, "import").delete()
-                mutableState.value = BackupState(BackupStep.ERROR, error = BackupFailure.OPERATION)
+                mutableState.value = BackupState(BackupStep.ERROR, error = if (error is IncompatibleBackupVersion)
+                    BackupFailure.INCOMPATIBLE_VERSION else BackupFailure.OPERATION)
             }
         }
     }

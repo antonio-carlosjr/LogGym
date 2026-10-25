@@ -50,7 +50,7 @@ class BackupEngine @Inject constructor(
             val settings = preferences.snapshot()
             val header = BackupHeader(magic = if (undo) "LOGGYM_UNDO" else "LOGGYM_BACKUP", mode = mode,
                 createdAt = clock.millis(), catalog = BackupFormat.catalog, floors = BackupData.floors(db),
-                preferences = BackupPreferences(settings.settings.themeMode.key, settings.settings.prefillEnabled),
+                preferences = BackupPreferences(settings.settings.themeMode.key, settings.settings.prefillEnabled, settings.settings.autoCompleteEnabled),
                 previousOnboarding = if (undo) settings.onboardingCompleted else null)
             val atomic = AtomicFile(file)
             val stream = atomic.startWrite()
@@ -84,7 +84,7 @@ class BackupEngine @Inject constructor(
         } finally { staging.close(); context.deleteDatabase(name) }
     }
     private fun BackupHeader.persisted(undo: Boolean) = PersistedPreferences(
-        UserSettings(ThemeMode.fromKey(preferences.theme), preferences.prefillEnabled),
+        UserSettings(ThemeMode.fromKey(preferences.theme), preferences.prefillEnabled, preferences.autoCompleteEnabled),
         if (undo) requireNotNull(previousOnboarding) else true)
 
     /** Retorna false após reversão bem-sucedida; falha de recuperação mantém a aplicação bloqueada. */
