@@ -4,7 +4,7 @@
     <string name="exercise_history_close">Fechar histórico</string>
     <string name="exercise_history_empty">Nenhum treino anterior para este exercício.</string>
     <string name="exercise_history_more">Carregar mais</string>
-    <string name="exercise_history_occurrence">Ocorrência %1$d nesta sessão</string>
+    <string name="exercise_history_occurrence">Ocorrência nesta sessão: %1$d</string>
     <string name="exercise_history_unavailable">Histórico indisponível: exercício sem identidade de origem.</string>
     <string name="auto_complete_label">Concluir séries automaticamente</string>
     <string name="auto_complete_help">Após editar um valor válido, use Concluído no teclado ou entre nos campos de outra série. Valores apenas pré-preenchidos não concluem séries.</string>

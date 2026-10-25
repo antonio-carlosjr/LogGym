@@ -186,7 +186,7 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                                 entry.error?.let { Text(resources.getString(it), color = MaterialTheme.colorScheme.error) }
                                 if (set.isCompleted && SetValues(set.weightKg, set.reps, set.durationSeconds).isIncomplete(exercise.trackingType))
                                     Text(resources.getString(R.string.ui_serie_marcada_com_campos_incompletos), color = MaterialTheme.colorScheme.error)
-                                if (!set.isCompleted) TextButton(onClick = { viewModel.remove(set.id) }, enabled = !state.busy) {
+                                if (!set.isCompleted) TextButton(onClick = { viewModel.remove(set.id) }, enabled = !state.busy && set.id !in state.autoCompleting) {
                                     Text(resources.getString(R.string.ui_remover_serie_1_s, index))
                                 }
                             }

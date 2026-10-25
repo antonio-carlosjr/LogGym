@@ -78,6 +78,8 @@ class SessionViewModelTest {
         val gate = CompletableDeferred<Unit>(); repository.checkGate = gate
         vm.fieldFocused(11); runCurrent()
         assertEquals(setOf(10L), vm.uiState.value.autoCompleting); assertFalse(vm.uiState.value.busy)
+        vm.edit(10) { it.copy(weight = "99") }; vm.remove(10)
+        assertEquals("0", vm.uiState.value.entries[10L]!!.weight); assertFalse(vm.uiState.value.busy)
         vm.edit(11) { it.copy(duration = "45") }
         assertEquals("45", vm.uiState.value.entries[11L]!!.duration)
         gate.complete(Unit); runCurrent(); vm.finishEditing(11); runCurrent()

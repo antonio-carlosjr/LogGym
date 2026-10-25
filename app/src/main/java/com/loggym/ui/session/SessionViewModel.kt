@@ -326,10 +326,13 @@ class SessionViewModel @Inject constructor(
         if (flush()) repository.addSet(exerciseId)
     }
 
-    fun remove(id: Long) = operation {
+    fun remove(id: Long) {
+        if (id in state.value.autoCompleting) return
+        operation {
         invalidateAutomatic(listOf(id))
         debounces.remove(id)?.cancel()
         if (repository.removeSet(id)) state.update { it.copy(entries = it.entries - id) }
+        }
     }
 
     fun skipRest() = operation { state.value.session?.let { repository.skipRest(it.id) } }
