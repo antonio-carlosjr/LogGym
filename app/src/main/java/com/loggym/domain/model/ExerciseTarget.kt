@@ -39,8 +39,9 @@ sealed interface ExerciseTarget {
 
 private fun validateCommon(sets: Int, rest: Duration) {
     require(sets > 0) { "A quantidade de séries deve ser positiva." }
-    require(!rest.isNegative && rest.nano == 0 && rest.seconds <= InputRules.REST_MAX_SECONDS &&
-        rest.seconds % InputRules.REST_STEP_SECONDS == 0L) { "Descanso entre 0 e 600 s em passos de 15 s." }
+    require(!rest.isNegative && rest.nano == 0 && rest.seconds <= InputRules.REST_MAX_SECONDS) {
+        "Descanso inteiro entre 0 e 600 s."
+    }
 }
 
 fun ExerciseTarget.summary(): String = when (this) {

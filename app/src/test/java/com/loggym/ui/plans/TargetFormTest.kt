@@ -31,16 +31,27 @@ class TargetFormTest {
 
     @Test
     fun `aceita valores altos sem teto - RF-141`() {
-        val result = TargetForm("10", "50", "100", restSeconds = 600).validate()
+        val result = TargetForm("10", "50", "100", restSeconds = "600").validate()
 
         assertEquals(TargetFormResult.Valid(ExerciseTarget.Repetitions(10, 50, 100, Duration.ofSeconds(600))), result)
     }
 
     @Test
     fun `descanso anda em passos de 15 s entre 0 e 600 - RF-142`() {
-        assertEquals(15L, TargetForm().adjustRest(+1).restSeconds)
-        assertEquals(0L, TargetForm().adjustRest(-1).restSeconds)
-        assertEquals(600L, TargetForm(restSeconds = 590).adjustRest(+4).restSeconds)
+        assertEquals("15", TargetForm().adjustRest(+1).restSeconds)
+        assertEquals("0", TargetForm().adjustRest(-1).restSeconds)
+        assertEquals("600", TargetForm(restSeconds = "590").adjustRest(+1).restSeconds)
+        assertEquals("52", TargetForm(restSeconds = "37").adjustRest(+1).restSeconds)
+        assertEquals("22", TargetForm(restSeconds = "37").adjustRest(-1).restSeconds)
+    }
+
+    @Test fun `descanso invalido nao e transformado nem salvo`() {
+        for (text in listOf("-1", "601", "3.7", "3,7", "abc", "999999999999999999999999")) {
+            val form = TargetForm("3", "8", "12", restSeconds = text)
+            assertEquals(invalid(TargetFormError.INVALID_REST), form.validate())
+            assertEquals(form, form.adjustRest(1))
+        }
+        assertEquals(0L, (TargetForm("3", "8", "12").validate() as TargetFormResult.Valid).target.rest.seconds)
     }
 
     @Test

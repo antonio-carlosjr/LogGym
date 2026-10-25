@@ -383,15 +383,19 @@ private fun TargetDialog(
                 }
                 Text(resources.getString(R.string.rest_title), style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedButton(onClick = { onChange { it.adjustRest(-1) } }) { Text(resources.getString(R.string.ui_15_s)) }
-                    Text(
-                        restLabel(form.restSeconds),
-                        style = MaterialTheme.typography.titleMedium,
+                    OutlinedButton(onClick = { onChange { it.adjustRest(-1) } }, enabled = form.restValue != null) { Text(resources.getString(R.string.ui_15_s)) }
+                    OutlinedTextField(
+                        value = form.restSeconds,
+                        onValueChange = { value -> onChange { it.copy(restSeconds = value) } },
+                        label = { Text(resources.getString(R.string.rest_seconds)) },
+                        singleLine = true,
+                        isError = form.restValue == null,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 8.dp),
                     )
-                    OutlinedButton(onClick = { onChange { it.adjustRest(+1) } }) { Text(resources.getString(R.string.ui_15_s_2)) }
+                    OutlinedButton(onClick = { onChange { it.adjustRest(+1) } }, enabled = form.restValue != null) { Text(resources.getString(R.string.ui_15_s_2)) }
                 }
                 dialog.error?.let { error ->
                     Text(error.message(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
@@ -422,6 +426,7 @@ private fun NumberField(label: String, value: String, modifier: Modifier = Modif
 private fun TargetFormError.message(): String {
     val resources = LocalResources.current
     return when (this) {
+    TargetFormError.INVALID_REST -> resources.getString(R.string.invalid_rest)
     TargetFormError.INVALID_DURATION -> resources.getString(R.string.ui_informe_uma_duracao_em_segundos_maior_que_zero)
     TargetFormError.MISSING_SETS -> resources.getString(R.string.ui_informe_a_quantidade_de_series)
     TargetFormError.INVALID_SETS -> resources.getString(R.string.ui_as_series_devem_ser_maiores_que_zero)

@@ -28,9 +28,9 @@ class ExerciseTargetTest {
         ExerciseTarget.Repetitions(targetSets = 3, repMin = 6, repMax = 10, rest = Duration.ofSeconds(615))
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun `descanso fora dos passos de 15 s e invalido - RF-142`() {
-        ExerciseTarget.Repetitions(targetSets = 3, repMin = 6, repMax = 10, rest = Duration.ofSeconds(100))
+    @Test
+    fun `descanso manual nao precisa ser multiplo de 15 - RF-142`() {
+        assertEquals(37L, ExerciseTarget.Repetitions(3, 6, 10, Duration.ofSeconds(37)).rest.seconds)
     }
 
     @Test
