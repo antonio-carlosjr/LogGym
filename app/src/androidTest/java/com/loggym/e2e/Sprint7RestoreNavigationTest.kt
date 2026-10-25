@@ -48,8 +48,16 @@ class Sprint7RestoreNavigationTest {
     @Before fun setup() {
         hilt.inject()
         file = File(InstrumentationRegistry.getInstrumentation().targetContext.cacheDir, "s7-navigation.loggym")
-        compose.waitUntil(15000) { compose.onAllNodesWithText("Pular por enquanto").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText("Pular por enquanto").performClick()
+        compose.waitUntil(15000) {
+            if (compose.onAllNodesWithText("Pular por enquanto").fetchSemanticsNodes().isEmpty()) {
+                val lists = compose.onAllNodes(hasScrollAction())
+                repeat(lists.fetchSemanticsNodes().size) { index ->
+                    runCatching { lists[index].performScrollToNode(hasText("Pular por enquanto")) }
+                }
+            }
+            compose.onAllNodesWithText("Pular por enquanto").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText("Pular por enquanto").performScrollTo().assertIsDisplayed().performClick()
         runBlocking { plans.createPlan("Plano original S7") }
     }
     @After fun cleanup() { engine.checkpoint = {}; file.delete() }

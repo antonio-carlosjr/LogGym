@@ -24,8 +24,16 @@ class Sprint7NavigationTest {
     @Inject lateinit var backup: BackupRepository
     @Before fun setup() {
         hilt.inject()
-        compose.waitUntil(15000) { compose.onAllNodesWithText("Pular por enquanto").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText("Pular por enquanto").performClick()
+        compose.waitUntil(15000) {
+            if (compose.onAllNodesWithText("Pular por enquanto").fetchSemanticsNodes().isEmpty()) {
+                val lists = compose.onAllNodes(hasScrollAction())
+                repeat(lists.fetchSemanticsNodes().size) { index ->
+                    runCatching { lists[index].performScrollToNode(hasText("Pular por enquanto")) }
+                }
+            }
+            compose.onAllNodesWithText("Pular por enquanto").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText("Pular por enquanto").performScrollTo().assertIsDisplayed().performClick()
         awaitTab("home")
     }
     private fun awaitTab(tab: String) {

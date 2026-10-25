@@ -29,6 +29,8 @@ class Sprint3FlowTest {
 
     @Before fun setup() {
         hilt.inject()
+        // A recuperação inicial deve liberar a UI antes de preparar dados do cenário.
+        waitFor("Bem-vindo ao LogGym")
         // Cadastro por tempo já é coberto pelo TimedExerciseFlowTest; aqui reutilizamos a biblioteca.
         runBlocking { exercises.createCustom(ExerciseDraft("Prancha S3", trackingType = TrackingType.TIME)) }
     }

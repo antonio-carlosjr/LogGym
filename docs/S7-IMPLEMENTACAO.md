@@ -92,3 +92,13 @@ Revisão técnica: seleção pela rota, limpeza de stores salvos/ativos, bloquei
 ### Revisão de prioridade de Voltar
 
 Handler das raízes composto após o NavHost para prevalecer sobre o pop interno e salvar estado no retorno ao Início. Teste da biblioteca ampliado: busca/filtro → outra aba → recriação → Voltar → Início → Biblioteca, exigindo o mesmo contexto. IME continua fechando primeiro; fluxos internos mantêm seus handlers. CI do novo HEAD obrigatória; resultados remotos anteriores não validam antecipadamente este ajuste.
+
+
+### Primeira CI — diagnóstico de preparação
+
+Em `1dc95c8`, build/JVM/lint aprovados com JDK 21. Instrumentados: 63/71 aprovados; oito falhas nos @Before dos dois novos robôs S7, aguardando Pular por enquanto fora da área composta em tela menor. Helpers passam a rolar a LazyColumn até o botão e confirmar visibilidade antes do toque, seguindo o padrão existente. Nenhuma assertiva funcional removida.
+
+Uma repetição local encontrou também preparação do robô S3 concorrendo com a recuperação inicial: a escrita de fixture era corretamente recusada pelo coordenador. O robô agora aguarda onboarding visível antes de cadastrar os dados, sem alterar o protocolo de recuperação nem adicionar atraso arbitrário. Revalidar o HEAD corrigido localmente e na CI; resultados remotos anteriores são históricos.
+
+
+Revalidação após esses ajustes: build/JVM/lint/APK instrumentado aprovados; **71/71 instrumentados em 320×640 dp, API 35**, incluindo o retorno ao Início/reabertura da biblioteca com contexto preservado. Rodada dirigida de navegação: 4/4, sem somar repetições à contagem da suíte. Log local `build/s7-compact-viewport-final.log`. CI do HEAD corrigido acompanhada no PR #16.
