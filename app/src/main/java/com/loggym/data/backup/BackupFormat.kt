@@ -85,12 +85,21 @@ object BackupFormat {
             val obj = json.parseToJsonElement(text).jsonObject
             require(obj.keys == setOf("recordType", "data"))
             val type = obj.getValue("recordType").jsonPrimitive.content
+            require(obj.getValue("recordType").jsonPrimitive.isString)
             val data = obj.getValue("data")
             when {
                 metadata == null -> {
                     require(type == "header")
                     require(data.jsonObject.keys == setOf("magic", "version", "mode", "createdAt", "appVersion", "catalog", "floors", "preferences", "previousOnboarding"))
                     require(data.jsonObject.getValue("preferences").jsonObject.keys == setOf("theme", "prefillEnabled"))
+                    val fields = data.jsonObject
+                    for (key in listOf("magic", "mode", "appVersion", "catalog")) require(fields.getValue(key).jsonPrimitive.isString)
+                    for (key in listOf("version", "createdAt")) require(fields.getValue(key).jsonPrimitive.let { !it.isString && it.longOrNull != null })
+                    require(fields.getValue("floors").jsonObject.values.all { it.jsonPrimitive.let { value -> !value.isString && value.longOrNull != null } })
+                    val prefs = fields.getValue("preferences").jsonObject
+                    require(prefs.getValue("theme").jsonPrimitive.isString)
+                    require(prefs.getValue("prefillEnabled").jsonPrimitive.let { !it.isString && it.booleanOrNull != null })
+                    require(fields.getValue("previousOnboarding").let { it == JsonNull || it.jsonPrimitive.let { p -> !p.isString && p.booleanOrNull != null } })
                     metadata = json.decodeFromJsonElement<BackupHeader>(data)
                     require(metadata.version == 1 && metadata.catalog == catalog) { "Versão ou catálogo incompatível" }
                     require(metadata.magic == if (internal) "LOGGYM_UNDO" else "LOGGYM_BACKUP") { "Arquivo não é um backup LogGym" }
@@ -103,6 +112,8 @@ object BackupFormat {
                 type == "end" -> {
                     val footer = data.jsonObject
                     require(footer.keys == setOf("counts", "sha256"))
+                    require(footer.getValue("counts").jsonObject.values.all { it.jsonPrimitive.let { value -> !value.isString && value.longOrNull != null } })
+                    require(footer.getValue("sha256").jsonPrimitive.isString)
                     require(json.decodeFromJsonElement<Map<String, Long>>(footer.getValue("counts")) == counts) { "Contagens inválidas" }
                     require(footer.getValue("sha256").jsonPrimitive.content == digest.digest().joinToString("") { "%02x".format(it) }) { "Integridade inválida" }
                     ended = true
