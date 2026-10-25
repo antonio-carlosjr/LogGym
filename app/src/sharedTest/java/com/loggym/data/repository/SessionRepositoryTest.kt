@@ -24,6 +24,7 @@ class SessionRepositoryTest {
     private val clock = MutableClock()
     private var workoutId = 0L
     private var planId = 0L
+    private val preferences = com.loggym.FakeUserPreferences()
 
     @Before fun setup() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -41,7 +42,7 @@ class SessionRepositoryTest {
     private fun repositories() {
         plans = PlanRepositoryImpl(db, db.planDao(), db.exerciseDao(), clock)
         exercises = ExerciseRepositoryImpl(db, db.exerciseDao())
-        sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock)
+        sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock, preferences)
     }
     @After fun close() { db.close() }
     private suspend fun start(): Session {
@@ -70,6 +71,26 @@ class SessionRepositoryTest {
         assertEquals(45, next.exercises[1].sets[0].durationSeconds)
         assertNull(next.exercises[1].sets[1].durationSeconds)
         assertFalse(next.exercises[1].sets[0].isCompleted)
+        preferences.setPrefillEnabled(false)
+        assertEquals(next, draft())
+        sessions.discardSession(next.id)
+        val empty = start()
+        assertTrue(empty.exercises.flatMap { it.sets }.all { it.weightKg == null && it.reps == null && it.durationSeconds == null && !it.isCompleted })
+        preferences.setPrefillEnabled(true)
+        assertEquals(empty, draft())
+        sessions.discardSession(empty.id)
+        assertEquals(45, start().exercises[1].sets[0].durationSeconds)
+    }
+
+    @Test fun preferenceReadFailureDoesNotCreatePartialDraft() = runBlocking {
+        val broken = object : UserPreferencesRepository by preferences {
+            override val settings = kotlinx.coroutines.flow.flow<com.loggym.domain.model.UserSettings> { throw java.io.IOException() }
+        }
+        val repository = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock, broken)
+        assertTrue(runCatching { repository.startSession(workoutId) }.isFailure)
+        assertNull(sessions.observeDraft().first())
+        val existing = start()
+        assertEquals(StartSessionResult.DraftAlreadyExists(existing.id), repository.startSession(workoutId))
     }
 
     @Test fun incompleteSetsStayNullAndEmptySessionsCannotFinish() = runBlocking {

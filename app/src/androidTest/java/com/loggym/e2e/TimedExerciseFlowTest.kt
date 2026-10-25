@@ -50,7 +50,7 @@ class TimedExerciseFlowTest {
         val clock = Clock.systemUTC()
         val exercises = ExerciseRepositoryImpl(db, db.exerciseDao())
         val plans = PlanRepositoryImpl(db, db.planDao(), db.exerciseDao(), clock)
-        val sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock)
+        val sessions = SessionRepositoryImpl(db, db.sessionDao(), db.planDao(), clock, com.loggym.FakeUserPreferences())
         val (plan, workout) = runBlocking {
             val id = plans.createPlan("Plano S2")
             plans.setActivePlan(id)
