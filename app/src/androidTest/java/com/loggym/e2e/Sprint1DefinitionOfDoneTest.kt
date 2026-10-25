@@ -4,6 +4,8 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
@@ -66,6 +68,8 @@ class Sprint1DefinitionOfDoneTest {
         assertAbsent("Excluir")
         click("Fechar")
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+        // Primeiro Voltar pode apenas fechar o IME da busca; a aba é o retorno explícito à raiz.
+        composeRule.onNodeWithTag("tab-home").performClick().assertIsSelected()
 
         // Sem plano ativo, a home direciona para planos (RF-07). Plano criado do zero (RF-23, RF-24).
         click("Ir para planos")

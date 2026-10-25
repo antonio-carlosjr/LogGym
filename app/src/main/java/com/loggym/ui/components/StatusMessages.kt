@@ -29,8 +29,8 @@ fun LoadError(onRetry: () -> Unit, message: String = stringResource(R.string.loa
 }
 
 @Composable
-fun LoadingState() {
-    Row(Modifier.padding(LogGymSpacing.screen), verticalAlignment = Alignment.CenterVertically,
+fun LoadingState(modifier: Modifier = Modifier) {
+    Row(modifier.padding(vertical = LogGymSpacing.screen), verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.medium)) {
         CircularProgressIndicator(Modifier.size(24.dp))
         Text(stringResource(R.string.loading), style = MaterialTheme.typography.bodyMedium)
@@ -38,9 +38,9 @@ fun LoadingState() {
 }
 
 @Composable
-fun EmptyState(message: String) {
+fun EmptyState(message: String, modifier: Modifier = Modifier) {
     Text(message, style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = LogGymSpacing.screen))
+        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = modifier.padding(vertical = LogGymSpacing.screen))
 }
 
 @Composable

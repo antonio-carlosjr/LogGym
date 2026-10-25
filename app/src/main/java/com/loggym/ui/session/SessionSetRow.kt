@@ -3,11 +3,13 @@ package com.loggym.ui.session
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -44,12 +46,17 @@ internal fun SessionSetRow(exercise: SessionExercise, set: SessionSet, index: In
                 Text(index.toString(), style = MaterialTheme.typography.labelLarge, modifier = Modifier.semantics { contentDescription = ordinalLabel })
                 fields()
                 Row {
-                    Checkbox(checked = set.isCompleted, onCheckedChange = { onToggle() },
-                        enabled = !busy && !completing,
-                        modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).semantics {
+                    // Um único alvo/estado acessível de 48 dp; desenho nativo conserva sua medida.
+                    Box(Modifier.size(48.dp)
+                        .toggleable(set.isCompleted, enabled = !busy && !completing,
+                            role = Role.Checkbox, onValueChange = { onToggle() })
+                        .semantics {
                             contentDescription = toggleLabel
                             stateDescription = completionLabel
-                        })
+                        }, contentAlignment = Alignment.Center) {
+                        Checkbox(checked = set.isCompleted, onCheckedChange = null,
+                            enabled = !busy && !completing, modifier = Modifier.clearAndSetSemantics {})
+                    }
                     if (!set.isCompleted) IconButton(onClick = onRemove, enabled = !busy && !completing,
                         modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)) {
                         Icon(Icons.Filled.Delete, stringResource(R.string.ui_remover_serie_1_s, index))

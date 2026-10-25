@@ -113,15 +113,12 @@ fun ExerciseLibraryScreen(
             MuscleGroupFilterRow(selected = state.groupFilter, onSelect = viewModel::onGroupFilterChange)
             HorizontalDivider()
             if (operationFailed) OperationError(viewModel::dismissError)
-            if (state.isLoading) com.loggym.ui.components.LoadingState()
-            if (state.failed) LoadError(viewModel::retry)
+            if (state.isLoading) com.loggym.ui.components.LoadingState(Modifier.padding(horizontal = LogGymSpacing.screen))
+            if (state.failed) androidx.compose.foundation.layout.Box(Modifier.padding(horizontal = LogGymSpacing.screen)) { LoadError(viewModel::retry) }
 
             if (!state.isLoading && !state.failed && state.exercises.isEmpty()) {
-                Text(
-                    resources.getString(R.string.ui_nenhum_exercicio_encontrado),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(LogGymSpacing.screen),
-                )
+                com.loggym.ui.components.EmptyState(resources.getString(R.string.ui_nenhum_exercicio_encontrado),
+                    Modifier.padding(horizontal = LogGymSpacing.screen))
             }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),

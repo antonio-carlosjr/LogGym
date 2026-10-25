@@ -109,11 +109,7 @@ fun PlansScreen(
             }
             if (!state.isLoading && !state.failed && state.plans.isEmpty()) {
                 item(key = "empty") {
-                    Text(
-                        resources.getString(R.string.ui_voce_ainda_nao_tem_planos_crie_um_do_zero_ou_use_um_plano_pronto),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(vertical = 16.dp),
-                    )
+                    com.loggym.ui.components.EmptyState(resources.getString(R.string.ui_voce_ainda_nao_tem_planos_crie_um_do_zero_ou_use_um_plano_pronto))
                 }
             }
             items(state.plans, key = { it.id }) { plan ->
