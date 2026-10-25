@@ -7,9 +7,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -25,6 +29,7 @@ import java.time.format.DateTimeFormatter
 fun BackupSection(state: BackupState, enabled: Boolean, export: (BackupMode) -> Unit,
     write: (String, String?) -> Unit, import: (String) -> Unit, confirm: (String) -> Unit, cancel: () -> Unit) {
     var chooseMode by rememberSaveable { mutableStateOf(false) }
+    var showInfo by rememberSaveable { mutableStateOf(false) }
     var destinationToken by rememberSaveable { mutableStateOf<String?>(null) }
     var importPicker by rememberSaveable { mutableStateOf(false) }
     val output = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
@@ -42,9 +47,12 @@ fun BackupSection(state: BackupState, enabled: Boolean, export: (BackupMode) -> 
     val locked = state.busy || state.step in setOf(BackupStep.DESTINATION, BackupStep.PREVIEW) || importPicker
     BackHandler(locked) { if (!state.busy && !importPicker && state.step != BackupStep.DESTINATION) cancel() }
     HorizontalDivider()
-    Text(stringResource(R.string.backup_title), Modifier.semantics { heading() }, style = MaterialTheme.typography.titleLarge)
-    Text(stringResource(R.string.backup_help))
-    Text(stringResource(R.string.backup_plaintext), color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.backup_title), Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.titleLarge)
+        IconButton(onClick = { showInfo = true }) {
+            Icon(Icons.Filled.Info, contentDescription = stringResource(R.string.backup_info))
+        }
+    }
     Button(onClick = { chooseMode = true }, enabled = enabled && !locked) { Text(stringResource(R.string.backup_export)) }
     OutlinedButton(onClick = { importPicker = true; input.launch(arrayOf("*/*")) }, enabled = enabled && !locked) { Text(stringResource(R.string.backup_import)) }
     val feedback = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
@@ -52,9 +60,13 @@ fun BackupSection(state: BackupState, enabled: Boolean, export: (BackupMode) -> 
     if (state.step == BackupStep.SUCCESS) Text(stringResource(R.string.backup_success), feedback)
     if (state.step == BackupStep.ERROR) Text(stringResource(if (state.error == BackupFailure.ROLLED_BACK)
         R.string.backup_rolled_back else R.string.backup_failed), feedback, color = MaterialTheme.colorScheme.error)
+    if (showInfo) AlertDialog(onDismissRequest = { showInfo = false },
+        title = { Text(stringResource(R.string.backup_title)) },
+        text = { BackupExplanation() },
+        confirmButton = { TextButton(onClick = { showInfo = false }) { Text(stringResource(R.string.backup_understood)) } })
     if (chooseMode) AlertDialog(onDismissRequest = { chooseMode = false },
         title = { Text(stringResource(R.string.backup_export)) },
-        text = { Text(stringResource(R.string.backup_help)) },
+        text = { BackupExplanation() },
         confirmButton = { TextButton(onClick = { chooseMode = false; export(BackupMode.FULL) }) { Text(stringResource(R.string.backup_full)) } },
         dismissButton = { TextButton(onClick = { chooseMode = false; export(BackupMode.WITHOUT_HISTORY) }) { Text(stringResource(R.string.backup_without_history)) } })
     state.summary?.takeIf { state.step == BackupStep.PREVIEW }?.let { summary ->
@@ -70,5 +82,13 @@ fun BackupSection(state: BackupState, enabled: Boolean, export: (BackupMode) -> 
             } },
             confirmButton = { TextButton(onClick = { confirm(summary.token) }) { Text(stringResource(R.string.backup_replace)) } },
             dismissButton = { TextButton(onClick = cancel) { Text(stringResource(R.string.ui_cancelar)) } })
+    }
+}
+
+@Composable
+private fun BackupExplanation() {
+    Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(stringResource(R.string.backup_help))
+        Text(stringResource(R.string.backup_plaintext))
     }
 }

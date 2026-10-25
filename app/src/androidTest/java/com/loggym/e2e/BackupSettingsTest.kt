@@ -54,6 +54,8 @@ class BackupSettingsTest {
     }
     @Test fun exportOffersTwoModesThenUsesCreateDocumentAndAcceptsCancellation() {
         compose.onNodeWithText("Exportar backup").performClick()
+        compose.onNodeWithText("Completo: inclui planos, exercícios, configurações, histórico e treino em andamento.\n\nSem histórico: inclui planos, exercícios e configurações, sem sessões.").assertExists()
+        compose.onNodeWithText("Este arquivo não está criptografado. Quem tiver acesso a ele poderá ler seus dados.").assertExists()
         compose.onNodeWithText("Sem histórico").performClick()
         assertEquals(BackupMode.WITHOUT_HISTORY, mode)
         compose.runOnIdle { state.value = BackupState(BackupStep.DESTINATION, "token", "teste.loggym") }
@@ -62,6 +64,20 @@ class BackupSettingsTest {
         assertEquals("teste.loggym", intent!!.getStringExtra(Intent.EXTRA_TITLE))
         compose.runOnIdle { registry.dispatchResult(request, Activity.RESULT_CANCELED, null) }
         assertEquals("token" to null, delivered)
+    }
+    @Test fun informationIsAvailableOnDemandAndDoesNotStartAnOperation() {
+        val explanation = hasText("Completo: inclui", substring = true)
+        val warning = "Este arquivo não está criptografado. Quem tiver acesso a ele poderá ler seus dados."
+        compose.onNode(explanation).assertDoesNotExist()
+        compose.onNodeWithText(warning).assertDoesNotExist()
+        compose.onNodeWithContentDescription("Sobre backup e restauração").performClick()
+        compose.onNode(explanation).assertExists()
+        compose.onNodeWithText(warning).assertExists()
+        assertNull(mode); assertNull(confirmed); assertNull(intent)
+        compose.onNodeWithText("Entendi").performClick()
+        compose.onNode(explanation).assertDoesNotExist()
+        compose.onNodeWithText(warning).assertDoesNotExist()
+        compose.onNodeWithText("Exportar backup").assertIsEnabled()
     }
     @Test fun importUsesOpenDocumentAndDoesNotConfirmBeforeExplicitAction() {
         compose.onNodeWithText("Importar backup").performClick()

@@ -1,6 +1,8 @@
 <resources>
     <string name="backup_title">Backup e restauração</string>
-    <string name="backup_help">Completo: inclui planos, exercícios, configurações, histórico e treino em andamento. Sem histórico: inclui planos, exercícios e configurações, sem sessões.</string>
+    <string name="backup_help">Completo: inclui planos, exercícios, configurações, histórico e treino em andamento.\n\nSem histórico: inclui planos, exercícios e configurações, sem sessões.</string>
+    <string name="backup_info">Sobre backup e restauração</string>
+    <string name="backup_understood">Entendi</string>
     <string name="backup_plaintext">Este arquivo não está criptografado. Quem tiver acesso a ele poderá ler seus dados.</string>
     <string name="backup_export">Exportar backup</string>
     <string name="backup_import">Importar backup</string>
