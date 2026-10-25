@@ -79,11 +79,12 @@ fun LogGymApp(onThemeApplied: (Boolean) -> Unit = {}, viewModel: AppViewModel = 
             if (destination != null && phase !in setOf(PersistencePhase.BLOCKED, PersistencePhase.RECOVERING, PersistencePhase.RESTORING)) {
                 key(generation) { Box(Modifier.weight(1f)) {
                     val controller = androidx.navigation.compose.rememberNavController()
+                    val navigationGeneration = generation
                     DisposableEffect(controller) {
                         onDispose {
                             // Libera também os stores das rotas antigas e seus participantes de flush.
                             // Rotação sem troca de geração conserva a pilha normalmente.
-                            if (viewModel.persistence.generation.value != generation) {
+                            if (viewModel.persistence.generation.value != navigationGeneration) {
                                 controller.popBackStack(controller.graph.id, inclusive = true)
                             }
                         }
