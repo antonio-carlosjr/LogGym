@@ -62,6 +62,9 @@ data class SessionUiState(
     val clearExerciseId: Long? = null,
     val remainingSeconds: Long? = null,
     val exitReady: Boolean = false,
+    val autoCompleteEnabled: Boolean = false,
+    val preferenceError: Int? = null,
+    val autoCompleting: Set<Long> = emptySet(),
 ) {
     val dirty: Boolean get() = entries.values.any { it.dirty }
     val incompleteCount: Int get() = session?.exercises?.sumOf { exercise ->
@@ -75,6 +78,7 @@ class SessionViewModel @Inject constructor(
     private val repository: SessionRepository,
     private val clock: Clock,
     private val persistence: com.loggym.domain.backup.PersistenceCoordinator = com.loggym.domain.backup.PersistenceCoordinator(),
+    private val preferences: com.loggym.domain.repository.UserPreferencesRepository? = null,
 ) : ViewModel() {
     private val persistenceContext = persistence.context()
 
@@ -85,10 +89,79 @@ class SessionViewModel @Inject constructor(
     private var ticker: Job? = null
     private var observing: Job? = null
     private var observationFailed = false
+    private var preferenceObservation: Job? = null
+    private var focusedSet: Long? = null
+    private var historyOpen = false
+    private val eligible = mutableMapOf<Long, Long>()
+    private val pendingAutomatic = mutableMapOf<Long, Long>()
+
+    fun retryPreference() {
+        preferenceObservation?.cancel()
+        preferenceObservation = viewModelScope.launch(persistenceContext) {
+            preferences?.settings?.catch { error ->
+                if (error is CancellationException) throw error
+                eligible.clear(); pendingAutomatic.clear(); interruptEditing()
+                state.update { it.copy(autoCompleteEnabled = false, preferenceError = R.string.auto_complete_read_error) }
+            }?.collect { settings ->
+                if (settings.autoCompleteEnabled != state.value.autoCompleteEnabled) {
+                    eligible.clear(); pendingAutomatic.clear(); interruptEditing()
+                }
+                state.update { it.copy(autoCompleteEnabled = settings.autoCompleteEnabled, preferenceError = null) }
+            }
+        }
+    }
+    fun interruptEditing() { focusedSet = null }
+    fun setHistoryOpen(open: Boolean) { historyOpen = open; interruptEditing() }
+    fun fieldFocused(id: Long) {
+        if (historyOpen || state.value.busy || !persistence.canEdit) return
+        val previous = focusedSet
+        focusedSet = id
+        if (previous != null && previous != id) finishEditing(previous)
+    }
+    /** Só a UI envia Concluído/transferência para outra série; blur isolado não é um evento. */
+    fun finishEditing(id: Long) = persistence.edit {
+        if (historyOpen || state.value.busy || state.value.exitReady || !state.value.autoCompleteEnabled || id in pendingAutomatic) return@edit
+        val revision = eligible[id] ?: return@edit
+        val entry = state.value.entries[id] ?: return@edit
+        val (exercise, set) = find(id) ?: return@edit
+        if (entry.revision != revision || set.isCompleted) return@edit
+        val values = parse(id, entry, exercise.trackingType) ?: return@edit
+        if (values.isIncomplete(exercise.trackingType)) return@edit
+        eligible.remove(id)
+        pendingAutomatic[id] = revision
+        state.update { it.copy(autoCompleting = it.autoCompleting + id) }
+        val job = persistence.command(viewModelScope, persistenceContext) {
+            try {
+                mutex.withLock {
+                    if (pendingAutomatic[id] != revision || !state.value.autoCompleteEnabled ||
+                        state.value.entries[id]?.revision != revision || find(id)?.second?.isCompleted != false) return@withLock
+                    repository.saveSetAndSetCompleted(id, values, true)
+                    acknowledge(id, revision)
+                    state.update { current -> current.copy(session = current.session?.copy(exercises = current.session.exercises.map { ex ->
+                        ex.copy(sets = ex.sets.map { item -> if (item.id != id) item else item.copy(
+                            weightKg = values.weightKg, reps = values.reps, durationSeconds = values.durationSeconds, isCompleted = true) })
+                    })) }
+                }
+            } catch (error: Exception) {
+                if (error is CancellationException) throw error
+                fail(error)
+            } finally {
+                if (pendingAutomatic[id] == revision) pendingAutomatic.remove(id)
+                state.update { it.copy(autoCompleting = it.autoCompleting - id) }
+            }
+        }
+        if (job == null) { pendingAutomatic.remove(id); state.update { it.copy(autoCompleting = it.autoCompleting - id) } }
+    }
+
+    private fun invalidateAutomatic(ids: Collection<Long>) {
+        ids.forEach { eligible.remove(it); pendingAutomatic.remove(it) }
+        interruptEditing()
+    }
 
     private val backupRegistration = persistence.register(com.loggym.domain.backup.PendingWrites { prepareSnapshot() })
     override fun onCleared() { backupRegistration.close() }
     private suspend fun prepareSnapshot(): com.loggym.domain.backup.PreparedWrites = withContext(Dispatchers.Main.immediate + persistenceContext) {
+        interruptEditing()
         cancelDebounces()
         val lease = Any()
         mutex.lock(lease)
@@ -105,7 +178,7 @@ class SessionViewModel @Inject constructor(
             state.update { it.copy(busy = false) }; mutex.unlock(lease); throw error
         }
     }
-    init { observe() }
+    init { observe(); retryPreference() }
 
     private fun observe() {
         observationFailed = false
@@ -127,6 +200,7 @@ class SessionViewModel @Inject constructor(
     }
 
     fun setActive(active: Boolean) {
+        interruptEditing()
         ticker?.cancel()
         if (active) ticker = viewModelScope.launch(persistenceContext) {
             while (isActive) { tick(); delay(1_000) }
@@ -149,12 +223,15 @@ class SessionViewModel @Inject constructor(
         persistence.edit { editNow(setId, transform) }
     }
     private fun editNow(setId: Long, transform: (SetEntry) -> SetEntry) {
-        if (!persistence.canEdit || state.value.busy || find(setId)?.second?.isCompleted != false) return
+        if (!persistence.canEdit || state.value.busy || setId in state.value.autoCompleting || find(setId)?.second?.isCompleted != false) return
         val before = state.value.entries[setId] ?: return
-        val next = transform(before).copy(revision = before.revision + 1, error = null)
+        val edited = transform(before)
+        if (edited.weight == before.weight && edited.reps == before.reps && edited.duration == before.duration) return
+        val next = edited.copy(revision = before.revision + 1, error = null)
         if (listOf(next.weight.substringBefore(',').substringBefore('.'), next.reps, next.duration)
                 .any { text -> text.count(Char::isDigit) > 6 }) return
         state.update { it.copy(entries = it.entries + (setId to next)) }
+        if (state.value.autoCompleteEnabled) eligible[setId] = next.revision else eligible.remove(setId)
         debounces.remove(setId)?.cancel()
         debounces[setId] = viewModelScope.launch(persistenceContext) {
             delay(500)
@@ -210,6 +287,7 @@ class SessionViewModel @Inject constructor(
 
     private fun operation(block: suspend () -> Unit) {
         if (!persistence.canEdit || state.value.busy || state.value.exitReady) return
+        interruptEditing()
         state.update { it.copy(busy = true, error = null) }
         persistence.command(viewModelScope, persistenceContext) {
             try { mutex.withLock { block() } }
@@ -222,7 +300,10 @@ class SessionViewModel @Inject constructor(
 
     private fun fail(error: Exception) { state.update { it.copy(error = R.string.session_save_error) } }
 
-    fun toggle(id: Long) = operation {
+    fun toggle(id: Long) {
+        if (id in state.value.autoCompleting) return
+        invalidateAutomatic(listOf(id))
+        operation {
         debounces.remove(id)?.cancel()
         val (exercise, set) = find(id) ?: return@operation
         val entry = state.value.entries[id] ?: return@operation
@@ -237,6 +318,7 @@ class SessionViewModel @Inject constructor(
             ) })
         }), message = if (!set.isCompleted && values.isIncomplete(exercise.trackingType))
             R.string.incomplete_set_warning else null) }
+        }
     }
 
     fun add(exerciseId: Long) = operation {
@@ -245,6 +327,7 @@ class SessionViewModel @Inject constructor(
     }
 
     fun remove(id: Long) = operation {
+        invalidateAutomatic(listOf(id))
         debounces.remove(id)?.cancel()
         if (repository.removeSet(id)) state.update { it.copy(entries = it.entries - id) }
     }
@@ -252,7 +335,8 @@ class SessionViewModel @Inject constructor(
     fun skipRest() = operation { state.value.session?.let { repository.skipRest(it.id) } }
 
     fun requestClearExercise(id: Long) {
-        if (!state.value.busy && state.value.session?.exercises?.any { it.id == id } == true) {
+        if (persistence.canEdit && !state.value.busy && state.value.session?.exercises?.any { it.id == id } == true) {
+            invalidateAutomatic(state.value.session!!.exercises.first { it.id == id }.sets.map { it.id })
             state.update { it.copy(dialog = SessionDialog.CLEAR_EXERCISE, clearExerciseId = id, error = null) }
         }
     }
@@ -260,6 +344,7 @@ class SessionViewModel @Inject constructor(
         val id = state.value.clearExerciseId ?: return@operation
         val exercise = state.value.session?.exercises?.firstOrNull { it.id == id } ?: return@operation
         val setIds = exercise.sets.map { it.id }.toSet()
+        invalidateAutomatic(setIds)
         setIds.forEach { debounces.remove(it)?.cancel() }
         // Nenhuma emissão anterior ao commit poderá repor checks ou valores apagados.
         observing?.cancelAndJoin()
@@ -308,7 +393,7 @@ class SessionViewModel @Inject constructor(
         }
     }
     fun confirmFinish() = operation { cancelDebounces(); finish() }
-    fun requestDiscard() { if (!state.value.busy) state.update { it.copy(dialog = SessionDialog.DISCARD) } }
+    fun requestDiscard() { interruptEditing(); if (!state.value.busy) state.update { it.copy(dialog = SessionDialog.DISCARD) } }
     fun dismissDialog() { if (!state.value.busy) state.update { it.copy(dialog = null, clearExerciseId = null) } }
     fun confirmDiscard() = operation {
         cancelDebounces()
