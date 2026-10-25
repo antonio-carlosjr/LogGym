@@ -129,7 +129,7 @@ As metas de séries, repetições e descanso pertencem à **relação do exercí
 | **RF-50** | A meta de séries deve ser um inteiro positivo. | `[I]` |
 | **RF-51** | Para cada exercício, deve ser definida uma faixa mínima e máxima de repetições. | `[D]` |
 | **RF-52** | A repetição mínima não pode ser maior que a repetição máxima. | `[I]` |
-| **RF-53** | Os valores de repetições devem ser inteiros positivos. | `[I]` |
+| **RF-53** | Em modo fixo, repetições inteiras positivas; em faixa, mínimo ≥ 0 (vazio → 0), máximo obrigatório positivo e mínimo ≤ máximo. | `[I]` |
 | **RF-54** | Cada exercício do treino deve possuir seu próprio tempo de descanso. | `[D]` |
 | **RF-55** | O descanso deve ser armazenado como duração, independentemente do restante dos exercícios. | `[I]` |
 | **RF-56** | Um descanso igual a zero deve significar cronômetro desativado para aquele exercício. | `[I]` |
@@ -378,7 +378,7 @@ Origem: [registro da decisão S1-04](docs/decisoes/S1-04.md). Os itens marcados 
 | **RF-139** | O usuário pode escolher entre kg e lb; kg é o padrão. *(pendente: P7)* | `[D]` |
 | **RF-140** | A carga aceita até 2 casas decimais, digitada com vírgula ou ponto e exibida no formato pt-BR, sem zeros à direita. | `[D]` |
 | **RF-141** | Não há limite superior de regra para carga, repetições executadas, séries ou repetições prescritas. | `[D]` |
-| **RF-142** | O descanso varia de 0 a 600 segundos, escolhido em passos de 15 segundos. | `[D]` |
+| **RF-142** | O descanso aceita segundos inteiros de 0 a 600, por digitação ou botões de ±15 sem arredondamento (refinamento S4). | `[D]` |
 | **RF-143** | Ao adicionar um exercício a uma divisão, a configuração começa vazia; o padrão (3 séries, 8–12 repetições, 90 s) só é aplicado por escolha do usuário. | `[D]` |
 | **RF-144** | Os planos pré-definidos são PPL, Upper/Lower, Bro Split e Full Body 3x, com 4 a 6 exercícios e 12 a 20 séries por treino. | `[D]` |
 | **RF-145** | Escolher o mesmo template mais de uma vez gera instâncias distintas e totalmente editáveis. | `[D]` |
@@ -400,4 +400,19 @@ Carga continua em kg na S2 e significa peso de um halter/lado conforme o equipam
 
 O histórico usa somente sessões concluídas e seus snapshots, incluindo duração manual, com campos ausentes distintos de zero. A faixa de descanso é fixa; o aviso de conclusão é ocultado cerca de 5 segundos após o instante final, sem alterar os timestamps persistidos. O banco permanece na versão 2.
 
-As propostas de mínimo opcional, descanso livre, cadastro pela seleção, histórico individual, borracha e check automático estão no planejamento posterior em `docs/TAREFAS.md`. Não estão em vigor nesta entrega: RF-53 continua exigindo repetições prescritas positivas, RF-80 exige check manual e RF-142 mantém passos de 15 s. Fotos, distância e kg/lb continuam pendentes.
+Na entrega histórica da Sprint 3, RF-53 ainda exigia repetições prescritas positivas e RF-142 mantinha passos de 15 s. O refinamento aprovado da S4 abaixo passa a valer para esses requisitos; RF-80 continua exigindo check manual. Fotos, distância e kg/lb continuam pendentes.
+
+## 23. Refinamento da Sprint 4
+
+RF-53 e RF-142 seguem as regras fixo/faixa e descanso livre aprovadas em S1-04. Extremos iguais são apresentados como fixos; não há nova coluna nem migração. Campos inválidos impedem salvar, sem transformar frações em inteiros por remoção de caracteres. Snapshots anteriores permanecem iguais.
+
+| ID | Requisito | Origem |
+| --- | --- | --- |
+| RF-149 | Preferência persistente de aparência: automático/sistema (padrão), claro ou escuro; trocar tema preserva navegação/edição e mantém barras legíveis. | S4-07 |
+| RF-150 | Preferência persistente de pré-preenchimento do último treino, ativada por padrão e aplicada somente ao criar novo rascunho. | S4-08 |
+| RF-151 | Cadastrar exercício em tela própria pelo seletor; salvar retorna à mesma divisão buscando o novo nome, sem inclusão automática; cancelar preserva busca/posição. | S4-03 |
+| RF-152 | Limpar valores/checks de uma ocorrência do exercício no rascunho, com confirmação, preservando séries, descanso, outros exercícios, plano e histórico. | S4-05 |
+
+RF-65 a RF-72 descrevem o pré-preenchimento quando RF-150 está ativado. Desativado, novos valores começam nulos e checks desmarcados. Retomar/limpar não reaplica histórico. Adicionar série extra mantém a cópia da última série do treino atual. Tempo manual preserva suas regras; distância, fotos, kg/lb, histórico individual e check automático não foram implementados nesta sprint.
+
+Backup completo/sem histórico permanece planejado para S5, sem criptografia e com aviso claro ao usuário. Nenhuma exportação/importação foi implementada na S4.

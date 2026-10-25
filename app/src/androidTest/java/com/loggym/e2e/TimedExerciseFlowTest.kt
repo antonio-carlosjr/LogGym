@@ -69,7 +69,7 @@ class TimedExerciseFlowTest {
                         runBlocking { sessions.startSession(workout) }
                         sessionVm = retain(SessionViewModel(sessions, clock))
                         stage = 2
-                    }, viewModel = editorVm)
+                    }, onCreateExercise = { error("Cadastro contextual pertence ao Sprint4FlowTest") }, viewModel = editorVm)
                     2 -> SessionScreen(onBack = { finished = true; stage = 3 }, viewModel = sessionVm!!)
                 }
             }

@@ -49,15 +49,15 @@ class SessionRepositoryImpl @Inject constructor(
         // Uma única leitura, fora da transação, para todo o novo rascunho.
         val prefillEnabled = preferences.settings.first().prefillEnabled
         return database.withTransaction {
-        val draftId = sessionDao.getDraftId()
-        val activePlan = planDao.getActivePlan()
-        val workout = planDao.getWorkoutWithExercises(workoutId)
-        when {
-            draftId != null -> StartSessionResult.DraftAlreadyExists(draftId)
-            activePlan == null -> StartSessionResult.NoActivePlan
-            workout == null || workout.workout.planId != activePlan.id -> StartSessionResult.WorkoutNotInActivePlan
-            else -> StartSessionResult.Started(createDraft(activePlan, workout, prefillEnabled))
-        }
+            val draftId = sessionDao.getDraftId()
+            val activePlan = planDao.getActivePlan()
+            val workout = planDao.getWorkoutWithExercises(workoutId)
+            when {
+                draftId != null -> StartSessionResult.DraftAlreadyExists(draftId)
+                activePlan == null -> StartSessionResult.NoActivePlan
+                workout == null || workout.workout.planId != activePlan.id -> StartSessionResult.WorkoutNotInActivePlan
+                else -> StartSessionResult.Started(createDraft(activePlan, workout, prefillEnabled))
+            }
         }
     }
 

@@ -143,19 +143,47 @@ S3-01 → S3-02 → S3-04 → S3-10 (histórico → detalhe → teste E2E → de
 
 A **S1-01** bloqueia todo o desenvolvimento de telas. Dev 1 deve terminá-la nos primeiros 1 ou 2 dias da Sprint 1. Enquanto isso, Dev 2 e Dev 3 podem prototipar as telas no Preview do Compose.
 
-## Sprint 4 candidata — refinamento funcional
+## Sprint 4 — prescrição, cadastro, limpeza e configurações
 
-Propostas aprovadas para planejamento posterior, sem implementação na Sprint 3. Total candidato de 29 pontos, a revalidar após a velocidade e o aceite da Sprint 3. Alterações de regras precisam ser registradas antes de entrar em vigor; RF-53, RF-80 e RF-142 atuais continuam valendo na Sprint 3.
+Planejamento aprovado pelo responsável em 24/10/2026. Implementação autônoma, com commits separados por entrega e um PR consolidado na branch `feature/S4-01-prescricao-e-configuracoes`; merge final somente após aprovação explícita do responsável. Esta organização foi autorizada para a Sprint 4 e preserva a política de integração acima.
 
-| ID | Entrega e limite | Divisão | Pts |
+| ID | Entrega | Responsabilidade técnica | Pontos |
 | --- | --- | --- | ---: |
-| S4-01 | Mínimo vazio → 0; mínimo ≥0, máximo obrigatório >0, mínimo ≤máximo | Dev 3 | 3 |
-| S4-02 | Descanso inteiro livre de 0 a 600 s no editor; botões somam/subtraem 15 sem arredondar; snapshots existentes preservados | Dev 3 | 3 |
-| S4-03 | Tela própria de cadastro acessível pela seleção; formulário e repositório existentes compartilhados; retorno à seleção, sem adicionar automaticamente | Dev 2 | 5 |
-| S4-04 | Histórico do exercício por identidade/tipo em sessões concluídas, com datas e séries; salvar buffers antes de navegar | Dev 2 | 5 |
-| S4-05 | Borracha por `sessionExerciseId`, com confirmação; limpar valores e checks no rascunho; preservar séries, descanso, outros exercícios, plano e histórico | Dev 1: 3; Dev 3: 2 | 5 |
-| S4-06 | Check automático apenas após edição real válida e conclusão/saída da linha, para carga/repetições; nova edição necessária após desmarcação | Dev 1: 5; Dev 3: 3 | 8 |
+| S4-02 | Descanso manual inteiro de 0 a 600 s, mantendo ±15 sem arredondar | Dev 3 | 3 |
+| S4-01 | Prescrição fixa/faixa; mínimo vazio → 0; fixo gravado como extremos iguais | Dev 3 | 5 |
+| S4-03 | Cadastro em tela própria a partir da seleção, com formulário/regras compartilhados | Dev 2 | 5 |
+| S4-05 | Borracha transacional por ocorrência do exercício; cancelamento de debounce e reconciliação | Dev 1: 5; Dev 2: 3 | 8 |
+| S4-07 | Configurações, tema automático/claro/escuro e persistência | Dev 1: 2; Dev 3: 3 | 5 |
+| S4-08 | Preferência global de pré-preenchimento, somente na criação de novos rascunhos | Dev 1 | 3 |
+| S4-09 | Regressão integrada, documentação e homologação | Dev 2 | 3 |
+| **Total** | | **Dev 1: 10; Dev 2: 11; Dev 3: 11** | **32** |
 
-O check automático não deve reagir a pré-preenchimento, cópia de série extra, retomada, debounce ou ciclo de vida. Deve usar conclusão explícita e idempotente, não toggle; check manual incompleto e exercícios por tempo preservam seu funcionamento. Borracha deve cancelar gravações pendentes do exercício, serializar a transação e atualizar buffers só após sucesso, sem reaplicar pré-preenchimento.
+Os papéis são áreas de responsabilidade, sem pressupor três profissionais simultâneos. Os 39 pontos são referência provisória, com 7 reservados para integração, testes e correções. Duas semanas são uma janela organizacional; esforço estimado, execução e agenda da homologação são distintos. A entrega técnica de 32 pontos da S3 é uma referência de calibração, não comprovação de velocidade constante. Não reduzir qualidade para cumprir prazo.
 
-**Fila posterior:** avaliar layout compacto (3 pontos) e painel com preferência persistente de pré-preenchimento, ativada por padrão (3 pontos). A preferência deverá ser lida somente ao criar um novo rascunho; limpar ou retomar nunca deve reimportar valores antigos. Fotos, distância e kg/lb continuam nas pendências da S1-04, sem inclusão automática.
+Contratos precedem telas; S4-02/S4-01 alteram o formulário compartilhado em sequência. Configurações reutilizam DataStore; pré-preenchimento é lido antes da transação de criação. Cadastro compartilha campos e validações existentes. Borracha usa o mutex da sessão e transação Room, sem flush dos valores a apagar; observação antiga é cancelada/aguardada e retomada após o commit. Banco permanece v2, sem migração.
+
+Situação, testes e limites: [S4-IMPLEMENTACAO.md](S4-IMPLEMENTACAO.md). Aceite manual: [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md). A implementação e a CI não equivalem à homologação individual ou à autorização de merge.
+
+## Sprint 5 candidata — backup sem criptografia
+
+Estimativa preservada de **26 pontos**. Proteção por senha foi retirada do escopo comprometido por decisão expressa do responsável. O backup será sem criptografia, com aviso claro de que os dados ficam legíveis e devem ser guardados/compartilhados conscientemente. Não implementar backup na Sprint 4.
+
+| ID | Entrega candidata | Pontos |
+| --- | --- | ---: |
+| S5-01 | Formato versionado, modalidades e compatibilidade | 3 |
+| S5-02 | Exportação consistente e coordenação das gravações | 5 |
+| S5-03 | Validação completa e prévia da importação | 5 |
+| S5-04 | Substituição Room/DataStore e recuperação após falhas | 8 |
+| S5-05 | Seleção de arquivos, confirmação, aviso de ausência de criptografia e testes integrados | 5 |
+
+Completo inclui histórico e rascunho; sem histórico inclui planos, divisões, prescrições, exercícios e configurações, sem nenhuma sessão. Ambos substituem tudo após validação integral e confirmação: importar sem histórico também remove histórico e rascunho atuais, com aviso explícito. Preservar IDs, referências fracas históricas, snapshots, valores nulos/zero e integridade entre Room/DataStore. Não apagar dados antes da validação; preparar recuperação durável e impedir escritas tardias após restauração. Checksum não representa confidencialidade/autenticidade. Um plano técnico próprio precederá a execução da Sprint 5.
+
+## Backlog posterior preservado
+
+- **S4-04:** histórico por exercício via ícone de relógio na execução, por identidade e tipo (referência: 5 pontos).
+- **S4-06:** marcação automática apenas após edição real válida e conclusão/saída da linha (8 pontos); pré-preenchimento, retomada e debounce não marcam séries; nova edição necessária após desmarcar.
+- Compactação dos cards (3 pontos), sem reduzir legibilidade ou alvos de toque.
+- Pré-preenchimento por exercício (5–8 pontos a refinar), sem colunas/maps de override antecipados na S4.
+- Fotos, distância e kg/lb continuam pendentes; configurações não os incluem automaticamente.
+
+Essas expansões não ocupam automaticamente a reserva da S4 nem o pacote de backup da S5. Pendências humanas/release da S3 permanecem separadas.

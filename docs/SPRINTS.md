@@ -82,9 +82,9 @@ Em 24/10/2026, o usuário aprovou as correções escuras da Home e da faixa, o a
 
 ---
 
-## Ampliações posteriores
+## Ampliações posteriores à Sprint 3
 
-As mudanças de mínimo de repetições, descanso livre, cadastro pela seleção, histórico individual, borracha e marcação automática são candidatas à Sprint 4 em [TAREFAS.md](TAREFAS.md#sprint-4-candidata--refinamento-funcional). Layout compacto e preferência persistente de pré-preenchimento ficam em fila posterior. Nenhuma delas integra a implementação da Sprint 3; fotos, distância e kg/lb seguem pendentes de refinamento.
+A Sprint 4 aprovada abaixo substitui a candidatura anterior de 29 pontos. Histórico individual e marcação automática permanecem adiados; os demais itens aprovados são rastreados nas tarefas, sem alterar o escopo histórico da Sprint 3.
 
 ## Fora do escopo
 
@@ -94,3 +94,13 @@ Seção 18 da especificação, mais a decisão pendente 4: alarme de descanso co
 
 - **O Sprint 1 é o mais pesado.** Se apertar, a reordenação de divisões e exercícios (RF-44, RF-48) passa para o início do Sprint 2.
 - **Interrupções antes do commit:** a última digitação pode não sobreviver à janela de debounce. Validar recuperação conforme o roteiro S2-06.
+
+## Sprint 4 — implementação local; revisão e homologação pendentes
+
+Pacote aprovado: descanso livre de 0 a 600 s mantendo ±15; repetições fixas/faixa; cadastro pela seleção; borracha por exercício; configurações de tema e pré-preenchimento. São 32 pontos e 7 de reserva sobre a referência provisória de 39; os papéis Dev 1/2/3 são áreas técnicas, sem presumir execução humana simultânea. Consulte [tarefas](TAREFAS.md#sprint-4--prescrição-cadastro-limpeza-e-configurações), [implementação](S4-IMPLEMENTACAO.md) e [homologação](HOMOLOGACAO-S4.md).
+
+As tarefas S4-04/histórico individual e S4-06/marcação automática ficam no backlog; cards compactos, preferências por exercício, fotos, distância e kg/lb também continuam fora desta entrega. Não há migração Room: banco v2 e snapshots preservados. Merge final exige aprovação explícita após o resumo técnico e CI verde.
+
+## Sprint 5 — proposta de backup sem criptografia
+
+Backup completo (com histórico/rascunho) ou sem histórico (sem sessões), por substituição integral após validação e confirmação, com recuperação segura de falhas. Estimativa de 26 pontos. Por decisão do responsável, não incluir senha ou criptografia no escopo comprometido; apresentar aviso claro sobre os dados legíveis. Implementação reservada à S5, após refinamento próprio; não foi iniciada na S4.

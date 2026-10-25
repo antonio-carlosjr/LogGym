@@ -116,7 +116,6 @@
     <string name="ui_informe_a_quantidade_de_series">Informe a quantidade de séries.</string>
     <string name="ui_as_series_devem_ser_maiores_que_zero">As séries devem ser maiores que zero.</string>
     <string name="ui_informe_a_faixa_de_repeticoes">Informe a faixa de repetições.</string>
-    <string name="ui_as_repeticoes_devem_ser_maiores_que_zero">As repetições devem ser maiores que zero.</string>
     <string name="ui_a_repeticao_minima_nao_pode_ser_maior_que_a_maxima">A repetição mínima não pode ser maior que a máxima.</string>
     <string name="ui_novo_plano">Novo plano</string>
     <string name="ui_usar_um_plano_pronto">Usar um plano pronto</string>

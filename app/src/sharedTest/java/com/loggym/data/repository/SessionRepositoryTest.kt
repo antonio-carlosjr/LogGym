@@ -288,6 +288,30 @@ class SessionRepositoryTest {
         assertEquals(completed, sessions.observeSession(before.id).first())
     }
 
+    @Test fun clearingTimedOccurrenceDoesNotClearAnotherOccurrenceOfSameExercise() = runBlocking {
+        val timedPrescription = plans.observePlan(planId).first()!!.workouts.single().exercises[1]
+        plans.addExerciseToWorkout(workoutId, timedPrescription.exercise.id,
+            ExerciseTarget.Timed(2, 30, Duration.ofSeconds(37)))
+        val before = start()
+        val timed = before.exercises[1]
+        val repeated = before.exercises[2]
+        sessions.saveSetAndSetCompleted(timed.sets[0].id, SetValues(durationSeconds = 45), true)
+        sessions.addSet(timed.id)
+        sessions.saveSetAndSetCompleted(repeated.sets[0].id, SetValues(durationSeconds = 60), true)
+        val populated = draft()
+        assertTrue(sessions.clearExerciseSets(timed.id))
+        val cleared = draft()
+        assertEquals(populated.restTimer, cleared.restTimer)
+        assertEquals(populated.exercises[2], cleared.exercises[2])
+        assertEquals(populated.exercises[1].sets.map { it.id }, cleared.exercises[1].sets.map { it.id })
+        assertTrue(cleared.exercises[1].sets.all {
+            it.durationSeconds == null && it.weightKg == null && it.reps == null && !it.isCompleted
+        })
+        // Nova instância do repositório lê a limpeza persistida, sem reaplicar histórico.
+        repositories()
+        assertEquals(cleared, draft())
+    }
+
     @Test fun failedClearRollsBackAllSets() = runBlocking {
         val before = start()
         val exercise = before.exercises[0]

@@ -421,19 +421,17 @@ private fun TargetDialog(
                     }
                 }
                 Text(resources.getString(R.string.rest_title), style = MaterialTheme.typography.labelLarge)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedButton(onClick = { onChange { it.adjustRest(-1) } }, enabled = form.restValue != null) { Text(resources.getString(R.string.ui_15_s)) }
-                    OutlinedTextField(
+                OutlinedTextField(
                         value = form.restSeconds,
                         onValueChange = { value -> onChange { it.copy(restSeconds = value) } },
                         label = { Text(resources.getString(R.string.rest_seconds)) },
                         singleLine = true,
                         isError = form.restValue == null,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 8.dp),
-                    )
+                        modifier = Modifier.fillMaxWidth(),
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { onChange { it.adjustRest(-1) } }, enabled = form.restValue != null) { Text(resources.getString(R.string.ui_15_s)) }
                     OutlinedButton(onClick = { onChange { it.adjustRest(+1) } }, enabled = form.restValue != null) { Text(resources.getString(R.string.ui_15_s_2)) }
                 }
                 dialog.error?.let { error ->

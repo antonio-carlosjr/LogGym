@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
 import android.graphics.Color
 import com.loggym.ui.LogGymApp
-import com.loggym.ui.theme.LogGymTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
