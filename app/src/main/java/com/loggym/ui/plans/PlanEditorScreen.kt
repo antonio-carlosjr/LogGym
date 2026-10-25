@@ -31,6 +31,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -377,9 +378,20 @@ private fun TargetDialog(
                 NumberField(resources.getString(R.string.ui_series), form.sets) { value -> onChange { it.copy(sets = value) } }
                 if (form.trackingType == TrackingType.TIME) {
                     NumberField(resources.getString(R.string.ui_duracao_por_serie_s), form.durationSeconds, maxDigits = 6) { value -> onChange { it.copy(durationSeconds = value) } }
-                } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    NumberField(resources.getString(R.string.ui_rep_min), form.repMin, Modifier.weight(1f)) { value -> onChange { it.copy(repMin = value) } }
-                    NumberField(resources.getString(R.string.ui_rep_max), form.repMax, Modifier.weight(1f)) { value -> onChange { it.copy(repMax = value) } }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        RepetitionMode.entries.forEach { mode ->
+                            FilterChip(selected = form.repetitionMode == mode,
+                                onClick = { onChange { it.copy(repetitionMode = mode) } },
+                                label = { Text(resources.getString(if (mode == RepetitionMode.FIXED) R.string.reps_fixed else R.string.reps_range)) })
+                        }
+                    }
+                    if (form.repetitionMode == RepetitionMode.FIXED) {
+                        NumberField(resources.getString(R.string.ui_repeticoes), form.fixedReps) { value -> onChange { it.copy(fixedReps = value) } }
+                    } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        NumberField(resources.getString(R.string.ui_rep_min), form.repMin, Modifier.weight(1f)) { value -> onChange { it.copy(repMin = value) } }
+                        NumberField(resources.getString(R.string.ui_rep_max), form.repMax, Modifier.weight(1f)) { value -> onChange { it.copy(repMax = value) } }
+                    }
                 }
                 Text(resources.getString(R.string.rest_title), style = MaterialTheme.typography.labelLarge)
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -414,7 +426,7 @@ private fun NumberField(label: String, value: String, modifier: Modifier = Modif
     val resources = LocalResources.current
     OutlinedTextField(
         value = value,
-        onValueChange = { onChange(it.filter(Char::isDigit).take(maxDigits)) },
+        onValueChange = { if (it.length <= maxDigits) onChange(it) },
         label = { Text(label) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -431,7 +443,7 @@ private fun TargetFormError.message(): String {
     TargetFormError.MISSING_SETS -> resources.getString(R.string.ui_informe_a_quantidade_de_series)
     TargetFormError.INVALID_SETS -> resources.getString(R.string.ui_as_series_devem_ser_maiores_que_zero)
     TargetFormError.MISSING_REPS -> resources.getString(R.string.ui_informe_a_faixa_de_repeticoes)
-    TargetFormError.INVALID_REPS -> resources.getString(R.string.ui_as_repeticoes_devem_ser_maiores_que_zero)
+    TargetFormError.INVALID_REPS -> resources.getString(R.string.invalid_reps_prescription)
     TargetFormError.MIN_GREATER_THAN_MAX -> resources.getString(R.string.ui_a_repeticao_minima_nao_pode_ser_maior_que_a_maxima)
 }
 

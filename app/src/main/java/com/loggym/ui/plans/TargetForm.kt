@@ -13,6 +13,8 @@ sealed interface TargetFormResult {
     data class Invalid(val error: TargetFormError) : TargetFormResult
 }
 
+enum class RepetitionMode { FIXED, RANGE }
+
 /**
  * Campos da prescrição de um exercício na divisão (seção 6).
  * Começa vazio; o padrão só é aplicado se o usuário escolher (RF-143).
@@ -24,6 +26,8 @@ data class TargetForm(
     val restSeconds: String = "",
     val trackingType: TrackingType = TrackingType.WEIGHT_REPS,
     val durationSeconds: String = "",
+    val repetitionMode: RepetitionMode = RepetitionMode.RANGE,
+    val fixedReps: String = "",
 ) {
     fun withDefault(): TargetForm = from(if (trackingType == TrackingType.TIME) ExerciseTarget.Timed(3, 30, Duration.ofSeconds(90)) else InputRules.DEFAULT_TARGET)
 
@@ -47,8 +51,15 @@ data class TargetForm(
                 ?: return TargetFormResult.Invalid(TargetFormError.INVALID_DURATION)
             return TargetFormResult.Valid(ExerciseTarget.Timed(setsValue, duration, Duration.ofSeconds(rest)))
         }
-        if (repMin.isBlank() || repMax.isBlank()) return TargetFormResult.Invalid(TargetFormError.MISSING_REPS)
-        val min = repMin.toIntOrNull()?.takeIf { it > 0 } ?: return TargetFormResult.Invalid(TargetFormError.INVALID_REPS)
+        if (repetitionMode == RepetitionMode.FIXED) {
+            if (fixedReps.isBlank()) return TargetFormResult.Invalid(TargetFormError.MISSING_REPS)
+            val fixed = fixedReps.toIntOrNull()?.takeIf { it > 0 }
+                ?: return TargetFormResult.Invalid(TargetFormError.INVALID_REPS)
+            return TargetFormResult.Valid(ExerciseTarget.Repetitions(setsValue, fixed, fixed, Duration.ofSeconds(rest)))
+        }
+        if (repMax.isBlank()) return TargetFormResult.Invalid(TargetFormError.MISSING_REPS)
+        val min = (if (repMin.isBlank()) 0 else repMin.toIntOrNull())?.takeIf { it >= 0 }
+            ?: return TargetFormResult.Invalid(TargetFormError.INVALID_REPS)
         val max = repMax.toIntOrNull()?.takeIf { it > 0 } ?: return TargetFormResult.Invalid(TargetFormError.INVALID_REPS)
         if (min > max) return TargetFormResult.Invalid(TargetFormError.MIN_GREATER_THAN_MAX)
         return TargetFormResult.Valid(ExerciseTarget.Repetitions(setsValue, min, max, Duration.ofSeconds(rest)))
@@ -65,6 +76,9 @@ data class TargetForm(
             durationSeconds = target.durationSeconds?.toString().orEmpty(),
             trackingType = target.trackingType,
             restSeconds = target.rest.seconds.toString(),
+            repetitionMode = if (target is ExerciseTarget.Repetitions && target.repMin == target.repMax)
+                RepetitionMode.FIXED else RepetitionMode.RANGE,
+            fixedReps = target.repMax?.toString().orEmpty(),
         )
 
         /** Mantém só dígitos, até [MAX_DIGITS]. */

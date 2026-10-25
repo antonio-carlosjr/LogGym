@@ -188,4 +188,7 @@
     <string name="no_rest">sem descanso</string>
     <string name="rest_seconds">Segundos</string>
     <string name="invalid_rest">Informe segundos inteiros entre 0 e 600.</string>
+    <string name="reps_fixed">Fixas</string>
+    <string name="reps_range">Faixa</string>
+    <string name="invalid_reps_prescription">Informe repetições fixas positivas, ou mínimo ≥ 0 e máximo positivo.</string>
 </resources>

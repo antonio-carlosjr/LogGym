@@ -24,8 +24,8 @@ class TargetFormTest {
     @Test
     fun `valida series, repeticoes e faixa - RF-50 a RF-53`() {
         assertEquals(invalid(TargetFormError.INVALID_SETS), TargetForm("0", "8", "12").validate())
-        assertEquals(invalid(TargetFormError.MISSING_REPS), TargetForm("3", "", "12").validate())
-        assertEquals(invalid(TargetFormError.INVALID_REPS), TargetForm("3", "0", "12").validate())
+        assertEquals(invalid(TargetFormError.MISSING_REPS), TargetForm("3", "", "").validate())
+        assertEquals(invalid(TargetFormError.INVALID_REPS), TargetForm("3", "-1", "12").validate())
         assertEquals(invalid(TargetFormError.MIN_GREATER_THAN_MAX), TargetForm("3", "12", "8").validate())
     }
 
@@ -67,4 +67,22 @@ class TargetFormTest {
     }
 
     private fun invalid(error: TargetFormError) = TargetFormResult.Invalid(error)
+
+    @Test fun `minimo vazio normaliza para zero e maximo e obrigatorio`() {
+        assertEquals(0, (TargetForm("3", "", "12").validate() as TargetFormResult.Valid).target.repMin)
+        assertEquals(invalid(TargetFormError.INVALID_REPS), TargetForm("3", "0", "0").validate())
+    }
+
+    @Test fun `fixo valida valor positivo e reabre sem migracao`() {
+        val form = TargetForm(sets = "3", repetitionMode = RepetitionMode.FIXED, fixedReps = "10")
+        val target = (form.validate() as TargetFormResult.Valid).target
+        assertEquals(10, target.repMin)
+        assertEquals(10, target.repMax)
+        assertEquals(RepetitionMode.FIXED, TargetForm.from(target).repetitionMode)
+        for (value in listOf("", "0", "-1", "1.5")) {
+            org.junit.Assert.assertTrue(form.copy(fixedReps = value).validate() is TargetFormResult.Invalid)
+        }
+        val range = form.copy(repetitionMode = RepetitionMode.RANGE, repMin = "8", repMax = "12")
+        assertEquals("10", range.copy(repetitionMode = RepetitionMode.FIXED).fixedReps)
+    }
 }

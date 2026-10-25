@@ -20,7 +20,7 @@ class ExerciseTargetTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `repeticoes precisam ser positivas - RF-53`() {
-        ExerciseTarget.Repetitions(targetSets = 3, repMin = 0, repMax = 8, rest = Duration.ofSeconds(60))
+        ExerciseTarget.Repetitions(targetSets = 3, repMin = 0, repMax = 0, rest = Duration.ofSeconds(60))
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -48,5 +48,10 @@ class ExerciseTargetTest {
     fun `descanso zero desativa o cronometro - RF-56`() {
         assertFalse(ExerciseTarget.Repetitions(3, 6, 10, Duration.ZERO).isRestTimerEnabled)
         assertTrue(ExerciseTarget.Repetitions(3, 6, 10, Duration.ofSeconds(180)).isRestTimerEnabled)
+    }
+
+    @Test fun `minimo zero e repeticoes fixas preservam os valores`() {
+        assertEquals("3 × 0–12", ExerciseTarget.Repetitions(3, 0, 12, Duration.ZERO).summary())
+        assertEquals("3 × 10", ExerciseTarget.Repetitions(3, 10, 10, Duration.ZERO).summary())
     }
 }
