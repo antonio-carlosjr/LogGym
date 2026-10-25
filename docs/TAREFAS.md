@@ -164,7 +164,7 @@ Contratos precedem telas; S4-02/S4-01 alteram o formulário compartilhado em seq
 
 Situação, testes e limites: [S4-IMPLEMENTACAO.md](S4-IMPLEMENTACAO.md). Aceite manual: [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md). A implementação e a CI não equivalem à homologação individual ou à autorização de merge.
 
-Em 25/10/2026, o responsável aprovou individualmente os sete grupos funcionais da S4, sem defeitos bloqueantes. Implementação e homologação funcional individual concluídas; o PR #13 aguarda autorização explícita para merge. Não registrar aprovação coletiva ou cumprimento de critérios humanos/release não confirmados.
+Em 25/10/2026, o responsável aprovou individualmente os sete grupos funcionais da S4, sem defeitos bloqueantes, e posteriormente autorizou expressamente o merge commit do PR #13, a sincronização local e o registro da CI pós-merge. Implementação e homologação funcional individual concluídas; o [registro de integração do PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolida execução efetiva, HEAD integrado, hash do merge, ancestralidade e CI. Não registrar aprovação coletiva ou cumprimento de critérios humanos/release não confirmados. A autorização cobre este encerramento documental; não autoriza novos PRs, publicação de release ou implementação da S5.
 
 ## Sprint 5 candidata — backup sem criptografia
 

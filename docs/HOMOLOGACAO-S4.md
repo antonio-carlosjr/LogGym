@@ -16,7 +16,13 @@ O responsável pelo projeto informou nesta conversa que concluiu a homologação
 
 **Evidência:** declaração explícita do responsável nesta conversa, registrada em 25/10/2026. A última implementação disponibilizada era o commit `a0252b0adc02c0aac5eec9d8281a430e207ed9c8` do [PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13). O relato não informa identificador exato do APK testado, dispositivo/API, capturas/logs ou data exata de execução; não atribuir esses dados ao usuário por inferência.
 
-Esta aprovação abrange os sete grupos relatados. Não confirma individualmente cada subcaso do roteiro, nem TalkBack, avaliação abrangente de acessibilidade, assinatura definitiva, ensaio ou aceite de outros integrantes. As pendências humanas/release anteriores permanecem abertas. A política atual exige aprovação explícita para integrar: **o merge do PR #13 ainda não foi autorizado**.
+Esta aprovação abrange os sete grupos relatados. Não confirma individualmente cada subcaso do roteiro, nem TalkBack, avaliação abrangente de acessibilidade, assinatura definitiva, ensaio ou aceite de outros integrantes. As pendências humanas/release anteriores permanecem abertas.
+
+## Autorização e registro de integração — 25/10/2026
+
+Após esse aceite individual, o responsável aprovou explicitamente o merge do PR #13 na `main`, citando a CI aprovada de `9fb6366`. Autorizou reconferência dos requisitos, merge commit, sincronização local, CI pós-merge e registro do encerramento técnico, preservando as pendências humanas. A autorização inclui a atualização documental deste registro e não permite publicação de release ou início da implementação da Sprint 5.
+
+O [PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) registra o resultado efetivo, a versão integrada, o hash do merge e a CI pós-merge. Consultar esse registro para a conclusão da integração; não confundir autorização com operação já executada. Nenhuma aprovação coletiva ou revisão de terceiros foi simulada. Pela política atual, o aceite de outros integrantes não é exigência interna para esta integração autorizada.
 
 ## Roteiro detalhado de referência
 

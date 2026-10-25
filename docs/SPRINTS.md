@@ -95,13 +95,13 @@ Seção 18 da especificação, mais a decisão pendente 4: alarme de descanso co
 - **O Sprint 1 é o mais pesado.** Se apertar, a reordenação de divisões e exercícios (RF-44, RF-48) passa para o início do Sprint 2.
 - **Interrupções antes do commit:** a última digitação pode não sobreviver à janela de debounce. Validar recuperação conforme o roteiro S2-06.
 
-## Sprint 4 — implementação e homologação funcional individual concluídas; integração pendente
+## Sprint 4 — implementação e homologação funcional individual concluídas; integração autorizada
 
 Pacote aprovado: descanso livre de 0 a 600 s mantendo ±15; repetições fixas/faixa; cadastro pela seleção; borracha por exercício; configurações de tema e pré-preenchimento. São 32 pontos e 7 de reserva sobre a referência provisória de 39; os papéis Dev 1/2/3 são áreas técnicas, sem presumir execução humana simultânea. Consulte [tarefas](TAREFAS.md#sprint-4--prescrição-cadastro-limpeza-e-configurações), [implementação](S4-IMPLEMENTACAO.md) e [homologação](HOMOLOGACAO-S4.md).
 
 As tarefas S4-04/histórico individual e S4-06/marcação automática ficam no backlog; cards compactos, preferências por exercício, fotos, distância e kg/lb também continuam fora desta entrega. Não há migração Room: banco v2 e snapshots preservados. Merge final exige aprovação explícita após o resumo técnico e CI verde.
 
-Em 25/10/2026, o responsável confirmou os sete grupos funcionais da Sprint 4, incluindo regressão completa, sem defeitos bloqueantes. Consulte os limites da evidência em [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md). O [PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) aguarda autorização explícita para merge; não foi atribuído aceite coletivo. TalkBack, avaliação abrangente de acessibilidade, assinatura definitiva e ensaio humanos não foram confirmados por esse relato.
+Em 25/10/2026, o responsável confirmou os sete grupos funcionais da Sprint 4, incluindo regressão completa, sem defeitos bloqueantes, e posteriormente autorizou expressamente o merge commit do PR #13, a sincronização e a CI pós-merge. Consulte os limites da evidência em [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md). O [registro do PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolida o resultado da integração, o hash do merge e a CI pós-merge; a integração está concluída quando indicar `MERGED`. Não foi atribuído aceite coletivo. TalkBack, avaliação abrangente de acessibilidade, assinatura definitiva e ensaio humanos não foram confirmados por esse relato. Encerramento técnico é distinto dessas pendências e da entrega de release; a Sprint 5 não foi iniciada.
 
 ## Sprint 5 — proposta de backup sem criptografia
 

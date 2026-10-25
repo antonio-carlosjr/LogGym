@@ -6,7 +6,9 @@ Planejamento e ajustes aprovados pelo responsável em 24/10/2026. Pacote de 32 p
 
 Código implementado e enviado na branch `feature/S4-01-prescricao-e-configuracoes`, com commits separados por entrega e [PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolidado. **Implementação e homologação funcional individual concluídas:** em 25/10/2026, o responsável confirmou aprovação de descanso manual, repetições fixas/faixa, cadastro contextual, borracha, tema, preferência de pré-preenchimento e regressão do fluxo completo, sem defeitos bloqueantes identificados. Evidência e limites em [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md).
 
-**Integração pendente de autorização explícita para merge.** Não declarar a sprint integralmente encerrada em todos os critérios: aceite de outros integrantes e critérios humanos/release não confirmados permanecem separados, sem atribuição de aprovação coletiva. A homologação funcional não autoriza o merge por si só. Nenhuma release publicada.
+**Integração autorizada expressamente pelo responsável em 25/10/2026**, após homologação funcional individual e CI aprovada em `9fb6366`. A autorização abrange o merge commit do PR #13, a sincronização da `main`, a verificação da CI pós-merge e este registro documental de encerramento. Não autoriza publicação de release nem implementação da Sprint 5.
+
+O [registro de integração do PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolida a execução efetiva, o HEAD integrado, o hash do merge, a conferência de ancestralidade e a CI pós-merge. A integração está concluída quando o PR indicar `MERGED`; seu encerramento técnico inclui a confirmação desses resultados no registro, sem antecipar uma operação ainda não executada. Aceite de outros integrantes e critérios humanos/release não confirmados permanecem separados, sem atribuição de aprovação coletiva. Nenhuma release publicada.
 
 | Tarefa | Componentes e comportamento |
 | --- | --- |
@@ -51,7 +53,7 @@ Testes novos cobrem 37±15, limites/entradas inválidas, fixo/faixa, persistênc
 ## Limites e pendências
 
 - [Homologação funcional individual S4](HOMOLOGACAO-S4.md) aprovada nos sete grupos informados em 25/10/2026; não presumir execução de subcasos específicos não detalhados.
-- Revisão técnica e CI verde precedem aprovação explícita do responsável para o merge final. A aprovação do planejamento não é autorização de merge.
+- Aprovação explícita para o merge do PR #13 recebida em 25/10/2026; reconferir o HEAD final, CI, conflitos e proteções antes do merge commit. O resultado efetivo fica no registro de integração do PR. Essa autorização não se estende a novos PRs.
 - Backup fica na S5, **sem criptografia**, com aviso claro. Proteção por senha removida do escopo comprometido. Completo inclui histórico/rascunho; sem histórico não inclui sessões; importação substitui tudo após validação/confirmacão e recuperação segura.
 - Histórico individual (S4-04), marcação automática (S4-06), compactação, pré-preenchimento por exercício, fotos, distância e kg/lb não implementados.
 - TalkBack/avaliação abrangente, assinatura definitiva/custódia e ensaio humanos da S3 permanecem separados; não foram presumidos concluídos.
