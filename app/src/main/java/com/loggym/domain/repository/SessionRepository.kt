@@ -16,6 +16,9 @@ interface SessionRepository {
 
     fun observeSession(sessionId: Long): Flow<Session?>
 
+    suspend fun getExerciseHistoryPage(exerciseId: Long, trackingType: com.loggym.domain.model.TrackingType,
+        cursor: com.loggym.domain.model.ExerciseHistoryCursor?): com.loggym.domain.model.ExerciseHistoryPage
+
     /** RF-58 a RF-72: cria o rascunho com snapshot e séries pré-preenchidas. */
     suspend fun startSession(workoutId: Long): StartSessionResult
 

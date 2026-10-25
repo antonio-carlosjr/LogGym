@@ -77,7 +77,7 @@ fun SessionWithExercises.toDomain() = Session(
     exercises = exercises.map { it.toDomain() }.sortedBy { it.position },
 )
 
-private fun SessionExerciseWithSets.toDomain() = SessionExercise(
+internal fun SessionExerciseWithSets.toDomain() = SessionExercise(
     id = exercise.id,
     exerciseId = exercise.exerciseId,
     name = exercise.exerciseName,
