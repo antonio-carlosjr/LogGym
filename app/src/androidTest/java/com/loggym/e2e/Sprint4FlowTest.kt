@@ -55,7 +55,7 @@ class Sprint4FlowTest {
         click("Prancha S4")
         click("Usar padrão (3 × 30 s, 1:30)")
         compose.onNodeWithText("Segundos").performTextReplacement("37")
-        click("Salvar"); click("Voltar"); click("Voltar"); click("Iniciar")
+        click("Salvar"); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); click("Iniciar")
         waitFor("Carga (kg)")
         compose.onAllNodesWithText("Carga (kg)").onFirst().performTextInput("0")
         compose.onAllNodesWithText("Repetições").onFirst().performTextInput("0")
@@ -81,10 +81,10 @@ class Sprint4FlowTest {
         assertEquals(cleared, runBlocking { sessions.observeDraft().first()!! })
         click("Finalizar treino"); click("Finalizar")
         click("Histórico"); click("Misto S4"); waitFor("Duração: 45 s")
-        click("Voltar"); click("Voltar"); click("Configurações")
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); click("Configurações")
         click("Claro"); click("Usar valores do último treino")
         compose.waitUntil(10_000) { runBlocking { !preferences.settings.first().prefillEnabled } }
-        click("Voltar"); click("Iniciar")
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); click("Iniciar")
         compose.waitUntil(10_000) { runBlocking { sessions.observeDraft().first() != null } }
         val next = runBlocking { sessions.observeDraft().first()!! }
         assertTrue(next.exercises.flatMap { it.sets }.all { it.weightKg == null && it.reps == null && it.durationSeconds == null && !it.isCompleted })

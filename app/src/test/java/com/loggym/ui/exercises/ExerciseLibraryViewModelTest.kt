@@ -25,6 +25,20 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ExerciseLibraryViewModelTest {
 
+    @Test
+    fun `busca e filtro sobrevivem a um novo ViewModel sem serializar exercicios`() = runTest {
+        val handle = androidx.lifecycle.SavedStateHandle()
+        val first = ExerciseLibraryViewModel(repository, savedState = handle)
+        first.onQueryChange("supino")
+        first.onGroupFilterChange(MuscleGroup.CHEST)
+        val expected = first.uiState.awaitFirst { !it.isLoading && it.query == "supino" && it.groupFilter == MuscleGroup.CHEST }
+        val restoredHandle = androidx.lifecycle.SavedStateHandle(handle.keys().associateWith { handle.get<Any?>(it) })
+        val restored = ExerciseLibraryViewModel(repository, savedState = restoredHandle)
+            .uiState.awaitFirst { !it.isLoading && it.query == "supino" && it.groupFilter == MuscleGroup.CHEST }
+        assertEquals(expected.exercises.map { it.id }, restored.exercises.map { it.id })
+        assertEquals(setOf("library-query", "library-group"), restoredHandle.keys())
+    }
+
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -36,7 +50,7 @@ class ExerciseLibraryViewModelTest {
     fun setUp() {
         database = inMemoryDatabase()
         repository = ExerciseRepositoryImpl(database, database.exerciseDao())
-        viewModel = ExerciseLibraryViewModel(repository)
+        viewModel = ExerciseLibraryViewModel(repository, savedState = androidx.lifecycle.SavedStateHandle())
     }
 
     @After

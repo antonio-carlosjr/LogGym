@@ -8,7 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
+import com.loggym.ui.theme.LogGymSpacing
+import com.loggym.ui.components.LoadingState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.loggym.R
@@ -20,10 +21,10 @@ import com.loggym.ui.util.sessionDurationSeconds
 fun HistoryDetailScreen(onBack: () -> Unit, viewModel: HistoryDetailViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     Scaffold(topBar = { HistoryTopBar(stringResource(R.string.history_detail_title), onBack) }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(LogGymSpacing.screen),
+            verticalArrangement = Arrangement.spacedBy(LogGymSpacing.medium)) {
             when {
-                state.isLoading -> item { CircularProgressIndicator() }
+                state.isLoading -> item { LoadingState() }
                 state.failed -> item { HistoryError(viewModel::retry) }
                 state.session == null -> item { Text(stringResource(R.string.history_not_found)) }
             }
@@ -43,7 +44,7 @@ fun HistoryDetailScreen(onBack: () -> Unit, viewModel: HistoryDetailViewModel = 
                     exercise.sets.forEachIndexed { index, set ->
                         item(key = "set-${set.id}") {
                             Card(Modifier.fillMaxWidth()) {
-                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.extraSmall)) {
                                     HistorySetContent(index + 1, set, exercise.trackingType)
                                 }
                             }

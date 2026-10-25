@@ -1,5 +1,8 @@
 package com.loggym.e2e
 
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.isEnabled
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
@@ -75,10 +78,11 @@ class Sprint1FlowTest {
         waitForText("Plano ativo")
 
         // A home lista as divisões do plano ativo e inicia o treino (RF-58).
-        click("Voltar")
+        composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         waitForText("Escolha a divisão de hoje")
         waitForText("Full Body C")
         click("Iniciar")
+        waitForText("Voltar e salvar")
 
         // Rascunho com snapshot do plano e séries previstas, sem histórico para pré-preencher (RF-60, RF-61, RF-72).
         val draft = runBlocking { sessionRepository.observeDraft().awaitFirst { it != null } }!!
@@ -114,7 +118,10 @@ class Sprint1FlowTest {
 
     private fun click(text: String) {
         waitForText(text)
-        composeRule.onAllNodes(matching(text)).onFirst().performClick()
+        settle() // conclui o fade antes de enviar toque ao destino entrante
+        val node = composeRule.onAllNodes(matching(text) and hasClickAction() and isEnabled()).onFirst()
+        runCatching { node.performScrollTo() }
+        node.performClick()
         settle()
     }
 

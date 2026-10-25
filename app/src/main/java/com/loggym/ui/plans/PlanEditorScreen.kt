@@ -47,16 +47,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.loggym.ui.theme.LogGymSpacing
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.loggym.domain.model.summary
@@ -177,8 +176,8 @@ private fun PlanContent(plan: Plan, viewModel: PlanEditorViewModel, modifier: Mo
     val resources = LocalResources.current
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(LogGymSpacing.screen),
+        verticalArrangement = Arrangement.spacedBy(LogGymSpacing.medium),
     ) {
         item(key = "status") {
             if (plan.isActive) {
@@ -350,7 +349,7 @@ private fun PickExerciseDialog(
         onDismissRequest = onDismiss,
         title = { Text(resources.getString(R.string.ui_adicionar_exercicio)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
                 OutlinedTextField(
                     value = query,
                     onValueChange = onQueryChange,
@@ -400,13 +399,13 @@ private fun TargetDialog(
         text = {
             Column(
                 Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(LogGymSpacing.medium),
             ) {
                 NumberField(resources.getString(R.string.ui_series), form.sets) { value -> onChange { it.copy(sets = value) } }
                 if (form.trackingType == TrackingType.TIME) {
                     NumberField(resources.getString(R.string.ui_duracao_por_serie_s), form.durationSeconds, maxDigits = 6) { value -> onChange { it.copy(durationSeconds = value) } }
                 } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
                         RepetitionMode.entries.forEach { mode ->
                             FilterChip(selected = form.repetitionMode == mode,
                                 onClick = { onChange { it.copy(repetitionMode = mode) } },
@@ -415,7 +414,7 @@ private fun TargetDialog(
                     }
                     if (form.repetitionMode == RepetitionMode.FIXED) {
                         NumberField(resources.getString(R.string.ui_repeticoes), form.fixedReps) { value -> onChange { it.copy(fixedReps = value) } }
-                    } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    } else Row(horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
                         NumberField(resources.getString(R.string.ui_rep_min), form.repMin, Modifier.weight(1f)) { value -> onChange { it.copy(repMin = value) } }
                         NumberField(resources.getString(R.string.ui_rep_max), form.repMax, Modifier.weight(1f)) { value -> onChange { it.copy(repMax = value) } }
                     }
@@ -430,7 +429,7 @@ private fun TargetDialog(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
                     OutlinedButton(onClick = { onChange { it.adjustRest(-1) } }, enabled = form.restValue != null) { Text(resources.getString(R.string.ui_15_s)) }
                     OutlinedButton(onClick = { onChange { it.adjustRest(+1) } }, enabled = form.restValue != null) { Text(resources.getString(R.string.ui_15_s_2)) }
                 }

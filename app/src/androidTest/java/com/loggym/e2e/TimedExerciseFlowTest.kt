@@ -56,7 +56,7 @@ class TimedExerciseFlowTest {
             plans.setActivePlan(id)
             id to plans.addWorkout(id, "Tempo A")
         }
-        val libraryVm = retain(ExerciseLibraryViewModel(exercises))
+        val libraryVm = retain(ExerciseLibraryViewModel(exercises, savedState = androidx.lifecycle.SavedStateHandle()))
         val editorVm = retain(PlanEditorViewModel(SavedStateHandle(mapOf("planId" to plan)), plans, exercises))
         var sessionVm: SessionViewModel? = null
         var finished = false

@@ -1,5 +1,7 @@
 package com.loggym.ui.home
 
+import com.loggym.ui.navigation.RootNavigationLock
+
 import com.loggym.ui.components.LoadError
 import com.loggym.R
 import androidx.compose.ui.platform.LocalResources
@@ -19,7 +21,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -28,13 +29,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.loggym.ui.theme.LogGymSpacing
+import com.loggym.ui.components.LoadingState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.loggym.domain.model.Session
@@ -46,9 +47,6 @@ import com.loggym.ui.util.formatTime
 fun HomeScreen(
     onOpenSession: () -> Unit,
     onOpenPlans: () -> Unit,
-    onOpenExercises: () -> Unit,
-    onOpenHistory: () -> Unit,
-    onOpenSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val resources = LocalResources.current
@@ -63,6 +61,7 @@ fun HomeScreen(
         }
     }
 
+    RootNavigationLock(state.isBusy || draftToDiscard != null)
     Scaffold(
         topBar = { TopAppBar(title = { Text(resources.getString(R.string.app_name)) }) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -71,9 +70,10 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(LogGymSpacing.screen),
+            verticalArrangement = Arrangement.spacedBy(LogGymSpacing.medium),
         ) {
+            if (state.isLoading) item { com.loggym.ui.components.LoadingState() }
             if (state.failed) item { LoadError(viewModel::retry) }
             state.draft?.let { draft ->
                 item(key = "draft") {
@@ -101,14 +101,7 @@ fun HomeScreen(
                 }
             }
 
-            item(key = "navigation") {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onOpenPlans, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.ui_planos)) }
-                    OutlinedButton(onClick = onOpenExercises, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.ui_exercicios)) }
-                    OutlinedButton(onClick = onOpenHistory, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.history_title)) }
-                    OutlinedButton(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth()) { Text(resources.getString(R.string.settings_title)) }
-                }
-            }
+
         }
     }
 
@@ -142,10 +135,10 @@ private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, on
         ),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
             Text(resources.getString(R.string.ui_treino_em_andamento), style = MaterialTheme.typography.titleMedium)
             Text(resources.getString(R.string.ui_1_s_iniciado_as_2_s, draft.workoutName, draft.startedAt.formatTime()))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
                 Button(onClick = onResume, enabled = enabled) { Text(resources.getString(R.string.ui_retomar)) }
                 TextButton(onClick = onDiscard, enabled = enabled,
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)) {
@@ -161,7 +154,7 @@ private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, on
 private fun NoActivePlanCard(onOpenPlans: () -> Unit) {
     val resources = LocalResources.current
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
             Text(resources.getString(R.string.ui_nenhum_plano_ativo), style = MaterialTheme.typography.titleMedium)
             Text(resources.getString(R.string.ui_selecione_ou_crie_um_plano_para_comecar_a_treinar))
             Button(onClick = onOpenPlans) { Text(resources.getString(R.string.ui_ir_para_planos)) }

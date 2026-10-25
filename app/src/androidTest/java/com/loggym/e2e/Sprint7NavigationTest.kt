@@ -1,0 +1,86 @@
+package com.loggym.e2e
+
+import android.view.KeyEvent
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.loggym.MainActivity
+import com.loggym.domain.backup.*
+import com.loggym.domain.repository.*
+import dagger.hilt.android.testing.*
+import kotlinx.coroutines.runBlocking
+import org.junit.*
+import org.junit.Assert.*
+import org.junit.runner.RunWith
+import javax.inject.Inject
+
+@HiltAndroidTest
+@RunWith(AndroidJUnit4::class)
+class Sprint7NavigationTest {
+    @get:Rule(order = 0) val hilt = HiltAndroidRule(this)
+    @get:Rule(order = 1) val compose = createAndroidComposeRule<MainActivity>()
+    @Inject lateinit var plans: PlanRepository
+    @Inject lateinit var backup: BackupRepository
+    @Before fun setup() {
+        hilt.inject()
+        compose.waitUntil(15000) { compose.onAllNodesWithText("Pular por enquanto").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("Pular por enquanto").performClick()
+        awaitTab("home")
+    }
+    private fun awaitTab(tab: String) {
+        compose.waitUntil(10000) { compose.onAllNodesWithTag("tab-$tab").fetchSemanticsNodes().isNotEmpty() }
+    }
+    private fun tab(tab: String) {
+        awaitTab(tab)
+        compose.onNodeWithTag("tab-$tab").performClick()
+        compose.onNodeWithTag("tab-$tab").assertIsSelected()
+    }
+    private fun back() {
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        compose.waitForIdle()
+    }
+    @Test fun rootsDoNotAccumulateAndInternalDestinationsHideTheBar() {
+        runBlocking { plans.createPlan("Plano S7") }
+        for (name in listOf("plans", "exercises", "history", "settings")) {
+            tab(name); tab(name)
+            back()
+            compose.onNodeWithTag("tab-home").assertIsSelected()
+        }
+        tab("plans")
+        compose.onNodeWithText("Plano S7").performClick()
+        compose.onNodeWithTag("root-navigation").assertDoesNotExist()
+        back()
+        compose.onNodeWithTag("tab-plans").assertIsSelected()
+        back()
+        compose.onNodeWithTag("tab-home").assertIsSelected()
+    }
+    @Test fun libraryQueryFilterAndScrollSurviveTabsAndRecreation() {
+        tab("exercises")
+        compose.onNode(hasSetTextAction()).performTextReplacement("supino")
+        back() // primeiro fecha IME, sem sair da Biblioteca
+        compose.onNodeWithTag("tab-exercises").assertIsSelected()
+        compose.onNodeWithText("Peito").performClick()
+        tab("history"); tab("exercises")
+        compose.onNode(hasSetTextAction()).assertTextContains("supino")
+        compose.onNodeWithText("Peito").assertIsSelected()
+        compose.activityRule.scenario.recreate()
+        awaitTab("exercises")
+        compose.onNodeWithTag("tab-exercises").assertIsSelected()
+        compose.onNode(hasSetTextAction()).assertTextContains("supino")
+        compose.onNodeWithText("Peito").assertIsSelected()
+    }
+    @Test fun backupPreviewLocksTabsAndCancelPreservesContext() {
+        tab("settings")
+        compose.runOnIdle { backup.prepareExport(BackupMode.FULL) }
+        compose.waitUntil(15000) { backup.state.value.step == BackupStep.DESTINATION || backup.state.value.step == BackupStep.ERROR }
+        assertEquals(BackupStep.DESTINATION, backup.state.value.step)
+        // Seletor SAF pode estar em outra janela; o estado do repositório é cancelado explicitamente.
+        compose.runOnIdle { backup.writeExport(backup.state.value.token!!, null) }
+        back()
+        compose.waitForIdle()
+        awaitTab("settings")
+        compose.onNodeWithTag("tab-settings").assertIsSelected()
+        tab("home")
+    }
+}

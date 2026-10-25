@@ -64,7 +64,7 @@ class BackupFlowTest {
             // Não pode haver participantes antigos tentando escrever com IDs/geração substituídos.
             runBlocking { coordinator.capture {} }
             compose.activityRule.scenario.recreate()
-            click("Voltar"); click("Retomar")
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); click("Retomar")
             compose.onAllNodesWithText("22,5").onFirst().assertExists()
             assertEquals(draft, runBlocking { sessions.observeDraft().first() })
         } finally { file.delete() }

@@ -65,7 +65,7 @@ class Sprint1DefinitionOfDoneTest {
         assertAbsent("Editar")
         assertAbsent("Excluir")
         click("Fechar")
-        click("Voltar")
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
 
         // Sem plano ativo, a home direciona para planos (RF-07). Plano criado do zero (RF-23, RF-24).
         click("Ir para planos")
@@ -88,9 +88,9 @@ class Sprint1DefinitionOfDoneTest {
         waitFor("3 × 8–12 · 1:30")
 
         // Home: inicia o treino da divisão criada (RF-58).
-        click("Voltar")
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
         waitFor("Usar um plano pronto")
-        click("Voltar")
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
         waitFor("Escolha a divisão de hoje")
         waitFor("Meu ABC")
         click("Iniciar")

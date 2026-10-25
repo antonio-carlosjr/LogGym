@@ -1,5 +1,7 @@
 package com.loggym.ui.plans
 
+import com.loggym.ui.navigation.RootNavigationLock
+
 import com.loggym.ui.components.LoadError
 import com.loggym.ui.components.OperationError
 import com.loggym.R
@@ -8,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -38,14 +39,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.loggym.ui.theme.LogGymSpacing
+import com.loggym.ui.components.LoadingState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.loggym.domain.model.PlanSummary
@@ -55,6 +56,7 @@ import com.loggym.domain.model.PlanTemplate
 @Composable
 fun PlansScreen(
     onBack: () -> Unit,
+    showBack: Boolean = true,
     onOpenPlan: (Long) -> Unit,
     viewModel: PlansViewModel = hiltViewModel(),
 ) {
@@ -63,12 +65,15 @@ fun PlansScreen(
     val operationFailed by viewModel.operationFailed.collectAsStateWithLifecycle()
     val dialog by viewModel.dialog.collectAsStateWithLifecycle()
 
+    val busy by viewModel.busy.collectAsStateWithLifecycle()
+    RootNavigationLock(busy || dialog != null || operationFailed)
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(resources.getString(R.string.ui_planos)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    if (showBack) IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = resources.getString(R.string.back))
                     }
                 },
@@ -89,9 +94,10 @@ fun PlansScreen(
                 .fillMaxSize()
                 .padding(padding),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(LogGymSpacing.small),
         ) {
             if (operationFailed) item { OperationError(viewModel::dismissError) }
+            if (state.isLoading) item { com.loggym.ui.components.LoadingState() }
             if (state.failed) item { LoadError(viewModel::retry) }
             item(key = "templates") {
                 OutlinedButton(onClick = viewModel::openTemplates, modifier = Modifier.fillMaxWidth()) {
@@ -237,7 +243,7 @@ private fun ChooseTemplateDialog(
         text = {
             Column(
                 Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(LogGymSpacing.small),
             ) {
                 templates.forEach { template ->
                     Column(
