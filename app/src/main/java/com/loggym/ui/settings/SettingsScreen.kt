@@ -30,8 +30,10 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val busy by viewModel.busy.collectAsStateWithLifecycle()
     val failed by viewModel.operationFailed.collectAsStateWithLifecycle()
+    val backup by viewModel.backupState.collectAsStateWithLifecycle()
+    val blocked = busy || backup.busy || backup.step in setOf(com.loggym.domain.backup.BackupStep.PREVIEW, com.loggym.domain.backup.BackupStep.DESTINATION)
     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.settings_title)) }, navigationIcon = {
-        IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
+        IconButton(onClick = onBack, enabled = !blocked) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
     }) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -43,9 +45,9 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
                 Column(Modifier.selectableGroup()) {
                     ThemeMode.entries.forEach { mode ->
                         Row(Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                            .selectable(settings.themeMode == mode, enabled = !busy, role = Role.RadioButton,
+                            .selectable(settings.themeMode == mode, enabled = !blocked, role = Role.RadioButton,
                                 onClick = { viewModel.setTheme(mode) }).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(selected = settings.themeMode == mode, onClick = null, enabled = !busy)
+                            RadioButton(selected = settings.themeMode == mode, onClick = null, enabled = !blocked)
                             Text(stringResource(when (mode) {
                                 ThemeMode.SYSTEM -> R.string.theme_system
                                 ThemeMode.LIGHT -> R.string.theme_light
@@ -57,11 +59,13 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
                 HorizontalDivider()
                 Text(stringResource(R.string.settings_training), Modifier.semantics { heading() }, style = MaterialTheme.typography.titleLarge)
                 Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(settings.prefillEnabled,
-                    enabled = !busy, role = Role.Switch, onValueChange = viewModel::setPrefill), verticalAlignment = Alignment.CenterVertically) {
+                    enabled = !blocked, role = Role.Switch, onValueChange = viewModel::setPrefill), verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.prefill_label), Modifier.weight(1f))
-                    Switch(checked = settings.prefillEnabled, onCheckedChange = null, enabled = !busy)
+                    Switch(checked = settings.prefillEnabled, onCheckedChange = null, enabled = !blocked)
                 }
                 Text(stringResource(R.string.prefill_help), style = MaterialTheme.typography.bodyMedium)
+                BackupSection(backup, !busy, viewModel::export, viewModel::writeExport, viewModel::importBackup,
+                    viewModel::confirmImport, viewModel::cancelBackup)
             }
         }
     }

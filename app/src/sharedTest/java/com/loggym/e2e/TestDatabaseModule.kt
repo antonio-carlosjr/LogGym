@@ -27,6 +27,9 @@ import javax.inject.Singleton
 object TestDatabaseModule {
 
     @Provides @Singleton
+    fun provideBackup(impl: com.loggym.data.backup.BackupRepositoryImpl): com.loggym.domain.backup.BackupRepository = impl
+
+    @Provides @Singleton
     fun provideExercises(impl: ExerciseRepositoryImpl): ExerciseRepository = impl
 
     @Provides @Singleton

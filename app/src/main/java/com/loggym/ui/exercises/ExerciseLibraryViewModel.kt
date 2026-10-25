@@ -52,8 +52,9 @@ enum class EditorError { BLANK_NAME, DUPLICATE_NAME, NOT_EDITABLE }
 @HiltViewModel
 class ExerciseLibraryViewModel @Inject constructor(
     private val repository: ExerciseRepository,
+    private val persistence: com.loggym.domain.backup.PersistenceCoordinator = com.loggym.domain.backup.PersistenceCoordinator(),
 ) : ViewModel() {
-    private val operations = UiOperation(viewModelScope)
+    private val operations = UiOperation(viewModelScope, persistence)
     val busy = operations.busy
     val operationFailed = operations.failed
     fun dismissError() = operations.dismissError()

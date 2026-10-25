@@ -20,7 +20,7 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 
 - **Branch por tarefa:** `feature/<id>-descricao-curta`, por exemplo `feature/S1-05-lista-exercicios`.
 - **Commits:** atômicos, no padrão Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`…), em português.
-- **Pull requests:** seguem a política de aprovação do responsável pelo projeto abaixo, vigente desde 24/10/2026. Revisão independente é opcional como regra interna; aprovação explícita do responsável e verificações técnicas aprovadas são obrigatórias para merge.
+- **Pull requests:** Codex prepara a entrega; responsável homologa e realiza o merge manualmente no GitHub, conforme política vigente abaixo. Revisão independente é opcional internamente; verificações técnicas e proteções efetivas continuam obrigatórias.
 - **Arquivos compartilhados:** mudanças em `domain/` ou em interfaces de repositório são avisadas à equipe antes, porque afetam as três áreas.
 - **Rastreabilidade:** a descrição do PR cita os RFs atendidos.
 
@@ -30,12 +30,12 @@ Cada pessoa é dona de uma área ao longo das sprints. Isso reduz conflitos de m
 2. Executa os testes automatizados e demais verificações pertinentes, tratando falhas antes da integração.
 3. Cria ou atualiza o PR destinado à `main`, com rastreabilidade e pendências documentadas.
 4. Realiza revisão técnica do diff e apresenta ao responsável um resumo das alterações, resultados dos testes e limitações.
-5. **Aguarda aprovação explícita do responsável na conversa antes de fazer merge.** Criar um PR, ter CI verde ou concluir a implementação não autoriza o merge de novos PRs. O responsável não precisa registrar aprovação nem executar o merge manualmente no GitHub, salvo exigência efetiva da plataforma. Registrar no PR a aprovação recebida, sua data e o escopo autorizado, sem simular uma revisão de outra pessoa.
-6. Após a aprovação, confere novamente o commit final, CI, conflitos, condições de integração e proteções efetivas do GitHub. Mudanças de escopo não cobertas pela aprovação exigem nova autorização; não presumir aprovação de novos PRs.
-7. Se todas as condições forem satisfeitas, o Codex integra por **merge commit**, conferindo o HEAD aprovado. Não usar force push, desativar proteções ou contornar exigências remotas. Se alguma proteção impedir o fluxo, informar exatamente a exigência e aguardar sua satisfação.
-8. Confirma o commit integrado e atualiza o repositório local por fast-forward, preservando alterações locais alheias à entrega. Consolida no PR o resultado da integração, CI e hash de merge; a documentação da sprint aponta para esse registro. Integração do código, homologação funcional e entrega/publicação do APK são estados separados.
+5. **O responsável realiza a homologação funcional e o merge manualmente no GitHub.** O Codex entrega o PR e o relatório; não executa merge nem habilita auto-merge. Política vigente por decisão expressa do responsável em 25/10/2026.
+6. A integração deve usar merge commit, com CI verde, HEAD conferido e proteções satisfeitas. Não usar force push, desativar proteções ou simular revisões.
+7. Aprovação de planejamento autoriza somente o escopo delegado, não publicação de release. Homologação individual, aprovação coletiva, integração e entrega são registros distintos.
+8. Preservar o resultado efetivo e hash de merge no PR. Sincronização local após integração depende do trabalho solicitado, preservando alterações locais alheias à entrega.
 
-A revisão técnica pelo Codex e a aprovação do responsável substituem a antiga exigência interna de revisão por outra pessoa; não representam um review `APPROVED` de terceiros no GitHub. Revisões voluntárias continuam possíveis. Publicar release exige autorização própria.
+Revisão independente continua opcional internamente. Os registros abaixo descrevem autorizações históricas; não autorizam o Codex a integrar novos PRs pela política atual.
 
 **Aplicação ao PR #12:** em 24/10/2026, o responsável aprovou expressamente o PR e seu merge, incluindo a atualização desta política na mesma branch. Essa autorização dispensa nova confirmação para esta integração, após a CI do commit atualizado e demais condições técnicas aprovadas. O resultado e o hash de merge são registrados no próprio PR.
 
@@ -166,19 +166,20 @@ Situação, testes e limites: [S4-IMPLEMENTACAO.md](S4-IMPLEMENTACAO.md). Aceite
 
 Em 25/10/2026, o responsável aprovou individualmente os sete grupos funcionais da S4, sem defeitos bloqueantes, e posteriormente autorizou expressamente o merge commit do PR #13, a sincronização local e o registro da CI pós-merge. Implementação e homologação funcional individual concluídas; o [registro de integração do PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolida execução efetiva, HEAD integrado, hash do merge, ancestralidade e CI. Não registrar aprovação coletiva ou cumprimento de critérios humanos/release não confirmados. A autorização cobre este encerramento documental; não autoriza novos PRs, publicação de release ou implementação da S5.
 
-## Sprint 5 candidata — backup sem criptografia
+## Sprint 5 — backup e restauração (autorizada em 25/10/2026)
 
-Estimativa preservada de **26 pontos**. Proteção por senha foi retirada do escopo comprometido por decisão expressa do responsável. O backup será sem criptografia, com aviso claro de que os dados ficam legíveis e devem ser guardados/compartilhados conscientemente. Não implementar backup na Sprint 4.
+Compromisso refinado de **34 pontos e 5 de reserva**; substitui a candidatura de 26 após detalhar coordenação/flush e recuperação Room/DataStore. Sem senha/criptografia. Os papéis são áreas técnicas, sem pressupor três pessoas simultâneas. Execução autônoma em branch, commits lógicos e PR consolidado; responsável homologa e faz merge manualmente no GitHub.
 
-| ID | Entrega candidata | Pontos |
-| --- | --- | ---: |
-| S5-01 | Formato versionado, modalidades e compatibilidade | 3 |
-| S5-02 | Exportação consistente e coordenação das gravações | 5 |
-| S5-03 | Validação completa e prévia da importação | 5 |
-| S5-04 | Substituição Room/DataStore e recuperação após falhas | 8 |
-| S5-05 | Seleção de arquivos, confirmação, aviso de ausência de criptografia e testes integrados | 5 |
+| ID | Entrega | Pontos | Responsabilidade técnica |
+| --- | --- | ---: | --- |
+| S5-01 | JSONL versionado, modalidades, integridade e compatibilidade | 3 | Dev 1: 1; Dev 2: 2 |
+| S5-02 | Coordenador, gerações, participantes, flush aguardável e captura consistente | 8 | Dev 1: 5; Dev 2: 3 |
+| S5-03 | Staging privado, validação integral e resumo | 5 | Dev 2 |
+| S5-04 | Migração/journal, aplicação, reversão e inicialização segura | 13 | Dev 1: 6; Dev 2: 2; Dev 3: 5 |
+| S5-05 | Configurações/SAF, acessibilidade, regressão, AGENTS e documentação | 5 | Dev 3 |
+| Total | Reserva adicional: 5 | **34** | **Dev 1: 12; Dev 2: 12; Dev 3: 10** |
 
-Completo inclui histórico e rascunho; sem histórico inclui planos, divisões, prescrições, exercícios e configurações, sem nenhuma sessão. Ambos substituem tudo após validação integral e confirmação: importar sem histórico também remove histórico e rascunho atuais, com aviso explícito. Preservar IDs, referências fracas históricas, snapshots, valores nulos/zero e integridade entre Room/DataStore. Não apagar dados antes da validação; preparar recuperação durável e impedir escritas tardias após restauração. Checksum não representa confidencialidade/autenticidade. Um plano técnico próprio precederá a execução da Sprint 5.
+Completo inclui histórico e rascunho; sem histórico não inclui sessões e remove as atuais ao restaurar, com aviso explícito. Ambas as modalidades aguardam edições válidas inclusive debounce; não confirmam formulários com Salvar explícito. Drenar participantes antes da exclusão global. IDs/snapshots/zeros/nulos preservados. Migração Room 2→3 acrescenta journal; undo durável permite reverter dados e preferências. Não presumir atomicidade conjunta Room/DataStore nem liberar telas com recuperação pendente. Checksum não autentica nem cifra. Contratos em [decisão S5](decisoes/S5-backup.md), resultados em [implementação](S5-IMPLEMENTACAO.md) e relato de aceite individual/refinamento final em [homologação](HOMOLOGACAO-S5.md).
 
 ## Backlog posterior preservado
 

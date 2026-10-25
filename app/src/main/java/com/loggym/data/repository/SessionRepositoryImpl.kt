@@ -1,5 +1,6 @@
 package com.loggym.data.repository
 
+import com.loggym.domain.backup.PersistenceCoordinator
 import androidx.room.withTransaction
 import com.loggym.data.local.LogGymDatabase
 import com.loggym.data.local.dao.PlanDao
@@ -34,6 +35,7 @@ class SessionRepositoryImpl @Inject constructor(
     private val planDao: PlanDao,
     private val clock: Clock,
     private val preferences: UserPreferencesRepository,
+    private val coordinator: PersistenceCoordinator = PersistenceCoordinator(),
 ) : SessionRepository {
 
     override fun observeDraft(): Flow<Session?> = sessionDao.observeDraft().map { it?.toDomain() }
@@ -44,11 +46,11 @@ class SessionRepositoryImpl @Inject constructor(
     override fun observeSession(sessionId: Long): Flow<Session?> =
         sessionDao.observeSession(sessionId).map { it?.toDomain() }
 
-    override suspend fun startSession(workoutId: Long): StartSessionResult {
-        sessionDao.getDraftId()?.let { return StartSessionResult.DraftAlreadyExists(it) }
+    override suspend fun startSession(workoutId: Long): StartSessionResult = coordinator.write {
+        sessionDao.getDraftId()?.let { return@write StartSessionResult.DraftAlreadyExists(it) }
         // Uma única leitura, fora da transação, para todo o novo rascunho.
         val prefillEnabled = preferences.settings.first().prefillEnabled
-        return database.withTransaction {
+        return@write database.withTransaction {
             val draftId = sessionDao.getDraftId()
             val activePlan = planDao.getActivePlan()
             val workout = planDao.getWorkoutWithExercises(workoutId)
@@ -109,7 +111,7 @@ class SessionRepositoryImpl @Inject constructor(
         return sessionId
     }
 
-    override suspend fun updateSetValues(setId: Long, values: SetValues) = database.withTransaction {
+    override suspend fun updateSetValues(setId: Long, values: SetValues) = coordinator.write { database.withTransaction {
         val exercise = sessionDao.getExerciseOfSet(setId) ?: return@withTransaction
         check(sessionDao.countDraftExercise(exercise.id) > 0) { "O treino não está em andamento." }
         check(sessionDao.getSet(setId)?.isCompleted == false) { "Desmarque a série para editar." }
@@ -117,8 +119,9 @@ class SessionRepositoryImpl @Inject constructor(
         sessionDao.updateSetValues(setId, values.weightKg, values.reps, values.durationSeconds)
         Unit
     }
+    }
 
-    override suspend fun saveSetAndSetCompleted(setId: Long, values: SetValues, completed: Boolean) = database.withTransaction {
+    override suspend fun saveSetAndSetCompleted(setId: Long, values: SetValues, completed: Boolean) = coordinator.write { database.withTransaction {
         val exercise = requireNotNull(sessionDao.getExerciseOfSet(setId))
         check(sessionDao.countDraftExercise(exercise.id) > 0) { "O treino não está em andamento." }
         val before = requireNotNull(sessionDao.getSet(setId))
@@ -131,8 +134,9 @@ class SessionRepositoryImpl @Inject constructor(
             sessionDao.updateRest(exercise.sessionId, timer?.startedAt, timer?.endsAt)
         }
     }
+    }
 
-    override suspend fun addSet(sessionExerciseId: Long) = database.withTransaction {
+    override suspend fun addSet(sessionExerciseId: Long) = coordinator.write { database.withTransaction {
         if (sessionDao.countDraftExercise(sessionExerciseId) == 0) return@withTransaction
         val lastSet = sessionDao.getLastSet(sessionExerciseId)
         sessionDao.insertSet(
@@ -147,18 +151,22 @@ class SessionRepositoryImpl @Inject constructor(
         )
         Unit
     }
+    }
 
-    override suspend fun removeSet(setId: Long): Boolean = sessionDao.deleteUncompletedSet(setId) > 0
+    override suspend fun removeSet(setId: Long): Boolean = coordinator.write { sessionDao.deleteUncompletedSet(setId) > 0
+    }
 
-    override suspend fun clearExerciseSets(sessionExerciseId: Long): Boolean = database.withTransaction {
+    override suspend fun clearExerciseSets(sessionExerciseId: Long): Boolean = coordinator.write { database.withTransaction {
         if (sessionDao.countDraftExercise(sessionExerciseId) == 0) return@withTransaction false
         sessionDao.clearExerciseSets(sessionExerciseId)
         true
     }
+    }
 
-    override suspend fun skipRest(sessionId: Long) = sessionDao.updateRest(sessionId, startedAt = null, endsAt = null)
+    override suspend fun skipRest(sessionId: Long) = coordinator.write { sessionDao.updateRest(sessionId, startedAt = null, endsAt = null)
+    }
 
-    override suspend fun finishSession(sessionId: Long): FinishSessionResult = database.withTransaction {
+    override suspend fun finishSession(sessionId: Long): FinishSessionResult = coordinator.write { database.withTransaction {
         when {
             sessionDao.countDraft(sessionId) == 0 -> FinishSessionResult.NotADraft
             sessionDao.countCompletedSets(sessionId) == 0 -> FinishSessionResult.NoCompletedSets
@@ -170,6 +178,9 @@ class SessionRepositoryImpl @Inject constructor(
             }
         }
     }
+    }
 
-    override suspend fun discardSession(sessionId: Long): Boolean = sessionDao.deleteDraft(sessionId) > 0
+    override suspend fun discardSession(sessionId: Long): Boolean = coordinator.write { sessionDao.deleteDraft(sessionId) > 0
+    }
+
 }

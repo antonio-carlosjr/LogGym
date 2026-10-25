@@ -103,9 +103,11 @@ As tarefas S4-04/histórico individual e S4-06/marcação automática ficam no b
 
 Em 25/10/2026, o responsável confirmou os sete grupos funcionais da Sprint 4, incluindo regressão completa, sem defeitos bloqueantes, e posteriormente autorizou expressamente o merge commit do PR #13, a sincronização e a CI pós-merge. Consulte os limites da evidência em [HOMOLOGACAO-S4.md](HOMOLOGACAO-S4.md). O [registro do PR #13](https://github.com/antonio-carlosjr/LogGym/pull/13) consolida o resultado da integração, o hash do merge e a CI pós-merge; a integração está concluída quando indicar `MERGED`. Não foi atribuído aceite coletivo. TalkBack, avaliação abrangente de acessibilidade, assinatura definitiva e ensaio humanos não foram confirmados por esse relato. Encerramento técnico é distinto dessas pendências e da entrega de release; a Sprint 5 não foi iniciada.
 
-## Sprint 5 — proposta de backup sem criptografia
+## Sprint 5 — homologação funcional individual aprovada; refinamento final de UI
 
-Backup completo (com histórico/rascunho) ou sem histórico (sem sessões), por substituição integral após validação e confirmação, com recuperação segura de falhas. Estimativa de 26 pontos. Por decisão do responsável, não incluir senha ou criptografia no escopo comprometido; apresentar aviso claro sobre os dados legíveis. Implementação reservada à S5, após refinamento próprio; não foi iniciada na S4.
+Planejamento refinado aprovado e implementação autorizada em 25/10/2026: **34 pontos e 5 de reserva**, substituindo a candidatura de 26 pontos. Backup completo (histórico/rascunho) ou sem histórico (nenhuma sessão), nas Configurações via SAF. Salvamento aguardável das edições precede a captura. Validação integral, confirmação da substituição e recuperação entre Room e DataStore com undo/journal. Sem criptografia/senha, com aviso de conteúdo legível.
+
+Consulte [implementação](S5-IMPLEMENTACAO.md), [decisão técnica](decisoes/S5-backup.md) e [homologação](HOMOLOGACAO-S5.md). Em 25/10/2026, o responsável confirmou aprovação funcional individual dos dez grupos relatados, sem bloqueantes, e solicitou refinamento das explicações de backup. Esse novo layout ainda requer reteste. Merge manual do PR #14, aceite coletivo e pendências humanas anteriores não são presumidos. Histórico individual, marcação automática e navegação inferior permanecem no backlog.
 
 ## Proposta posterior — navegação principal inferior
 

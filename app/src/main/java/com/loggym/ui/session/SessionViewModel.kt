@@ -74,7 +74,10 @@ data class SessionUiState(
 class SessionViewModel @Inject constructor(
     private val repository: SessionRepository,
     private val clock: Clock,
+    private val persistence: com.loggym.domain.backup.PersistenceCoordinator = com.loggym.domain.backup.PersistenceCoordinator(),
 ) : ViewModel() {
+    private val persistenceContext = persistence.context()
+
     private val state = MutableStateFlow(SessionUiState())
     val uiState: StateFlow<SessionUiState> = state.asStateFlow()
     private val mutex = Mutex()
@@ -83,12 +86,31 @@ class SessionViewModel @Inject constructor(
     private var observing: Job? = null
     private var observationFailed = false
 
+    private val backupRegistration = persistence.register(com.loggym.domain.backup.PendingWrites { prepareSnapshot() })
+    override fun onCleared() { backupRegistration.close() }
+    private suspend fun prepareSnapshot(): com.loggym.domain.backup.PreparedWrites = withContext(Dispatchers.Main.immediate + persistenceContext) {
+        cancelDebounces()
+        val lease = Any()
+        mutex.lock(lease)
+        state.update { it.copy(busy = true) }
+        try {
+            if (!flush()) throw com.loggym.domain.backup.PreparationException(
+                if (state.value.entries.values.any { it.error != null }) com.loggym.domain.backup.PreparationFailure.INVALID_INPUT
+                else com.loggym.domain.backup.PreparationFailure.STORAGE)
+            com.loggym.domain.backup.PreparedWrites {
+                state.update { it.copy(busy = false) }
+                mutex.unlock(lease)
+            }
+        } catch (error: Throwable) {
+            state.update { it.copy(busy = false) }; mutex.unlock(lease); throw error
+        }
+    }
     init { observe() }
 
     private fun observe() {
         observationFailed = false
         observing?.cancel()
-        observing = viewModelScope.launch {
+        observing = viewModelScope.launch(persistenceContext) {
             repository.observeDraft().catch { error ->
                 observationFailed = true
                 state.update { it.copy(isLoading = false, error = R.string.session_open_error) }
@@ -106,11 +128,11 @@ class SessionViewModel @Inject constructor(
 
     fun setActive(active: Boolean) {
         ticker?.cancel()
-        if (active) ticker = viewModelScope.launch {
+        if (active) ticker = viewModelScope.launch(persistenceContext) {
             while (isActive) { tick(); delay(1_000) }
         } else {
             cancelDebounces()
-            viewModelScope.launch { mutex.withLock { flush() } }
+            viewModelScope.launch(persistenceContext) { mutex.withLock { flush() } }
         }
     }
 
@@ -124,14 +146,17 @@ class SessionViewModel @Inject constructor(
     }
 
     fun edit(setId: Long, transform: (SetEntry) -> SetEntry) {
-        if (state.value.busy || find(setId)?.second?.isCompleted != false) return
+        persistence.edit { editNow(setId, transform) }
+    }
+    private fun editNow(setId: Long, transform: (SetEntry) -> SetEntry) {
+        if (!persistence.canEdit || state.value.busy || find(setId)?.second?.isCompleted != false) return
         val before = state.value.entries[setId] ?: return
         val next = transform(before).copy(revision = before.revision + 1, error = null)
         if (listOf(next.weight.substringBefore(',').substringBefore('.'), next.reps, next.duration)
                 .any { text -> text.count(Char::isDigit) > 6 }) return
         state.update { it.copy(entries = it.entries + (setId to next)) }
         debounces.remove(setId)?.cancel()
-        debounces[setId] = viewModelScope.launch {
+        debounces[setId] = viewModelScope.launch(persistenceContext) {
             delay(500)
             // Do not cancel an in-flight database transaction when another character is typed.
             debounces.remove(setId)
@@ -184,15 +209,15 @@ class SessionViewModel @Inject constructor(
     private fun cancelDebounces() { debounces.values.forEach { it.cancel() }; debounces.clear() }
 
     private fun operation(block: suspend () -> Unit) {
-        if (state.value.busy || state.value.exitReady) return
+        if (!persistence.canEdit || state.value.busy || state.value.exitReady) return
         state.update { it.copy(busy = true, error = null) }
-        viewModelScope.launch {
+        persistence.command(viewModelScope, persistenceContext) {
             try { mutex.withLock { block() } }
             catch (error: Exception) {
                 if (error is CancellationException) throw error
                 fail(error)
             } finally { state.update { it.copy(busy = false) } }
-        }
+        } ?: state.update { it.copy(busy = false) }
     }
 
     private fun fail(error: Exception) { state.update { it.copy(error = R.string.session_save_error) } }

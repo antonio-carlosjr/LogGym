@@ -4,10 +4,10 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 /** Mantém formulários abertos em falhas de escrita e impede ações duplicadas. */
-class UiOperation(private val scope: CoroutineScope) {
+class UiOperation(private val scope: CoroutineScope, private val persistence: com.loggym.domain.backup.PersistenceCoordinator = com.loggym.domain.backup.PersistenceCoordinator()) {
+    private val generationContext = persistence.context()
     private val working = MutableStateFlow(false)
     val busy = working.asStateFlow()
     private val failure = MutableStateFlow(false)
@@ -15,15 +15,15 @@ class UiOperation(private val scope: CoroutineScope) {
     fun dismissError() { failure.value = false }
 
     fun launch(action: suspend () -> Unit) {
-        if (working.value) return
+        if (!persistence.canEdit || working.value) return
         working.value = true
         failure.value = false
-        scope.launch {
+        persistence.command(scope, generationContext) {
             try { action() }
             catch (error: Exception) {
                 if (error is CancellationException) throw error
                 failure.value = true
             } finally { working.value = false }
-        }
+        } ?: run { working.value = false }
     }
 }

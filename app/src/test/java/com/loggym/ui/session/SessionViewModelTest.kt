@@ -21,15 +21,63 @@ class SessionViewModelTest {
     private val clock = MutableClock()
     private val store = ViewModelStore()
     private lateinit var vm: SessionViewModel
+    private val persistence = com.loggym.domain.backup.PersistenceCoordinator()
 
     @Before fun setup() {
         Dispatchers.setMain(dispatcher)
         vm = ViewModelProvider(store, object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = SessionViewModel(repository, clock) as T
+            override fun <T : ViewModel> create(modelClass: Class<T>): T = SessionViewModel(repository, clock, persistence) as T
         })[SessionViewModel::class.java]
     }
     @After fun close() { store.clear(); Dispatchers.resetMain() }
+
+    @Test fun exportBeforeDebounceFlushesZeroTimeAndNullWithoutCheckingOrChangingRest() = runTest(dispatcher) {
+        runCurrent()
+        val timer = RestTimer(clock.instant(), clock.instant().plusSeconds(37))
+        repository.draft.value = repository.draft.value!!.copy(restTimer = timer); runCurrent()
+        vm.edit(10) { it.copy(weight = "0", reps = "0") }
+        vm.edit(11) { it.copy(duration = "45") }
+        persistence.capture {
+            assertEquals(SetValues(0.0, 0), repository.updates[10L])
+            assertEquals(SetValues(durationSeconds = 45), repository.updates[11L])
+            vm.edit(10) { it.copy(weight = "99") }
+            assertEquals("0", vm.uiState.value.entries[10L]!!.weight)
+        }
+        assertEquals(0L, testScheduler.currentTime)
+        assertEquals(timer, repository.draft.value!!.restTimer)
+        assertNull(repository.checkedValues); assertFalse(vm.uiState.value.busy)
+        vm.edit(10) { it.copy(weight = "", reps = "") }
+        persistence.capture { assertEquals(SetValues(), repository.updates[10L]) }
+    }
+    @Test fun exportWaitsForOldWriteThenFlushesLatestRevision() = runTest(dispatcher) {
+        runCurrent(); val gate = CompletableDeferred<Unit>(); repository.saveGate = gate
+        vm.edit(10) { it.copy(weight = "20", reps = "8") }; advanceTimeBy(500); runCurrent()
+        vm.edit(10) { it.copy(weight = "25") }
+        var captured = false
+        val exporting = launch { persistence.capture { assertEquals(25.0, repository.updates[10L]!!.weightKg!!, 0.0); captured = true } }
+        runCurrent(); assertFalse(captured); gate.complete(Unit); exporting.join()
+        assertTrue(captured); assertFalse(vm.uiState.value.dirty)
+    }
+    @Test fun invalidOrFailedFlushBlocksSnapshotAndPreservesBuffersForRetry() = runTest(dispatcher) {
+        runCurrent(); vm.edit(10) { it.copy(weight = "invalid") }
+        var captured = false
+        assertTrue(runCatching { persistence.capture { captured = true } }.isFailure)
+        assertFalse(captured); assertEquals("invalid", vm.uiState.value.entries[10L]!!.weight)
+        assertFalse(vm.uiState.value.busy)
+        vm.edit(10) { it.copy(weight = "12,5") }; repository.failWrites = true
+        assertTrue(runCatching { persistence.capture { captured = true } }.isFailure); assertTrue(vm.uiState.value.dirty)
+        repository.failWrites = false; persistence.capture { captured = true }; assertTrue(captured)
+    }
+    @Test fun exportDrainsAlreadyAcceptedClearWithoutRestoringOldValues() = runTest(dispatcher) {
+        runCurrent(); vm.edit(10) { it.copy(weight = "invalid") }
+        vm.requestClearExercise(1); vm.confirmClearExercise()
+        persistence.capture {
+            assertNull(repository.draft.value!!.exercises[0].sets[0].weightKg)
+            assertEquals("", vm.uiState.value.entries[10L]!!.weight)
+        }
+        advanceTimeBy(1000); runCurrent(); assertFalse(vm.uiState.value.dirty)
+    }
 
     @Test fun debounceIsPerSetAndCheckFlushesLatestValue() = runTest(dispatcher) {
         runCurrent()

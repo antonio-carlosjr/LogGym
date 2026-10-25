@@ -6,6 +6,10 @@ import com.loggym.domain.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 
 open class FakeUserPreferences : UserPreferencesRepository {
+    override suspend fun replace(snapshot: com.loggym.domain.repository.PersistedPreferences) {
+        settings.value = snapshot.settings
+        onboardingCompleted.value = snapshot.onboardingCompleted
+    }
     override val settings = MutableStateFlow(UserSettings())
     override val onboardingCompleted = MutableStateFlow(false)
     override suspend fun setThemeMode(mode: ThemeMode) { settings.value = settings.value.copy(themeMode = mode) }

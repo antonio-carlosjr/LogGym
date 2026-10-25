@@ -1,5 +1,6 @@
 package com.loggym.data.repository
 
+import com.loggym.domain.backup.PersistenceCoordinator
 import androidx.room.withTransaction
 import com.loggym.data.local.LogGymDatabase
 import com.loggym.data.local.dao.ExerciseDao
@@ -18,12 +19,13 @@ import javax.inject.Inject
 class ExerciseRepositoryImpl @Inject constructor(
     private val database: LogGymDatabase,
     private val exerciseDao: ExerciseDao,
+    private val coordinator: PersistenceCoordinator = PersistenceCoordinator(),
 ) : ExerciseRepository {
 
     override fun observeAll(): Flow<List<Exercise>> =
         exerciseDao.observeAll().map { exercises -> exercises.map { it.toDomain() } }
 
-    override suspend fun createCustom(draft: ExerciseDraft): SaveExerciseResult = database.withTransaction {
+    override suspend fun createCustom(draft: ExerciseDraft): SaveExerciseResult = coordinator.write { database.withTransaction {
         val name = ExerciseNames.clean(draft.name)
         if (name.isEmpty()) return@withTransaction SaveExerciseResult.BlankName
         if (isNameTaken(name, exceptId = null)) return@withTransaction SaveExerciseResult.DuplicateName
@@ -39,8 +41,9 @@ class ExerciseRepositoryImpl @Inject constructor(
         )
         SaveExerciseResult.Saved(id)
     }
+    }
 
-    override suspend fun updateCustom(exerciseId: Long, draft: ExerciseDraft): SaveExerciseResult =
+    override suspend fun updateCustom(exerciseId: Long, draft: ExerciseDraft): SaveExerciseResult = coordinator.write {
         database.withTransaction {
             val name = ExerciseNames.clean(draft.name)
             if (name.isEmpty()) return@withTransaction SaveExerciseResult.BlankName
@@ -55,18 +58,22 @@ class ExerciseRepositoryImpl @Inject constructor(
             )
             if (updated > 0) SaveExerciseResult.Saved(exerciseId) else SaveExerciseResult.NotEditable
         }
+    }
 
-    override suspend fun updateUserNote(exerciseId: Long, note: String?) {
+    override suspend fun updateUserNote(exerciseId: Long, note: String?) = coordinator.write {
         val cleaned = note.cleanOrNull()
         require(cleaned == null || cleaned.length <= InputRules.USER_NOTE_MAX_LENGTH) {
             "A observação tem no máximo ${InputRules.USER_NOTE_MAX_LENGTH} caracteres (RF-133)."
         }
         exerciseDao.updateUserNote(exerciseId, cleaned)
+        Unit
     }
 
-    override suspend fun countPlanUsages(exerciseId: Long): Int = exerciseDao.countPlanUsages(exerciseId)
+    override suspend fun countPlanUsages(exerciseId: Long): Int = coordinator.write { exerciseDao.countPlanUsages(exerciseId)
+    }
 
-    override suspend fun deleteCustom(exerciseId: Long): Boolean = exerciseDao.deleteCustom(exerciseId) > 0
+    override suspend fun deleteCustom(exerciseId: Long): Boolean = coordinator.write { exerciseDao.deleteCustom(exerciseId) > 0
+    }
 
     /** RF-132: compara com nativos e personalizados, exceto o próprio exercício em edição. */
     private suspend fun isNameTaken(name: String, exceptId: Long?): Boolean {
