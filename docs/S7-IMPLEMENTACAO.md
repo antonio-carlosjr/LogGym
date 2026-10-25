@@ -87,3 +87,8 @@ adb -s emulator-5560 shell am instrument -w -r com.loggym.test/com.loggym.HiltTe
 Logs locais ignorados: `build/s7-delivery-build.log`, `build/s7-product-final.log`, `build/s7-instrumented-final.log`; relatórios JVM/lint em `app/build/reports`. APK debug: `app/build/outputs/apk/debug/app-debug.apk`. SDK/cache/AVD preparados em `build` são temporários e serão removidos por limpeza do build; para uso permanente configurar SDK externo no `local.properties` privado.
 
 Revisão técnica: seleção pela rota, limpeza de stores salvos/ativos, bloqueios de callbacks/SAF, árvore de campos estável, estado acessível único no check e ausência de alterações em dados, schemas e dependências conferidos. A CI do HEAD final será acompanhada e terá resultado/URL registrados no PR consolidado. Homologação funcional individual **S7 permanece pendente**, assim como testes humanos não relatados; nenhum merge ou release executado.
+
+
+### Revisão de prioridade de Voltar
+
+Handler das raízes composto após o NavHost para prevalecer sobre o pop interno e salvar estado no retorno ao Início. Teste da biblioteca ampliado: busca/filtro → outra aba → recriação → Voltar → Início → Biblioteca, exigindo o mesmo contexto. IME continua fechando primeiro; fluxos internos mantêm seus handlers. CI do novo HEAD obrigatória; resultados remotos anteriores não validam antecipadamente este ajuste.

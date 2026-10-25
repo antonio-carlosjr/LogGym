@@ -55,7 +55,7 @@ class Sprint7NavigationTest {
         back()
         compose.onNodeWithTag("tab-home").assertIsSelected()
     }
-    @Test fun libraryQueryFilterAndScrollSurviveTabsAndRecreation() {
+    @Test fun libraryQueryFilterSurviveTabsBackAndRecreation() {
         tab("exercises")
         compose.onNode(hasSetTextAction()).performTextReplacement("supino")
         back() // primeiro fecha IME, sem sair da Biblioteca
@@ -67,6 +67,11 @@ class Sprint7NavigationTest {
         compose.activityRule.scenario.recreate()
         awaitTab("exercises")
         compose.onNodeWithTag("tab-exercises").assertIsSelected()
+        compose.onNode(hasSetTextAction()).assertTextContains("supino")
+        compose.onNodeWithText("Peito").assertIsSelected()
+        back()
+        compose.onNodeWithTag("tab-home").assertIsSelected()
+        tab("exercises")
         compose.onNode(hasSetTextAction()).assertTextContains("supino")
         compose.onNodeWithText("Peito").assertIsSelected()
     }

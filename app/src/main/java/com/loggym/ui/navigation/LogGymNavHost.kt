@@ -50,9 +50,6 @@ fun LogGymNavHost(
     val locked = !navigationEnabled || locks[current?.id]?.value == true
     val keyboardOpen = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val select: (TopLevelDestination) -> Unit = { if (!locked) navController.selectRoot(it) }
-    BackHandler(enabled = selected != null && !keyboardOpen && (selected != TopLevelDestination.HOME || locked)) {
-        select(TopLevelDestination.HOME)
-    }
     var skipRestoredFade by remember(navController) { mutableStateOf(openSettings) }
     val navigateBack: () -> Unit = { navController.popBackStack() }
 
@@ -151,6 +148,10 @@ fun LogGymNavHost(
         composable<SettingsRoute> { entry -> RootEntry(entry, locks) {
             SettingsScreen(onBack = { select(TopLevelDestination.HOME) }, showBack = false)
         } }
+    }
+    // Composto depois do NavHost: Voltar das raízes salva estado em vez de usar o pop padrão.
+    BackHandler(enabled = selected != null && !keyboardOpen && (selected != TopLevelDestination.HOME || locked)) {
+        select(TopLevelDestination.HOME)
     }
     }
 }
