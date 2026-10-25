@@ -23,4 +23,32 @@ Papéis são áreas técnicas, sem pressupor três profissionais simultâneos. O
 
 ## Verificação e aceite
 
-Resultados serão registrados após execução. Testes automatizados não representam homologação individual da S6. A referência da S5 é 169 JVM e a suíte instrumentada ampliada pelo teste do diálogo de informações. Nenhum cenário humano desta sprint é presumido aprovado.
+Em 25/10/2026, build debug, APK instrumentado e **192 testes JVM** aprovados: zero falhas, erros e ignorados. Lint aprovado sem erros, com cinco avisos existentes de versões de dependências. Referência da S5: 169 JVM. Nenhum teste foi ignorado nem detector suprimido para ocultar falha.
+
+**62 testes instrumentados aprovados** no AVD descartável API 37 `LogGymS6Test` (`emulator-5560`). Um segundo processo do mesmo AVD do usuário foi recusado pelo emulador; foi criado ambiente independente em `build/s6-avd` com configuração copiada e dados novos, usando a imagem instalada. Nenhum dado do AVD original foi copiado/apagado ou usado pelos testes. A CI do PR executa novamente em API 35; seu resultado efetivo será registrado no PR.
+
+Após o último refinamento de rótulo, build/lint foram repetidos sem erros (cinco avisos de dependências) e o fluxo S6 passou novamente, agora incluindo recriação da Activity com o painel de histórico aberto. Resultado direcionado: 1/1, sem somar repetições como novos testes da suíte. A proteção da série em conclusão inclui também o botão de remoção, sem bloquear a série de destino.
+
+```powershell
+.\gradlew.bat assembleDebug testDebugUnitTest lintDebug assembleDebugAndroidTest --max-workers=1 --no-configuration-cache --console=plain
+adb -s emulator-5560 shell am instrument -w com.loggym.test/com.loggym.HiltTestRunner
+```
+
+Resultados automatizados não representam homologação individual da S6; [roteiro manual](HOMOLOGACAO-S6.md) permanece pendente. Merge e release não foram realizados.
+
+## Implementação e rastreabilidade
+
+- S6-01/03: `ExerciseHistoryCursor/Page/Entry`, `SessionRepository.getExerciseHistoryPage`, consultas em `SessionDao` e mapeamento existente. Páginas de 25 sessões com todas as ocorrências, sem join com biblioteca atual. Testes reais de identidade/tipo, exclusão, posições, valores e desempate de datas; consulta verificada também após restauração v2.
+- S6-02: `ExerciseHistoryViewModel`, `ExerciseHistorySheet`, relógio junto ao exercício e conteúdo compartilhado `HistorySetContent`. Estado do painel restaurável, consultas canceláveis, erro/retry/carregar mais; abrir/fechar não chama flush. Detalhe geral mantém seu layout/comportamento.
+- S6-04: `UserSettings`, DataStore e Configurações com flag falsa por ausência. Codec público v2 estrito, erro tipado de versão incompatível e adaptador interno limitado ao undo v1. Dados locais não são redefinidos; teste real de preferências antigas sem a chave nova. Snapshot/rollback incluem a preferência.
+- S6-05/06/07: `SessionViewModel` mantém revisão elegível independente de dirty, rastreia foco e comanda `completed=true`. Só a série em conclusão bloqueia campos/check/remoção; destino continua editável. Borracha e preferência invalidam eventos pendentes; geração antiga não admite comandos. IME Próximo mantém a linha; Concluído ou foco em outra série podem concluir. Histórico, blur, rolagem, ciclo de vida e flush não concluem.
+- S6-08: gates/relógio virtual para escrita antiga, duplicação, destino editável, falha, desmarcação, borracha, preferência, flush e geração; DataStore/Room reais para backup, recuperação e preservação.
+- S6-09: especificação RF-161/162, refinamento RF-80 e RF-154–160, matriz, roadmap e decisão [S6-execucao](decisoes/S6-execucao.md). S5 integrada/aprovada; S7 mantém UX-NAV-01 com cinco abas e Voltar das raízes para Início, sem execução nesta sprint.
+
+O fluxo Compose combina preferência, pré-preenchimento sem marcação, edição de um campo, teclado, transferência entre séries, histórico com texto inválido e descanso, limpeza, recriação, finalização parcial e detalhe do histórico. A recuperação testa interrupções nas fronteiras Room/DataStore, reversão, undo corrompido, v1 público rejeitado e undo privado S5 válido.
+
+## Revisão técnica e pendências
+
+Banco e esquema exportado continuam v3, sem alteração de entidade/índice ou migração; biblioteca Room e limites de backup preservados. Mutação passa pelos contratos existentes e pelo coordenador; leitura histórica usa snapshots, consulta em transação e cursor estável. Nenhuma navegação inferior, criptografia, chave privada, credencial ou arquivo local do Gradle foi incluído.
+
+Homologação funcional S6, TalkBack específico das novas telas e demais cenários manuais aguardam o responsável. Assinatura definitiva/custódia e ensaio anteriores continuam separados. O responsável homologa e integra o PR manualmente no GitHub.

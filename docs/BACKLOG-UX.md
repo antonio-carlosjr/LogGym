@@ -8,7 +8,7 @@
 
 ### Enquadramento e decisões antes da implementação
 
-Recomenda-se uma candidatura à **Sprint 6**, após o backup da Sprint 5, sem inclusão automática nessa sprint ou em sua reserva. Preservar o pacote S5 de 26 pontos, sem criptografia e com aviso claro. A ordem poderá ser revista pelo responsável após refinamento; este registro não aprova execução nem altera os demais itens do backlog.
+A candidatura passa à **Sprint 7**, fora do compromisso e da reserva da Sprint 6. O backup da S5 foi entregue após refinamento para 34 pontos, sem criptografia e com aviso claro. A ordem poderá ser revista pelo responsável após refinamento; este registro não aprova execução nem altera os demais itens do backlog.
 
 - Destinos propostos para avaliação: Início, Planos, Exercícios e Histórico. Recomenda-se manter Configurações como ação na barra superior, evitando uma quinta aba inicialmente. Confirmar quantidade, nomes, ordem e acesso às configurações com o responsável.
 - Recomenda-se mostrar a barra apenas nos destinos principais; onboarding, execução, editores, cadastro contextual e detalhes manteriam navegação focada com Voltar. Confirmar em quais telas a barra aparece antes de implementar.
@@ -26,7 +26,9 @@ Recomenda-se uma candidatura à **Sprint 6**, após o backup da Sprint 5, sem in
 - A execução continua usando as saídas existentes de `SessionViewModel`, que coordenam buffers, debounce e gravações. Não oferecer troca direta de aba que contorne salvamento/erros da sessão. A faixa de descanso e o aviso final de cerca de 5 s mantêm seus timestamps.
 - **Room:** nenhuma mudança de entidade, repositório de dados ou migração prevista. **DataStore:** nenhuma nova preferência necessária para a barra; a escolha de aba não vira configuração persistente automaticamente. Reavaliar esses impactos se as decisões de produto ampliarem o escopo.
 
-### Decomposição e estimativa preliminar
+### Decomposição e estimativa inicial (histórico)
+
+Revisão no planejamento da S6: **13 pontos**, candidata à S7, sem implementação autorizada. O responsável escolheu cinco abas — Início, Planos, Exercícios, Histórico e Configurações — e Voltar das raízes para Início. Barra somente nas raízes; fluxos internos permanecem focados. A reestimativa considera estados de Configurações/backup e descarte de todas as pilhas salvas na troca de geração. A tabela abaixo preserva a candidatura inicial de 11 pontos; a divisão da S7 será refinada em planejamento próprio. A S6 aprovada contém apenas histórico e automação, 27 pontos e 12 de reserva.
 
 | Candidato | Entrega verificável | Responsabilidade técnica proposta | Pontos |
 | --- | --- | --- | ---: |
