@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
@@ -104,7 +105,12 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                 }
                 session.exercises.forEach { exercise ->
                     item(key = "exercise-${exercise.id}") {
-                        Text(exercise.name, Modifier.semantics { heading() }, style = MaterialTheme.typography.titleLarge)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(exercise.name, Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.titleLarge)
+                            IconButton(onClick = { viewModel.requestClearExercise(exercise.id) }, enabled = !state.busy) {
+                                Icon(painterResource(R.drawable.ic_eraser), stringResource(R.string.clear_exercise_named, exercise.name))
+                            }
+                        }
                         Text(resources.getString(R.string.session_prescription, exercise.target.summary(), exercise.target.rest.seconds))
                         if (exercise.trackingType == TrackingType.WEIGHT_REPS)
                             Text(resources.getString(R.string.ui_carga_em_kg_registre_o_peso_de_um_halter_lado_conforme_o_equipamento),
@@ -158,9 +164,18 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
     state.dialog?.let { dialog ->
         AlertDialog(
             onDismissRequest = viewModel::dismissDialog,
-            title = { Text(if (dialog == SessionDialog.DISCARD) resources.getString(R.string.ui_descartar_treino) else resources.getString(R.string.ui_finalizar_treino_2)) },
+            title = { Text(when (dialog) {
+                SessionDialog.CLEAR_EXERCISE -> resources.getString(R.string.clear_exercise_named,
+                    state.session?.exercises?.firstOrNull { it.id == state.clearExerciseId }?.name.orEmpty())
+                SessionDialog.DISCARD -> resources.getString(R.string.ui_descartar_treino)
+                SessionDialog.FINISH -> resources.getString(R.string.ui_finalizar_treino_2)
+            }) },
             text = {
-                if (dialog == SessionDialog.DISCARD) Text(resources.getString(R.string.ui_o_treino_em_andamento_sera_apagado_e_nao_aparecera_no_historico))
+                if (dialog == SessionDialog.CLEAR_EXERCISE) Column {
+                    Text(stringResource(R.string.clear_exercise_help))
+                    state.error?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error) }
+                }
+                else if (dialog == SessionDialog.DISCARD) Text(resources.getString(R.string.ui_o_treino_em_andamento_sera_apagado_e_nao_aparecera_no_historico))
                 else Column {
                     val pending = state.session?.pendingSetCount ?: 0
                     if (pending > 0) Text(resources.getQuantityString(R.plurals.pending_sets, pending, pending))
@@ -168,8 +183,16 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                 }
             },
             confirmButton = { TextButton(enabled = !state.busy, onClick = {
-                if (dialog == SessionDialog.DISCARD) viewModel.confirmDiscard() else viewModel.confirmFinish()
-            }) { Text(if (dialog == SessionDialog.DISCARD) resources.getString(R.string.ui_descartar) else resources.getString(R.string.ui_finalizar)) } },
+                when (dialog) {
+                    SessionDialog.CLEAR_EXERCISE -> viewModel.confirmClearExercise()
+                    SessionDialog.DISCARD -> viewModel.confirmDiscard()
+                    SessionDialog.FINISH -> viewModel.confirmFinish()
+                }
+            }) { Text(resources.getString(when (dialog) {
+                SessionDialog.CLEAR_EXERCISE -> R.string.clear_action
+                SessionDialog.DISCARD -> R.string.ui_descartar
+                SessionDialog.FINISH -> R.string.ui_finalizar
+            })) } },
             dismissButton = { TextButton(onClick = viewModel::dismissDialog, enabled = !state.busy) { Text(resources.getString(R.string.ui_cancelar)) } },
         )
     }

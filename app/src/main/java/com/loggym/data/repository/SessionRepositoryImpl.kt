@@ -150,6 +150,12 @@ class SessionRepositoryImpl @Inject constructor(
 
     override suspend fun removeSet(setId: Long): Boolean = sessionDao.deleteUncompletedSet(setId) > 0
 
+    override suspend fun clearExerciseSets(sessionExerciseId: Long): Boolean = database.withTransaction {
+        if (sessionDao.countDraftExercise(sessionExerciseId) == 0) return@withTransaction false
+        sessionDao.clearExerciseSets(sessionExerciseId)
+        true
+    }
+
     override suspend fun skipRest(sessionId: Long) = sessionDao.updateRest(sessionId, startedAt = null, endsAt = null)
 
     override suspend fun finishSession(sessionId: Long): FinishSessionResult = database.withTransaction {

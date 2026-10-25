@@ -42,6 +42,15 @@ interface SessionDao {
     )
     suspend fun countDraftExercise(sessionExerciseId: Long): Int
 
+    @Query("""
+        UPDATE session_sets SET weight_kg = NULL, reps = NULL, duration_seconds = NULL, is_completed = 0
+        WHERE session_exercise_id = :sessionExerciseId AND session_exercise_id IN (
+            SELECT se.id FROM session_exercises se INNER JOIN sessions s ON s.id = se.session_id
+            WHERE s.status = 'DRAFT'
+        )
+    """)
+    suspend fun clearExerciseSets(sessionExerciseId: Long)
+
     @Insert
     suspend fun insertSession(session: SessionEntity): Long
 

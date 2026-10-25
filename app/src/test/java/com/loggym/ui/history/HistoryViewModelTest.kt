@@ -70,6 +70,7 @@ class HistoryViewModelTest {
         override suspend fun updateSetValues(setId: Long, values: SetValues) = Unit
         override suspend fun saveSetAndSetCompleted(setId: Long, values: SetValues, completed: Boolean) = Unit
         override suspend fun addSet(sessionExerciseId: Long) = Unit
+        override suspend fun clearExerciseSets(sessionExerciseId: Long) = false
         override suspend fun removeSet(setId: Long) = false
         override suspend fun skipRest(sessionId: Long) = Unit
         override suspend fun finishSession(sessionId: Long): FinishSessionResult = error("Não utilizado")

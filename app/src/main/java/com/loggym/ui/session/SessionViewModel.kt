@@ -49,7 +49,7 @@ data class SetEntry(
     }
 }
 
-enum class SessionDialog { FINISH, DISCARD }
+enum class SessionDialog { FINISH, DISCARD, CLEAR_EXERCISE }
 data class SessionUiState(
     val isLoading: Boolean = true,
     val session: Session? = null,
@@ -59,6 +59,7 @@ data class SessionUiState(
     val error: Int? = null,
     val message: Int? = null,
     val dialog: SessionDialog? = null,
+    val clearExerciseId: Long? = null,
     val remainingSeconds: Long? = null,
     val exitReady: Boolean = false,
 ) {
@@ -224,6 +225,36 @@ class SessionViewModel @Inject constructor(
     }
 
     fun skipRest() = operation { state.value.session?.let { repository.skipRest(it.id) } }
+
+    fun requestClearExercise(id: Long) {
+        if (!state.value.busy && state.value.session?.exercises?.any { it.id == id } == true) {
+            state.update { it.copy(dialog = SessionDialog.CLEAR_EXERCISE, clearExerciseId = id, error = null) }
+        }
+    }
+    fun confirmClearExercise() = operation {
+        val id = state.value.clearExerciseId ?: return@operation
+        val exercise = state.value.session?.exercises?.firstOrNull { it.id == id } ?: return@operation
+        val setIds = exercise.sets.map { it.id }.toSet()
+        setIds.forEach { debounces.remove(it)?.cancel() }
+        // Nenhuma emissão anterior ao commit poderá repor checks ou valores apagados.
+        observing?.cancelAndJoin()
+        observing = null
+        try {
+            check(repository.clearExerciseSets(id)) { "O exercício não pertence a um rascunho." }
+            state.update { current ->
+                current.copy(
+                    session = current.session?.copy(exercises = current.session.exercises.map { ex ->
+                        if (ex.id != id) ex else ex.copy(sets = ex.sets.map { it.copy(
+                            weightKg = null, reps = null, durationSeconds = null, isCompleted = false) })
+                    }),
+                    entries = current.entries.mapValues { (setId, entry) ->
+                        if (setId !in setIds) entry else SetEntry(revision = entry.revision + 1, savedRevision = entry.revision + 1)
+                    },
+                    dialog = null, clearExerciseId = null, error = null, message = R.string.exercise_cleared,
+                )
+            }
+        } finally { observe() }
+    }
     fun back() = operation {
         cancelDebounces()
         if (flush()) state.update { it.copy(exitReady = true) }
@@ -253,7 +284,7 @@ class SessionViewModel @Inject constructor(
     }
     fun confirmFinish() = operation { cancelDebounces(); finish() }
     fun requestDiscard() { if (!state.value.busy) state.update { it.copy(dialog = SessionDialog.DISCARD) } }
-    fun dismissDialog() { if (!state.value.busy) state.update { it.copy(dialog = null) } }
+    fun dismissDialog() { if (!state.value.busy) state.update { it.copy(dialog = null, clearExerciseId = null) } }
     fun confirmDiscard() = operation {
         cancelDebounces()
         val id = state.value.session?.id ?: return@operation

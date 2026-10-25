@@ -265,6 +265,54 @@ class SessionRepositoryTest {
         assertEquals(listOf(last.id, first.id), sessions.observeHistory().first().map { it.id })
     }
 
+    @Test fun clearAffectsOnlySelectedOccurrenceAndPreservesRestPlanAndHistory() = runBlocking {
+        val before = start()
+        val weight = before.exercises[0]
+        sessions.saveSetAndSetCompleted(weight.sets[0].id, SetValues(0.0, 0), true)
+        sessions.addSet(weight.id)
+        sessions.saveSetAndSetCompleted(before.exercises[1].sets[0].id, SetValues(durationSeconds = 45), true)
+        val populated = draft()
+        val plan = plans.observePlan(planId).first()
+        assertTrue(sessions.clearExerciseSets(weight.id))
+        assertTrue(sessions.clearExerciseSets(weight.id))
+        val cleared = draft()
+        assertEquals(populated.restTimer, cleared.restTimer)
+        assertEquals(populated.exercises[0].sets.map { it.id }, cleared.exercises[0].sets.map { it.id })
+        assertEquals(populated.exercises[1], cleared.exercises[1])
+        assertTrue(cleared.exercises[0].sets.all { it.weightKg == null && it.reps == null && !it.isCompleted })
+        assertEquals(plan, plans.observePlan(planId).first())
+        sessions.finishSession(before.id)
+        val completed = sessions.observeSession(before.id).first()
+        assertFalse(sessions.clearExerciseSets(before.exercises[1].id))
+        assertFalse(sessions.clearExerciseSets(Long.MAX_VALUE))
+        assertEquals(completed, sessions.observeSession(before.id).first())
+    }
+
+    @Test fun failedClearRollsBackAllSets() = runBlocking {
+        val before = start()
+        val exercise = before.exercises[0]
+        exercise.sets.forEach { sessions.updateSetValues(it.id, SetValues(12.5, 0)) }
+        val snapshot = draft()
+        db.openHelper.writableDatabase.execSQL("""CREATE TRIGGER fail_clear BEFORE UPDATE ON session_sets
+            WHEN OLD.session_exercise_id = ${exercise.id} AND OLD.position = 1
+            BEGIN SELECT RAISE(ABORT, 'clear failure'); END""")
+        assertTrue(runCatching { sessions.clearExerciseSets(exercise.id) }.isFailure)
+        assertEquals(snapshot, draft())
+        db.openHelper.writableDatabase.execSQL("DROP TRIGGER fail_clear")
+        assertTrue(sessions.clearExerciseSets(exercise.id))
+    }
+
+    @Test fun newPrescriptionsDoNotModifyAlreadyStartedSnapshots() = runBlocking {
+        val snapshot = start()
+        val prescription = plans.observePlan(planId).first()!!.workouts.single().exercises[0]
+        plans.updateWorkoutExercise(prescription.id, ExerciseTarget.Repetitions(3, 0, 10, Duration.ofSeconds(37)))
+        assertEquals(snapshot, draft())
+        sessions.discardSession(snapshot.id)
+        val next = start()
+        assertEquals(0, next.exercises[0].target.repMin)
+        assertEquals(37L, next.exercises[0].target.rest.seconds)
+    }
+
     private class MutableClock(var now: Instant = Instant.parse("2026-10-22T12:00:00Z")) : Clock() {
         override fun instant() = now
         override fun getZone(): ZoneId = ZoneOffset.UTC
