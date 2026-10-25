@@ -207,4 +207,16 @@ class BackupEngineTest {
         assertTrue(runCatching { summary(t) }.isFailure)
         assertEquals(before, sessions.observeDraft().first())
     }
+    @Test fun previousJournalCannotBeReportedAsSuccessfulNewImport() = runBlocking {
+        fixture(); val t = exported(BackupMode.FULL)
+        preferences.setThemeMode(ThemeMode.LIGHT)
+        val old = token()
+        db.withTransaction {
+            db.openHelper.writableDatabase.execSQL("INSERT INTO restore_journal(id,operation_id,undo_sha256,phase,protocol_version) VALUES (1,?,'old','COMMITTED',1)", arrayOf(old))
+        }
+        assertTrue(runCatching { engine.restore(t) }.isFailure)
+        assertEquals(ThemeMode.LIGHT, preferences.snapshot().settings.themeMode)
+        engine.recover()
+        assertEquals(PersistencePhase.READY, coordinator.phase.value)
+    }
 }

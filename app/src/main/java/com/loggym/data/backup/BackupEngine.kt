@@ -92,6 +92,7 @@ class BackupEngine @Inject constructor(
         val source = file(token, "import")
         validate(source, token)
         return coordinator.restore {
+            check(journal() == null) { "Conclua a recuperação anterior antes de restaurar outro arquivo" }
             val undo = file(token, "undo")
             try {
                 snapshot(undo, BackupMode.FULL, undo = true)
@@ -121,6 +122,7 @@ class BackupEngine @Inject constructor(
                 // Cancelamento também deve concluir a reversão antes de liberar o estado normal.
                 withContext(NonCancellable) {
                     val entry = journal()
+                    check(entry == null || entry.token == token) { "Outra recuperação está pendente" }
                     if (entry?.phase == "APPLYING") rollback(entry)
                     if (entry?.phase == "COMMITTED") { cleanup(); true }
                     else { cleanup(); undo.delete(); false }
