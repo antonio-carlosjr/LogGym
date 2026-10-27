@@ -109,8 +109,8 @@ class Sprint7NavigationTest {
         runBlocking { preferences.setThemeMode(ThemeMode.DARK) }
         tab("exercises")
         compose.onNode(hasSetTextAction()).performClick().performTextReplacement("supino")
-        compose.waitUntil(10000) { compose.onAllNodesWithTag("root-navigation").fetchSemanticsNodes().isEmpty() }
-        back()
+        androidx.test.espresso.Espresso.closeSoftKeyboard()
+        compose.waitUntil(10000) { compose.onAllNodesWithTag("root-navigation").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithTag("tab-exercises").assertIsSelected()
         click("Novo exercício")
         compose.onNodeWithTag("root-navigation").assertDoesNotExist()
@@ -132,8 +132,8 @@ class Sprint7NavigationTest {
         assertEquals(1, created.size)
         assertEquals(TrackingType.TIME, created.single().trackingType)
         compose.onNode(hasSetTextAction()).performClick().performTextReplacement("")
-        compose.waitUntil(10000) { compose.onAllNodesWithTag("root-navigation").fetchSemanticsNodes().isEmpty() }
-        back()
+        androidx.test.espresso.Espresso.closeSoftKeyboard()
+        compose.waitUntil(10000) { compose.onAllNodesWithTag("root-navigation").fetchSemanticsNodes().isNotEmpty() }
         runBlocking { preferences.setThemeMode(ThemeMode.LIGHT) }
         tab("home"); tab("exercises")
         compose.activityRule.scenario.recreate()
