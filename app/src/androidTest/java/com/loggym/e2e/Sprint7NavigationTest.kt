@@ -109,6 +109,7 @@ class Sprint7NavigationTest {
         runBlocking { preferences.setThemeMode(ThemeMode.DARK) }
         tab("exercises")
         compose.onNode(hasSetTextAction()).performClick().performTextReplacement("supino")
+        compose.waitUntil(10000) { compose.onAllNodesWithTag("root-navigation").fetchSemanticsNodes().isEmpty() }
         back()
         compose.onNodeWithTag("tab-exercises").assertIsSelected()
         click("Novo exercício")
@@ -131,13 +132,20 @@ class Sprint7NavigationTest {
         assertEquals(1, created.size)
         assertEquals(TrackingType.TIME, created.single().trackingType)
         compose.onNode(hasSetTextAction()).performClick().performTextReplacement("")
+        compose.waitUntil(10000) { compose.onAllNodesWithTag("root-navigation").fetchSemanticsNodes().isEmpty() }
         back()
         runBlocking { preferences.setThemeMode(ThemeMode.LIGHT) }
         tab("home"); tab("exercises")
         compose.activityRule.scenario.recreate()
         awaitTab("exercises")
-        click("Prancha compartilhada S7")
-        click("Fechar")
+        compose.waitUntil(15000) {
+            val lists = compose.onAllNodes(hasScrollAction())
+            repeat(lists.fetchSemanticsNodes().size) { i ->
+                runCatching { lists[i].performScrollToNode(hasText("Prancha compartilhada S7")) }
+            }
+            compose.onAllNodesWithText("Prancha compartilhada S7").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText("Prancha compartilhada S7").assertIsDisplayed()
         compose.onNode(hasSetTextAction()).assert(SemanticsMatcher.expectValue(
             androidx.compose.ui.semantics.SemanticsProperties.EditableText, androidx.compose.ui.text.AnnotatedString("")))
     }

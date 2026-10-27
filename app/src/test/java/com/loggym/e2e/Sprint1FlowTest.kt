@@ -1,5 +1,6 @@
 package com.loggym.e2e
 
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.performScrollTo
@@ -78,6 +79,11 @@ class Sprint1FlowTest {
         waitForText("Plano ativo")
 
         // A home lista as divisões do plano ativo e inicia o treino (RF-58).
+        // O plano pode aparecer antes de o comando liberar a navegação da raiz.
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            composeRule.mainClock.advanceTimeByFrame()
+            composeRule.onAllNodes(hasTestTag("tab-home") and isEnabled()).fetchSemanticsNodes().isNotEmpty()
+        }
         composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         waitForText("Escolha a divisão de hoje")
         waitForText("Full Body C")
