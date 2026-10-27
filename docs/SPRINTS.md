@@ -113,8 +113,17 @@ O responsável confirmou a aprovação individual, incluindo o refinamento visua
 
 Alternativa A autorizada: **27 pontos e 12 de reserva**, áreas técnicas Dev 1: 9; Dev 2: 10; Dev 3: 8. Histórico paginado por identidade/tipo em painel sobre a execução; automação opcional desativada por padrão, após edição efetiva e conclusão intencional. Backup público vigente v2, sem importação pública v1; recuperação privada de undo S5 pendente preservada. Room permanece v3, sem migração ou redefinição dos dados locais.
 
-Ver [implementação](S6-IMPLEMENTACAO.md), [decisão técnica](decisoes/S6-execucao.md) e [homologação individual aprovada; reteste visual pendente](HOMOLOGACAO-S6.md). Codex entrega PR; responsável homologa e faz merge manualmente no GitHub. Sem navegação inferior ou release nesta entrega.
+Ver [implementação](S6-IMPLEMENTACAO.md), [decisão técnica](decisoes/S6-execucao.md) e [homologação individual final aprovada](HOMOLOGACAO-S6.md). Codex entrega PR; responsável homologa e faz merge manualmente no GitHub. Sem navegação inferior ou release nesta entrega.
 
 ## Proposta posterior — navegação principal inferior
 
 [UX-NAV-01](BACKLOG-UX.md#ux-nav-01--navegação-principal-inferior) fica candidata à **Sprint 7**, fora da S6/reserva, sem execução autorizada. Referência revisada: 13 pontos (anterior: 11). Decisões confirmadas: cinco abas e Voltar das raízes para Início; integrar estados/insets e testar invalidação das pilhas salvas após restauração antes de executar.
+
+
+## Sprint 7 — navegação e usabilidade autorizadas
+
+Plano B aprovado em 25/10/2026: 33 pontos e 6 de reserva (referência 39). S7-01 contratos 3; S7-02 navegação 5; S7-03 estado/gerações 5; S7-04 linhas 5; S7-05 adaptação/acessibilidade 3; S7-06 padronização 5; S7-07 microinterações 2; S7-08 regressão/documentação 5. Dev 1: 10; Dev 2: 10; Dev 3: 13 — responsabilidades técnicas, não disponibilidade simultânea.
+
+Cinco raízes com rótulo Ajustes/título Configurações, séries em linhas e remoção direta. Sem alterações de dados/formato. [Contratos](decisoes/S7-usabilidade.md), [resultados](S7-IMPLEMENTACAO.md) e [homologação pendente](HOMOLOGACAO-S7.md). A candidatura UX-NAV-01 anterior foi incorporada a este compromisso. S6 integrada/homologada individualmente, inclusive refinamento final, conforme contexto do responsável; registros históricos preservados.
+
+Reserva para correções; não incorporar estatísticas, kg/lb, distância, fotos ou preferências por exercício. Codex implementa/testa/revisa e entrega PR; responsável homologa e faz merge manualmente.

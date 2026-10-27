@@ -29,16 +29,18 @@ class Sprint3FlowTest {
 
     @Before fun setup() {
         hilt.inject()
+        // A recuperação inicial deve liberar a UI antes de preparar dados do cenário.
+        waitFor("Bem-vindo ao LogGym")
         // Cadastro por tempo já é coberto pelo TimedExerciseFlowTest; aqui reutilizamos a biblioteca.
         runBlocking { exercises.createCustom(ExerciseDraft("Prancha S3", trackingType = TrackingType.TIME)) }
     }
 
     @Test fun onboardingMixedPartialSessionHistoryAndReadOnlyDetail() {
         click("Criar plano personalizado")
-        click("Voltar")
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
         click("Histórico")
         waitFor("Você ainda não finalizou nenhum treino.")
-        click("Voltar")
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
         click("Planos")
         click("Novo plano")
         type("Meu plano S3")
@@ -57,8 +59,8 @@ class Sprint3FlowTest {
         click("Prancha S3")
         click("Usar padrão (3 × 30 s, 1:30)")
         click("Salvar")
-        click("Voltar")
-        click("Voltar")
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
         click("Iniciar")
         waitFor("Carga (kg)")
         compose.onAllNodesWithText("Carga (kg)").onFirst().performTextInput("0")

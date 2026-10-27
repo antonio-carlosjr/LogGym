@@ -49,7 +49,7 @@ class Sprint6FlowTest {
     @Test fun optionalAutomationHistoryAndClearPreserveWorkoutAndRest() {
         click("Pular por enquanto"); click("Configurações")
         compose.onNodeWithText("Concluir séries automaticamente").assertIsOff()
-        click("Concluir séries automaticamente"); click("Voltar"); click("Retomar")
+        click("Concluir séries automaticamente"); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); click("Retomar")
         field("Repetições", 0).performImeAction()
         assertEquals(0, draft().completedSetCount)
         field("Carga (kg)", 0).performTextReplacement("22,5")

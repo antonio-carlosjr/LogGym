@@ -11,6 +11,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.loggym.ui.theme.LogGymSpacing
+import com.loggym.ui.components.LoadingState
+import com.loggym.ui.components.EmptyState
 import com.loggym.R
 import com.loggym.domain.model.summary
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,9 +29,9 @@ fun ExerciseHistorySheet(name: String, state: ExerciseHistoryUiState, onClose: (
             Text(stringResource(R.string.exercise_history_title, name), Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.titleLarge)
             IconButton(onClick = onClose) { Icon(Icons.Filled.Close, stringResource(R.string.exercise_history_close)) }
         }
-        LazyColumn(Modifier.fillMaxWidth().weight(1f, fill = false), contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (state.entries.isEmpty() && !state.loading && !state.failed) item { Text(stringResource(R.string.exercise_history_empty)) }
+        LazyColumn(Modifier.fillMaxWidth().weight(1f, fill = false), contentPadding = PaddingValues(LogGymSpacing.screen),
+            verticalArrangement = Arrangement.spacedBy(LogGymSpacing.medium)) {
+            if (state.entries.isEmpty() && !state.loading && !state.failed) item { EmptyState(stringResource(R.string.exercise_history_empty)) }
             state.entries.forEachIndexed { sessionIndex, entry ->
                 if (sessionIndex > 0) item(key = "divider-${entry.session.id}") {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -48,14 +51,14 @@ fun ExerciseHistorySheet(name: String, state: ExerciseHistoryUiState, onClose: (
                     }
                     occurrence.sets.forEachIndexed { number, set ->
                         item(key = "set-${set.id}") { Card(Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.extraSmall)) {
                                 HistorySetContent(number + 1, set, occurrence.trackingType)
                             }
                         } }
                     }
                 }
             }
-            if (state.loading) item { CircularProgressIndicator() }
+            if (state.loading) item { LoadingState() }
             if (state.failed) item { HistoryError(onRetry) }
             else if (!state.loading && state.nextCursor != null) item {
                 TextButton(onClick = onMore) { Text(stringResource(R.string.exercise_history_more)) }

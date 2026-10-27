@@ -1,5 +1,10 @@
 package com.loggym.ui.exercises
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
+import com.loggym.ui.navigation.RootNavigationLock
+
 import com.loggym.ui.components.LoadError
 import com.loggym.ui.components.OperationError
 import com.loggym.R
@@ -7,7 +12,6 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,14 +41,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.loggym.ui.theme.LogGymSpacing
+import com.loggym.ui.components.LoadingState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.loggym.domain.model.TrackingType
@@ -58,6 +62,8 @@ import com.loggym.ui.components.labels
 @Composable
 fun ExerciseLibraryScreen(
     onBack: () -> Unit,
+    onCreateExercise: () -> Unit,
+    showBack: Boolean = true,
     viewModel: ExerciseLibraryViewModel = hiltViewModel(),
 ) {
     val resources = LocalResources.current
@@ -66,12 +72,15 @@ fun ExerciseLibraryScreen(
     val allExercises by viewModel.allExercises.collectAsStateWithLifecycle()
     val dialog by viewModel.dialog.collectAsStateWithLifecycle()
 
+    val busy by viewModel.busy.collectAsStateWithLifecycle()
+    RootNavigationLock(busy || dialog != null || operationFailed)
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(resources.getString(R.string.ui_exercicios)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    if (showBack) IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = resources.getString(R.string.back))
                     }
                 },
@@ -79,7 +88,7 @@ fun ExerciseLibraryScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = viewModel::openCreate,
+                onClick = onCreateExercise,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text(resources.getString(R.string.ui_novo_exercicio)) },
                 // O FAB estendido limpa a semântica do rótulo; sem isto o leitor de tela não anuncia a ação.
@@ -105,14 +114,12 @@ fun ExerciseLibraryScreen(
             MuscleGroupFilterRow(selected = state.groupFilter, onSelect = viewModel::onGroupFilterChange)
             HorizontalDivider()
             if (operationFailed) OperationError(viewModel::dismissError)
-            if (state.failed) LoadError(viewModel::retry)
+            if (state.isLoading) com.loggym.ui.components.LoadingState(Modifier.padding(horizontal = LogGymSpacing.screen))
+            if (state.failed) androidx.compose.foundation.layout.Box(Modifier.padding(horizontal = LogGymSpacing.screen)) { LoadError(viewModel::retry) }
 
             if (!state.isLoading && !state.failed && state.exercises.isEmpty()) {
-                Text(
-                    resources.getString(R.string.ui_nenhum_exercicio_encontrado),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(16.dp),
-                )
+                com.loggym.ui.components.EmptyState(resources.getString(R.string.ui_nenhum_exercicio_encontrado),
+                    Modifier.padding(horizontal = LogGymSpacing.screen))
             }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -155,7 +162,7 @@ private fun MuscleGroupFilterRow(selected: MuscleGroup?, onSelect: (MuscleGroup?
     val resources = LocalResources.current
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.small),
     ) {
         item {
             FilterChip(selected = selected == null, onClick = { onSelect(null) }, label = { Text(resources.getString(R.string.ui_todos)) })
@@ -209,7 +216,7 @@ private fun ExerciseDetailsDialog(
         text = {
             Column(
                 Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(LogGymSpacing.medium),
             ) {
                 Text(
                     if (exercise.isCustom) resources.getString(R.string.ui_exercicio_personalizado) else resources.getString(R.string.ui_exercicio_nativo),

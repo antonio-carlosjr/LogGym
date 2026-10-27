@@ -85,12 +85,12 @@ fun LogGymApp(onThemeApplied: (Boolean) -> Unit = {}, viewModel: AppViewModel = 
                             // Libera também os stores das rotas antigas e seus participantes de flush.
                             // Rotação sem troca de geração conserva a pilha normalmente.
                             if (viewModel.persistence.generation.value != navigationGeneration) {
-                                controller.popBackStack(controller.graph.id, inclusive = true)
+                                controller.clearRootStacks()
                             }
                         }
                     }
                     LogGymNavHost(startDestination = if (generation > 0) HomeRoute else destination,
-                        navController = controller,
+                        navController = controller, navigationEnabled = phase == PersistencePhase.READY,
                         openSettings = settingsAfterRestore, onSettingsOpened = viewModel::consumedSettings)
                 } }
             }

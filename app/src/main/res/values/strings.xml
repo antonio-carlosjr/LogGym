@@ -236,4 +236,7 @@
     <string name="clear_exercise_help">Os valores e as marcações deste exercício serão apagados. As séries e o descanso atual serão mantidos. O plano e o histórico não serão alterados.</string>
     <string name="clear_action">Limpar</string>
     <string name="exercise_cleared">Séries do exercício limpas.</string>
+    <string name="nav_home">Início</string>
+    <string name="nav_settings">Ajustes</string>
+    <string name="loading">Carregando…</string>
 </resources>

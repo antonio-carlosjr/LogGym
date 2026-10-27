@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun BackupSection(state: BackupState, enabled: Boolean, export: (BackupMode) -> Unit,
-    write: (String, String?) -> Unit, import: (String) -> Unit, confirm: (String) -> Unit, cancel: () -> Unit) {
+    write: (String, String?) -> Unit, import: (String) -> Unit, confirm: (String) -> Unit, cancel: () -> Unit, onNavigationLock: (Boolean) -> Unit = {}) {
     var chooseMode by rememberSaveable { mutableStateOf(false) }
     var showInfo by rememberSaveable { mutableStateOf(false) }
     var destinationToken by rememberSaveable { mutableStateOf<String?>(null) }
@@ -45,6 +45,7 @@ fun BackupSection(state: BackupState, enabled: Boolean, export: (BackupMode) -> 
         }
     }
     val locked = state.busy || state.step in setOf(BackupStep.DESTINATION, BackupStep.PREVIEW) || importPicker
+    SideEffect { onNavigationLock(locked || chooseMode || showInfo) }
     BackHandler(locked) { if (!state.busy && !importPicker && state.step != BackupStep.DESTINATION) cancel() }
     HorizontalDivider()
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

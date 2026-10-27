@@ -2,6 +2,7 @@ package com.loggym.ui.exercises
 
 import com.loggym.ui.util.UiOperation
 import kotlinx.coroutines.flow.*
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.loggym.domain.model.TrackingType
@@ -53,6 +54,7 @@ enum class EditorError { BLANK_NAME, DUPLICATE_NAME, NOT_EDITABLE }
 class ExerciseLibraryViewModel @Inject constructor(
     private val repository: ExerciseRepository,
     private val persistence: com.loggym.domain.backup.PersistenceCoordinator = com.loggym.domain.backup.PersistenceCoordinator(),
+    private val savedState: SavedStateHandle,
 ) : ViewModel() {
     private val operations = UiOperation(viewModelScope, persistence)
     val busy = operations.busy
@@ -60,8 +62,8 @@ class ExerciseLibraryViewModel @Inject constructor(
     fun dismissError() = operations.dismissError()
 
 
-    private val query = MutableStateFlow("")
-    private val groupFilter = MutableStateFlow<MuscleGroup?>(null)
+    private val query = savedState.getStateFlow("library-query", "")
+    private val groupFilter = savedState.getStateFlow<String?>("library-group", null)
 
     private val refresh = MutableStateFlow(0)
     private val source: StateFlow<ExerciseLibraryUiState> = refresh.flatMapLatest {
@@ -74,7 +76,7 @@ class ExerciseLibraryViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val uiState: StateFlow<ExerciseLibraryUiState> = combine(source, query, groupFilter) { source, query, group ->
-        source.copy(query = query, groupFilter = group, exercises = filterExercises(source.exercises, query, group))
+        source.copy(query = query, groupFilter = group?.let(MuscleGroup::fromKey), exercises = filterExercises(source.exercises, query, group?.let(MuscleGroup::fromKey)))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ExerciseLibraryUiState())
     fun retry() { refresh.update { it + 1 } }
 
@@ -82,11 +84,11 @@ class ExerciseLibraryViewModel @Inject constructor(
     val dialog: StateFlow<ExerciseDialog?> = _dialog.asStateFlow()
 
     fun onQueryChange(value: String) {
-        query.value = value
+        savedState["library-query"] = value
     }
 
     fun onGroupFilterChange(group: MuscleGroup?) {
-        groupFilter.value = group
+        savedState["library-group"] = group?.key
     }
 
     fun openDetails(exercise: Exercise) {

@@ -440,3 +440,15 @@ Refinamento aprovado em 25/10/2026. Regras e limites na [decisão S5](docs/decis
 | RF-162 | Preferência persistente de conclusão automática, desativada por padrão. Uma alteração efetiva basta; todos os valores aplicáveis devem estar preenchidos/válidos. Concluído ou foco em outra série podem concluir; pré-preenchimento, blur, histórico, debounce e ciclo de vida não. Desmarcação exige nova edição; duplicações/limpeza não podem produzir check/reinício indevido. |
 
 Refinamento de RF-154 a RF-160: formato público vigente v2, com preferência automática obrigatória booleana. Sem leitor público v1/conversão; versões incompatíveis são rejeitadas antes de modificar dados. Adaptador privado de undo v1 existe apenas para recuperação de journal S5 pendente, com SHA validado. Manter integralmente os limites, validações, substituição e recuperação entre Room/DataStore. Room v3 e dados locais existentes permanecem preservados. [Decisão S6](docs/decisoes/S6-execucao.md).
+
+
+## 26. Navegação e usabilidade — Sprint 7
+
+| ID | Requisito |
+| --- | --- |
+| RF-163 | Cinco raízes com seleção por rota, estado de busca/filtro/rolagem recuperável, Voltar secundário ao Início, barra somente nas raízes sem IME; bloqueios de operações/SAF e descarte de todas as pilhas/ViewModels na substituição da geração. |
+| RF-164 | Execução com linhas agrupadas por exercício, campos adaptativos com identidade/foco preservados, alvos ≥48 dp, ações diretas e avisos explícitos; sem alterar comandos S6, descanso ou persistência. |
+| RF-165 | Hierarquia, espaçamentos, superfícies e estados de carregamento/vazio/erro consistentes, preservando temas, cores dinâmicas, formatos históricos e acessibilidade. |
+| RF-166 | Fade de 120 ms apenas entre raízes e cor de conclusão em 150 ms, respeitando escala de movimento, sem bloquear comandos nem efeitos adicionais em recuperação. |
+
+Plano B aprovado: 33 pontos e 6 de reserva; [contratos](docs/decisoes/S7-usabilidade.md). Estatísticas e demais expansões permanecem fora desta entrega.
