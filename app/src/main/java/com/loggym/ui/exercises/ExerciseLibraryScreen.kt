@@ -62,6 +62,7 @@ import com.loggym.ui.components.labels
 @Composable
 fun ExerciseLibraryScreen(
     onBack: () -> Unit,
+    onCreateExercise: () -> Unit,
     showBack: Boolean = true,
     viewModel: ExerciseLibraryViewModel = hiltViewModel(),
 ) {
@@ -87,7 +88,7 @@ fun ExerciseLibraryScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = viewModel::openCreate,
+                onClick = onCreateExercise,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text(resources.getString(R.string.ui_novo_exercicio)) },
                 // O FAB estendido limpa a semântica do rótulo; sem isto o leitor de tela não anuncia a ação.

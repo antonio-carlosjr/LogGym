@@ -21,3 +21,12 @@
 | Densidade | Comparar referência S6/S7 em 360×800 dp, fonte padrão, seis séries de carga sem erros: bloco ≤80% da altura anterior. Fonte ampliada prioriza legibilidade. |
 
 Recuperação/rollback em fronteiras controladas são complementados pelos testes de engine e navegação; não corromper banco real. Usar AVD/instalação isolada para importação, que substitui todos os dados. Pendências anteriores de assinatura definitiva/custódia e ensaio permanecem separadas.
+
+## Reteste de consistência do cadastro — pendente
+
+- Plano novo e plano existente: adicionar exercício → cadastrar → salvar. Conferir retorno à mesma divisão/seletor, pesquisa pelo nome criado e ausência de inclusão automática; selecionar e prescrever normalmente.
+- Aba Exercícios: Novo exercício abre a mesma tela. Salvar retorna à biblioteca; busca anterior não é trocada pelo nome criado. Com busca/filtro limpos, conferir o novo item e sair/retornar à aba.
+- Em ambas as origens: Cancelar/Voltar não cadastra, preserva contexto e fecha primeiro o fluxo interno; repetir salvamento não duplica cadastro/retorno. Conferir recriação e ambos os tipos de exercício.
+- Conferir temas claro/escuro, teclado, rótulos e ausência da barra inferior na tela de cadastro. Edição de exercício existente continua no diálogo atual.
+
+Automação não constitui aprovação humana destes cenários. Não alterar os aceites/pendências anteriores.

@@ -43,3 +43,9 @@ Room v3 e backup público v2 preservados, sem migração, nova preferência ou c
 ## Entrega
 
 Commits lógicos em português, testes pertinentes, revisão técnica e CI do HEAD final antes do relatório. Responsável homologa e faz merge manualmente. Sem auto-merge/release. Homologação individual final S6 informada no contexto fornecido pelo responsável para este planejamento; atualizar registros sem presumir aprovação coletiva ou testes humanos não relatados.
+
+## Consistência do cadastro — 26/10/2026
+
+A criação pela raiz Exercícios usa a mesma `ExerciseCreateRoute`/`ExerciseCreateScreen` do seletor do plano, com os mesmos campos, validação e `ExerciseCreateViewModel`. O diálogo de edição de exercícios existentes permanece. Não há nova tela, contrato de domínio ou mudança de persistência.
+
+O retorno usa a entrada anterior: somente `PlanEditorRoute` recebe `createdExerciseId`, mantendo a pesquisa pelo nome e a seleção/prescrição explícitas. A biblioteca observa o repositório e conserva sua busca/filtro sem receber esse resultado; um filtro já ativo pode ocultar o novo item até ser removido. Cancelar/Voltar não grava e retorna à origem. Admissão da navegação exige entrada atual retomada; callback de sucesso ignora entrada que já foi removida, evitando pop duplicado. Proteções de submissão existentes continuam no ViewModel.

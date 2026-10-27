@@ -57,6 +57,7 @@ class TimedExerciseFlowTest {
             id to plans.addWorkout(id, "Tempo A")
         }
         val libraryVm = retain(ExerciseLibraryViewModel(exercises, savedState = androidx.lifecycle.SavedStateHandle()))
+        val createVm = retain(ExerciseCreateViewModel(SavedStateHandle(), exercises))
         val editorVm = retain(PlanEditorViewModel(SavedStateHandle(mapOf("planId" to plan)), plans, exercises))
         var sessionVm: SessionViewModel? = null
         var finished = false
@@ -65,12 +66,13 @@ class TimedExerciseFlowTest {
             var stage by remember { mutableStateOf(0) }
             MaterialTheme {
                 when (stage) {
-                    0 -> ExerciseLibraryScreen(onBack = { stage = 1 }, viewModel = libraryVm)
+                    0 -> ExerciseLibraryScreen(onBack = { stage = 1 }, onCreateExercise = { stage = 4 }, viewModel = libraryVm)
                     1 -> PlanEditorScreen(onBack = {
                         runBlocking { sessions.startSession(workout) }
                         sessionVm = retain(SessionViewModel(sessions, clock))
                         stage = 2
                     }, onCreateExercise = { error("Cadastro contextual pertence ao Sprint4FlowTest") }, viewModel = editorVm)
+                    4 -> ExerciseCreateScreen(onBack = { stage = 0 }, onSaved = { stage = 0 }, viewModel = createVm)
                     2 -> SessionScreen(onBack = { finished = true; stage = 3 }, viewModel = sessionVm!!, historyViewModel = historyVm)
                 }
             }

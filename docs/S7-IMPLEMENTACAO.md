@@ -102,3 +102,17 @@ Uma repetição local encontrou também preparação do robô S3 concorrendo com
 
 
 Revalidação após esses ajustes: build/JVM/lint/APK instrumentado aprovados; **71/71 instrumentados em 320×640 dp, API 35**, incluindo o retorno ao Início/reabertura da biblioteca com contexto preservado. Rodada dirigida de navegação: 4/4, sem somar repetições à contagem da suíte. Log local `build/s7-compact-viewport-final.log`. CI do HEAD corrigido acompanhada no PR #16.
+
+## Ajuste de consistência do cadastro — 26/10/2026
+
+Solicitado pelo responsável antes da homologação/merge do PR #16. Partida `dca722b`, branch `feature/S7-01-navegacao-e-usabilidade`, limpa e sincronizada após `fetch`; commits e implementação anteriores preservados. `main` não foi modificada.
+
+A ação Novo exercício na aba Exercícios navega para a mesma `ExerciseCreateRoute`/`ExerciseCreateScreen` já usada pelo plano, reutilizando formulário, ViewModel, validação e persistência. O diálogo de edição de exercícios existentes permanece. Somente o editor do plano recebe `createdExerciseId` para preencher a busca do seletor; a biblioteca conserva busca/filtro e observa os dados salvos sem filtrar automaticamente pelo nome criado. Cancelar/Voltar não grava, e a navegação/sucesso são protegidos contra entrada repetida ou já removida. Nenhuma mudança em Room, DataStore, backup ou contratos de domínio.
+
+Cobertura: `Sprint4FlowTest` conserva plano novo/cadastro contextual; `Sprint7NavigationTest` acrescenta plano existente e biblioteca (retorno, busca, cancelamento, ausência de inclusão automática, persistência/recriação e temas claro/escuro); `TimedExerciseFlowTest` usa a mesma tela no harness, mantendo prescrição/execução por tempo. O teste existente `ExerciseCreateViewModelTest` mantém cobertura de falha, recriação e submissão única.
+
+Build debug, **193 JVM (zero falhas/erros/ignorados)**, lint (**0 erros/5 avisos existentes**) e APK instrumentado aprovados. Corrigido import da extensão `hasRoute` conforme a biblioteca atual durante compilação. O teste novo explicitou foco no campo antes de Voltar para testar fechamento de IME, sem confundir com retorno à Home; mantém todas as assertivas.
+
+Primeira suíte completa: 72/73 em AVD isolado API 37 `LogGymS6Test`; falha intermitente no teste existente `cancelPreviewPreservesSavedLibraryContextAndUnlocksTabs`, que observou a busca vazia ao reabrir. Repetição isolada passou (1/1). Nenhum teste ignorado nem regra de backup/navegação alterada para ocultar falha. Nova rodada completa e CI do HEAD serão informadas no PR. [Reteste humano](HOMOLOGACAO-S7.md) continua pendente; não há aceite coletivo, merge ou publicação de release.
+
+Revalidação local final do ajuste: **73/73 instrumentados aprovados** em API 37, incluindo os dois cenários novos; 121,121 s. Não somar repetições à contagem. Logs ignorados: `build/s7-shared-create-build.log`, `build/s7-shared-create-full.log` (primeira rodada), `build/s7-shared-create-cancel-retest.log` e `build/s7-shared-create-full-final.log`. Suíte anterior preservada; aprovação humana deste ajuste e resultado da CI do novo HEAD ficam separados e serão acompanhados no PR #16.

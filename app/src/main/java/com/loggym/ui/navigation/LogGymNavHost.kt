@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavBackStackEntry
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.Composable
@@ -106,7 +107,12 @@ fun LogGymNavHost(
             )
         } }
         composable<ExerciseLibraryRoute> { entry -> RootEntry(entry, locks) {
-            ExerciseLibraryScreen(onBack = { select(TopLevelDestination.HOME) }, showBack = false)
+            ExerciseLibraryScreen(onBack = { select(TopLevelDestination.HOME) }, showBack = false,
+                onCreateExercise = {
+                    if (navController.currentBackStackEntry == entry && entry.lifecycle.currentState == Lifecycle.State.RESUMED) {
+                        navController.navigate(ExerciseCreateRoute)
+                    }
+                })
         } }
         composable<PlansRoute> { entry -> RootEntry(entry, locks) {
             PlansScreen(
@@ -125,14 +131,20 @@ fun LogGymNavHost(
                 }
             }
             PlanEditorScreen(onBack = navigateBack, viewModel = viewModel, onCreateExercise = {
-                viewModel.suspendPicker()
-                navController.navigate(ExerciseCreateRoute)
+                if (navController.currentBackStackEntry == entry && entry.lifecycle.currentState == Lifecycle.State.RESUMED) {
+                    viewModel.suspendPicker()
+                    navController.navigate(ExerciseCreateRoute)
+                }
             })
         }
-        composable<ExerciseCreateRoute> {
+        composable<ExerciseCreateRoute> { entry ->
             ExerciseCreateScreen(onBack = navigateBack, onSaved = { id ->
-                navController.previousBackStackEntry?.savedStateHandle?.set("createdExerciseId", id)
-                navController.popBackStack()
+                // Only the plan picker consumes the result; the library keeps its own query/filter.
+                if (navController.currentBackStackEntry == entry) {
+                    navController.previousBackStackEntry?.takeIf { it.destination.hasRoute<PlanEditorRoute>() }
+                        ?.savedStateHandle?.set("createdExerciseId", id)
+                    navController.popBackStack()
+                }
             })
         }
         composable<SessionRoute> {
