@@ -21,6 +21,8 @@ import javax.inject.Inject
 import com.loggym.domain.backup.*
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.loggym.R
@@ -69,6 +71,7 @@ fun LogGymApp(onThemeApplied: (Boolean) -> Unit = {}, viewModel: AppViewModel = 
     SideEffect { onThemeApplied(dark) }
     LogGymTheme(darkTheme = dark) {
         BackHandler(phase in setOf(PersistencePhase.RESTORING, PersistencePhase.RECOVERING, PersistencePhase.BLOCKED)) {}
+        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
         Column(Modifier.fillMaxSize()) {
             if (state.failed || phase == PersistencePhase.BLOCKED) LoadError(viewModel::retry)
             if (phase in setOf(PersistencePhase.RESTORING, PersistencePhase.RECOVERING)) {
@@ -94,6 +97,7 @@ fun LogGymApp(onThemeApplied: (Boolean) -> Unit = {}, viewModel: AppViewModel = 
                         openSettings = settingsAfterRestore, onSettingsOpened = viewModel::consumedSettings)
                 } }
             }
+        }
         }
     }
 }

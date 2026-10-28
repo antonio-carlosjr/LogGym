@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="lg_light_bg">#F8F7F5</color>
+    <color name="lg_light_surface">#FFFFFF</color>
+    <color name="lg_light_text">#292B35</color>
+    <color name="lg_light_secondary">#646577</color>
+    <color name="lg_light_primary">#505F8C</color>
+    <color name="lg_light_outline">#DEDFE5</color>
+    <color name="lg_dark_bg">#191B25</color>
+    <color name="lg_dark_surface">#242735</color>
+    <color name="lg_dark_text">#EEEDF6</color>
+    <color name="lg_dark_secondary">#B5B5C7</color>
+    <color name="lg_dark_primary">#AAB7EB</color>
+    <color name="lg_dark_outline">#3C4056</color>
+</resources>
