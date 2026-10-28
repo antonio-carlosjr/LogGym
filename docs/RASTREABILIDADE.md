@@ -1,6 +1,6 @@
 # Rastreabilidade funcional do LogGym
 
-Estado da implementação até a Sprint 7. Os links de testes indicam cobertura por cenário/grupo, não necessariamente um teste exclusivo para cada RF. Resultados e limites estão nos registros S3/S4/S5 e em [S6-IMPLEMENTACAO](S6-IMPLEMENTACAO.md). Homologação individual final S6, incluindo refinamentos visuais, confirmada no contexto do planejamento S7. Homologação funcional individual S7 aprovada em 27/10/2026, conforme confirmação do responsável de que todos os testes manuais estão validados, incluindo o refinamento do cadastro. Integração concluída pelo PR #16 com CI pós-merge aprovada; evidências em [S7-IMPLEMENTACAO](S7-IMPLEMENTACAO.md).
+Estado da implementação até a Sprint 8; homologação humana S8 pendente. Os links de testes indicam cobertura por cenário/grupo, não necessariamente um teste exclusivo para cada RF. Resultados e limites estão nos registros S3/S4/S5 e em [S6-IMPLEMENTACAO](S6-IMPLEMENTACAO.md). Homologação individual final S6, incluindo refinamentos visuais, confirmada no contexto do planejamento S7. Homologação funcional individual S7 aprovada em 27/10/2026, conforme confirmação do responsável de que todos os testes manuais estão validados, incluindo o refinamento do cadastro. Integração concluída pelo PR #16 com CI pós-merge aprovada; evidências em [S7-IMPLEMENTACAO](S7-IMPLEMENTACAO.md).
 
 Fotos (RF-135), distância (parte de RF-136) e kg/lb (RF-139) permanecem pendentes. RF-53/RF-142 incorporam a S4; RF-80 tem padrão manual com automação opcional conforme RF-162. RF-148 preserva chaves/infraestrutura; mudanças de catálogo futuras exigem migração/testes próprios. Backup público vigente v2; v1 externo é rejeitado, sem remover recuperação privada de undo S5.
 
@@ -182,3 +182,12 @@ Na S6, RF-154/156/157/159 incluem a preferência no formato público v2 e no rol
 | RF-166 | Movimento curto e escala do sistema | LogGymNavHost, SessionSetRow | Sprint7NavigationTest, Sprint7SetLayoutTest com escala zero; roteiro humano S7 |
 
 Resultados reais e limitações em [S7-IMPLEMENTACAO](S7-IMPLEMENTACAO.md); [homologação individual S7](HOMOLOGACAO-S7.md) confirmada em 27/10/2026. Aprovação coletiva e pendências de release não são consideradas concluídas. S6 individual final aprovada conforme contexto fornecido no planejamento S7.
+
+## Acréscimos S8
+
+| RF | Entrega | Código | Evidência |
+| --- | --- | --- | --- |
+| RF-167 | Identidade A5, tema fixo, hierarquia e estados | LogGymTheme, recursos colors_loggym, Brand, VisualDefaults e telas | LogGymIdentityTest, testes Compose S8/S7, capturas antes/depois e homologação humana separada |
+| RF-168 | Launcher adaptativo/round/monochrome e arte preservada | Manifest e vetores/mipmaps Android A5 | LogGymIdentityTest API 26/33, renderização de máscaras/tamanhos e homologação humana |
+
+RF-163–166 continuam com contratos da S7, sem novas animações. [Resultados S8](S8-IMPLEMENTACAO.md); [roteiro manual](HOMOLOGACAO-S8.md) pendente, sem presumir TalkBack, launcher OEM ou publicação.

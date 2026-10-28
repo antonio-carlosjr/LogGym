@@ -215,3 +215,9 @@ Escopo autorizado: 27 pontos e 12 de reserva. [Implementação/resultados](docs/
 Entrega concluída: cinco abas (Início, Planos, Exercícios, Histórico e Ajustes), estado preservado entre raízes, linhas de séries adaptativas e padronização pontual. Barra ausente em fluxos internos e com teclado aberto. Restauração descarta pilhas/ViewModels da geração anterior. Microinterações: fade de 120 ms entre raízes e cor de conclusão em 150 ms, respeitando a escala do sistema. Room v3 e backup v2 preservados.
 
 Consulte [contratos](docs/decisoes/S7-usabilidade.md), [implementação/resultados](docs/S7-IMPLEMENTACAO.md) e [roteiro de homologação](docs/HOMOLOGACAO-S7.md). Homologação funcional individual S7 aprovada pelo responsável em 27/10/2026, incluindo o refinamento do cadastro. [PR #16](https://github.com/antonio-carlosjr/LogGym/pull/16) integrado à main em `01268ba2cf18c851fed698e58f0a3774b2ee850f`, com [CI pós-merge aprovada](https://github.com/antonio-carlosjr/LogGym/actions/runs/40427237509). Sem aprovação coletiva ou conclusão das pendências de release presumidas; nenhuma release publicada neste encerramento.
+
+## Sprint 8 — identidade A5 e consistência visual
+
+Identidade A5/Índigo técnico, paleta fixa com Sistema/Claro/Escuro, sem cores dinâmicas na interface e sem nova preferência. Launcher adaptativo com monochrome Android 13+, símbolo na Home e logotipo no onboarding; originais/proporções preservados. Tipografia padrão, tokens S7, ações adaptativas em planos e hierarquia de telas refinados. Sem mudanças em dados, backup ou regras do treino.
+
+[Decisão](docs/decisoes/S8-identidade-a5.md), [resultados e evidências](docs/S8-IMPLEMENTACAO.md), [homologação pendente](docs/HOMOLOGACAO-S8.md). 32 pontos/7 de reserva; nenhuma nova animação, estatística ou release. Responsável homologa e faz merge manualmente.

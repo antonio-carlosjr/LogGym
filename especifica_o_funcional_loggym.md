@@ -452,3 +452,12 @@ Refinamento de RF-154 a RF-160: formato público vigente v2, com preferência au
 | RF-166 | Fade de 120 ms apenas entre raízes e cor de conclusão em 150 ms, respeitando escala de movimento, sem bloquear comandos nem efeitos adicionais em recuperação. |
 
 Plano B aprovado: 33 pontos e 6 de reserva; [contratos](docs/decisoes/S7-usabilidade.md). Estatísticas e demais expansões permanecem fora desta entrega.
+
+## Refinamento de apresentação S8 — A5
+
+| RF | Requisito |
+| --- | --- |
+| RF-167 | A interface usa a identidade A5 e paleta Índigo técnico aprovada, preservando Sistema/Claro/Escuro, estados acessíveis e funcionalidades existentes. Cores dinâmicas não substituem a marca; não há nova preferência persistente. |
+| RF-168 | O launcher usa A5 adaptativo com camada monocromática própria, proporções/margens/escala aprovadas e recursos redondos. Mudança de escala exige aprovação. Marca interna restrita ao onboarding e Home. |
+
+[Contrato e limites S8](docs/decisoes/S8-identidade-a5.md). Refinamento visual, sem novas regras, Room/DataStore/backup ou animações. Homologação humana e release continuam separadas.

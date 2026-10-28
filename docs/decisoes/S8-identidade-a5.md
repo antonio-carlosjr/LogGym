@@ -29,3 +29,9 @@ Launcher adaptativo mantém paths, viewport, transformações, margem e escala o
 Sem novas animações: fade S7 120 ms, cor de conclusão 150 ms e Material nativo. Não alterar árvore/foco/IDs dos campos, eventos, tempos, mutexes, snapshots, navegação/gerações ou protocolos de dados. Room v3, DataStore e formato v2 intactos. Sem estatísticas, fotos, distância, kg/lb, modalidades ou regras novas.
 
 Capturas antes/depois das seis áreas e onboarding, claro/escuro, com mesma fixture/configuração, em AVD isolado; detalhes em S8-IMPLEMENTACAO. Revisão de cor/contraste e estados real, não homologação automática. Build/JVM/lint/instrumentados e CI do HEAD obrigatórios. Responsável homologa e faz merge manualmente; sem release/auto-merge.
+
+## Complementos finais e adaptação técnica
+
+Mantidos todos os complementos propostos após inspeção. Conteúdo dos containers usa texto aprovado; secondary usa texto secundário aprovado, tertiary compartilha primary (sem terceira cor de destaque). InverseSurface/InverseOnSurface trocam pares de texto/superfície claros/escuros; scrim preto. Erro claro: #B3261E / #FFFFFF, container #F9DEDC / #410E0B; escuro: #FFB4AB / #690005, container #93000A / #FFDAD6. Papéis fixed usam container claro #EAECF1, dim #DCDFE8, texto #292B35 e variante #505F8C em ambos os modos. São extensões técnicas, não alterações da paleta A5.
+
+Com minSdk26, mipmap-anydpi contém os adaptativos normal/round com foreground e monochrome próprios; o Android anterior à 33 ignora a camada opcional. Inflação verificada em API26/33. Dimensões intrínsecas adaptadas apenas para marca interna, com paths/viewport preservados; escala do launcher original intacta. [Resultados e evidências](../S8-IMPLEMENTACAO.md).
