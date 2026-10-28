@@ -33,6 +33,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -182,10 +183,11 @@ private fun MuscleGroupFilterRow(selected: MuscleGroup?, onSelect: (MuscleGroup?
 private fun ExerciseRow(exercise: Exercise, onClick: () -> Unit) {
     val resources = LocalResources.current
     ListItem(
+        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
         headlineContent = { Text(exercise.name) },
         supportingContent = {
             val groups = exercise.muscleGroups.labels()
-            if (groups.isNotEmpty()) Text(groups)
+            if (groups.isNotEmpty()) Text(groups, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         },
         trailingContent = {
             Text(

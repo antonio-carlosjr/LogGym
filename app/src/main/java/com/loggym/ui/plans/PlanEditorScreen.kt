@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -217,24 +218,19 @@ private fun PlanContent(plan: Plan, viewModel: PlanEditorViewModel, modifier: Mo
 @Composable
 private fun WorkoutCard(workout: Workout, isFirst: Boolean, isLast: Boolean, viewModel: PlanEditorViewModel) {
     val resources = LocalResources.current
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 4.dp, top = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(workout.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-            IconButton(onClick = { viewModel.moveWorkout(workout, -1) }, enabled = !isFirst) {
+    Card(modifier = Modifier.fillMaxWidth(), colors = com.loggym.ui.components.LogGymCardDefaults.colors()) {
+        com.loggym.ui.components.AdaptiveActionHeader(workout.name, 192.dp,
+            Modifier.padding(start = 16.dp, end = 4.dp, top = 8.dp)) {
+            IconButton(modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp), onClick = { viewModel.moveWorkout(workout, -1) }, enabled = !isFirst) {
                 Icon(Icons.Filled.KeyboardArrowUp, contentDescription = resources.getString(R.string.ui_mover_1_s_para_cima, workout.name))
             }
-            IconButton(onClick = { viewModel.moveWorkout(workout, +1) }, enabled = !isLast) {
+            IconButton(modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp), onClick = { viewModel.moveWorkout(workout, +1) }, enabled = !isLast) {
                 Icon(Icons.Filled.KeyboardArrowDown, contentDescription = resources.getString(R.string.ui_mover_1_s_para_baixo, workout.name))
             }
-            IconButton(onClick = { viewModel.openRenameWorkout(workout) }) {
+            IconButton(modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp), onClick = { viewModel.openRenameWorkout(workout) }) {
                 Icon(Icons.Filled.Edit, contentDescription = resources.getString(R.string.ui_renomear_1_s, workout.name))
             }
-            IconButton(onClick = { viewModel.requestDeleteWorkout(workout) }) {
+            IconButton(modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp), onClick = { viewModel.requestDeleteWorkout(workout) }) {
                 Icon(Icons.Filled.Delete, contentDescription = resources.getString(R.string.ui_excluir_1_s_2, workout.name))
             }
         }
@@ -272,26 +268,21 @@ private fun WorkoutExerciseRow(
 ) {
     val resources = LocalResources.current
     val target = item.target
-    ListItem(
-        headlineContent = { Text(item.exercise.name) },
-        supportingContent = {
-            Text("${target.summary()} · ${restLabel(target.rest.seconds)}")
-        },
-        trailingContent = {
-            Row {
-                IconButton(onClick = onMoveUp, enabled = !isFirst) {
-                    Icon(Icons.Filled.KeyboardArrowUp, contentDescription = resources.getString(R.string.ui_mover_1_s_para_cima, item.exercise.name))
-                }
-                IconButton(onClick = onMoveDown, enabled = !isLast) {
-                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = resources.getString(R.string.ui_mover_1_s_para_baixo, item.exercise.name))
-                }
-                IconButton(onClick = onRemove) {
-                    Icon(Icons.Filled.Delete, contentDescription = resources.getString(R.string.ui_remover_1_s, item.exercise.name))
-                }
+    Column(Modifier.fillMaxWidth().clickable(onClick = onEdit).padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp)) {
+        com.loggym.ui.components.AdaptiveActionHeader(item.exercise.name, 144.dp) {
+            IconButton(modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp), onClick = onMoveUp, enabled = !isFirst) {
+                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = resources.getString(R.string.ui_mover_1_s_para_cima, item.exercise.name))
             }
-        },
-        modifier = Modifier.clickable(onClick = onEdit),
-    )
+            IconButton(modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp), onClick = onMoveDown, enabled = !isLast) {
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = resources.getString(R.string.ui_mover_1_s_para_baixo, item.exercise.name))
+            }
+            IconButton(modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp), onClick = onRemove) {
+                Icon(Icons.Filled.Delete, contentDescription = resources.getString(R.string.ui_remover_1_s, item.exercise.name))
+            }
+        }
+        Text("${target.summary()} · ${restLabel(target.rest.seconds)}", style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
 }
 
 @Composable
