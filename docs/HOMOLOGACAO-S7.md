@@ -1,6 +1,10 @@
 # Homologação da Sprint 7
 
-**Pendente:** aprovação do plano não é homologação funcional. Registrar responsável, data real, commit/APK, dispositivo/API, configuração e evidência por cenário. Testes automatizados e inspeção técnica não são aceite humano. Merge manual pelo responsável, sem auto-merge/release.
+**Sprint 7 concluída — homologação funcional individual aprovada em 27/10/2026.** O responsável pelo projeto confirmou nesta conversa que realizou os testes manuais e que todos estão validados. O aceite abrange os grupos do roteiro abaixo e o reteste de consistência do cadastro. A evidência humana disponível é essa declaração; dispositivo/API, identificação exata do APK testado e capturas não foram informados e não são presumidos.
+
+**Integração técnica concluída:** [PR #16](https://github.com/antonio-carlosjr/LogGym/pull/16), integrado manualmente pelo responsável em 26/10/2026 (America/Sao_Paulo), merge `01268ba2cf18c851fed698e58f0a3774b2ee850f`. [CI pós-merge aprovada](https://github.com/antonio-carlosjr/LogGym/actions/runs/40427237509), com build, testes JVM, lint e instrumentados. A versão integrada é a referência do encerramento, sem atribuir um hash de APK ao teste humano.
+
+O aceite é individual, não coletivo. Assinatura definitiva/custódia, ensaio e publicação de release continuam separados, sem conclusão presumida. A validação dos cenários de acessibilidade da S7 não reescreve os registros históricos de verificações humanas anteriores.
 
 | Grupo | Verificação esperada |
 | --- | --- |
@@ -22,11 +26,11 @@
 
 Recuperação/rollback em fronteiras controladas são complementados pelos testes de engine e navegação; não corromper banco real. Usar AVD/instalação isolada para importação, que substitui todos os dados. Pendências anteriores de assinatura definitiva/custódia e ensaio permanecem separadas.
 
-## Reteste de consistência do cadastro — pendente
+## Reteste de consistência do cadastro — aprovado em 27/10/2026
 
 - Plano novo e plano existente: adicionar exercício → cadastrar → salvar. Conferir retorno à mesma divisão/seletor, pesquisa pelo nome criado e ausência de inclusão automática; selecionar e prescrever normalmente.
 - Aba Exercícios: Novo exercício abre a mesma tela. Salvar retorna à biblioteca; busca anterior não é trocada pelo nome criado. Com busca/filtro limpos, conferir o novo item e sair/retornar à aba.
 - Em ambas as origens: Cancelar/Voltar não cadastra, preserva contexto e fecha primeiro o fluxo interno; repetir salvamento não duplica cadastro/retorno. Conferir recriação e ambos os tipos de exercício.
 - Conferir temas claro/escuro, teclado, rótulos e ausência da barra inferior na tela de cadastro. Edição de exercício existente continua no diálogo atual.
 
-Automação não constitui aprovação humana destes cenários. Não alterar os aceites/pendências anteriores.
+Cenários aprovados pelo responsável conforme declaração de 27/10/2026. A homologação humana é independente da automação; aceites e pendências anteriores permanecem preservados.

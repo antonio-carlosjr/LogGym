@@ -48,7 +48,6 @@ class SessionScreenTest {
     private val clock = Clock.fixed(Instant.parse("2026-10-22T12:00:00Z"), ZoneOffset.UTC)
     private var left = false
     private val dark = mutableStateOf(false)
-    private val dynamic = mutableStateOf(false)
     private val fontScale = mutableStateOf(1f)
 
     @Before fun setup() = runBlocking {
@@ -69,7 +68,7 @@ class SessionScreenTest {
             var open by remember { mutableStateOf(true) }
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale.value)) {
-            LogGymTheme(darkTheme = dark.value, dynamicColor = dynamic.value) {
+            LogGymTheme(darkTheme = dark.value) {
                 if (open) SessionScreen(onBack = { left = true; open = false }, viewModel = vm, historyViewModel = historyVm)
                 else Button(onClick = { vm = retain(SessionViewModel(sessions, clock)); open = true }) { Text("Retomar teste") }
             }
@@ -144,11 +143,10 @@ class SessionScreenTest {
         completeSet(1)
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val output = File(context.getExternalFilesDir(null), "s3-preview").apply { mkdirs() }
-        for (mode in listOf("light", "dark", "dynamic-dark", "dynamic-large")) {
+        for (mode in listOf("light", "dark", "dark-large", "light-large")) {
             compose.runOnIdle {
                 dark.value = mode.contains("dark")
-                dynamic.value = mode.startsWith("dynamic")
-                fontScale.value = if (mode == "dynamic-large") 2f else 1f
+                fontScale.value = if (mode.endsWith("large")) 2f else 1f
             }
             compose.onNodeWithTag("rest-banner").assertIsDisplayed()
             compose.onNodeWithText("Pular").assertIsDisplayed()

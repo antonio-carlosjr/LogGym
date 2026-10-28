@@ -64,3 +64,11 @@ Histórico individual, marcação automática, compactação dos cards, pré-pre
 UX-NAV-01 incorporada ao plano B autorizado: cinco raízes, rótulo Ajustes/título Configurações, Voltar secundário ao Início, estado preservado e invalidação de pilhas após restauração. As recomendações iniciais acima ficam como histórico. Compromisso total S7: 33 pontos e 6 de reserva, incluindo linhas compactas, padronização pontual, duas microinterações e regressão. [Contrato vigente](decisoes/S7-usabilidade.md).
 
 Estatísticas candidatas à S8, internas à aba Histórico e sem sexta aba, dependem de planejamento próprio. Preferências por exercício, distância, kg/lb e fotos seguem separados.
+
+## Encerramento da entrega S7 — 27/10/2026
+
+UX-NAV-01 foi entregue na S7, integrada pelo PR #16 e homologada individualmente pelo responsável, incluindo o ajuste de cadastro compartilhado. [Evidências e limites](S7-IMPLEMENTACAO.md). As candidaturas e estimativas anteriores permanecem como histórico; demais itens do backlog não são automaticamente aprovados ou concluídos por este encerramento.
+
+## Priorização S8 — 27/10/2026
+
+A S8 foi destinada à identidade A5 e consistência visual (32 pontos/7 de reserva). Estatísticas, antes candidatas à S8, ficam para sprint posterior dentro de Histórico, sem sexta aba e sem execução autorizada. Novas animações de adição/remoção/deslocamento, biblioteca extensa de componentes e matriz ampliada de tablets não entram na reserva. Fotos, distância, kg/lb e preferências individuais continuam separados. [Escopo aprovado](decisoes/S8-identidade-a5.md).

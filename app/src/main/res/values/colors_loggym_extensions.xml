@@ -1,0 +1,35 @@
+<!-- S8 technical extensions; approved A5 base remains in colors_loggym.xml. -->
+<resources>
+    <color name="lg_light_primary_container">#EAECF1</color>
+    <color name="lg_light_secondary_container">#F1F2F6</color>
+    <color name="lg_light_container_low">#FCFCFD</color>
+    <color name="lg_light_container">#F8F9FA</color>
+    <color name="lg_light_container_high">#F5F5F8</color>
+    <color name="lg_light_container_highest">#F1F2F6</color>
+    <color name="lg_light_surface_dim">#F1F2F6</color>
+    <color name="lg_light_surface_bright">#FFFFFF</color>
+    <color name="lg_light_inverse_surface">#292B35</color>
+    <color name="lg_light_inverse_text">#EEEDF6</color>
+    <color name="lg_light_inverse_primary">#AAB7EB</color>
+    <color name="lg_light_error">#B3261E</color>
+    <color name="lg_light_on_error">#FFFFFF</color>
+    <color name="lg_light_error_container">#F9DEDC</color>
+    <color name="lg_light_on_error_container">#410E0B</color>
+    <color name="lg_light_fixed_dim">#DCDFE8</color>
+    <color name="lg_dark_primary_container">#3C4156</color>
+    <color name="lg_dark_secondary_container">#34384B</color>
+    <color name="lg_dark_container_low">#242735</color>
+    <color name="lg_dark_container">#292D3C</color>
+    <color name="lg_dark_container_high">#2F3344</color>
+    <color name="lg_dark_container_highest">#34384B</color>
+    <color name="lg_dark_surface_dim">#191B25</color>
+    <color name="lg_dark_surface_bright">#444A61</color>
+    <color name="lg_dark_inverse_surface">#EEEDF6</color>
+    <color name="lg_dark_inverse_text">#292B35</color>
+    <color name="lg_dark_inverse_primary">#505F8C</color>
+    <color name="lg_dark_error">#FFB4AB</color>
+    <color name="lg_dark_on_error">#690005</color>
+    <color name="lg_dark_error_container">#93000A</color>
+    <color name="lg_dark_on_error_container">#FFDAD6</color>
+    <color name="lg_scrim">#000000</color>
+</resources>

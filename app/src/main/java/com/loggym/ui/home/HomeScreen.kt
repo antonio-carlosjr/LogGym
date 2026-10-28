@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -66,7 +67,7 @@ fun HomeScreen(
 
     RootNavigationLock(state.isBusy || draftToDiscard != null)
     Scaffold(
-        topBar = { TopAppBar(title = { Text(resources.getString(R.string.app_name)) }) },
+        topBar = { TopAppBar(title = { com.loggym.ui.components.LogGymHomeTitle() }) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         LazyColumn(
@@ -92,7 +93,7 @@ fun HomeScreen(
                 item(key = "plan-header") {
                     Column {
                         Text(plan.name, style = MaterialTheme.typography.titleLarge)
-                        Text(resources.getString(R.string.ui_escolha_a_divisao_de_hoje), style = MaterialTheme.typography.bodyMedium)
+                        Text(resources.getString(R.string.ui_escolha_a_divisao_de_hoje), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 items(plan.workouts, key = { it.id }) { workout ->
@@ -140,8 +141,9 @@ private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, on
     ) {
         Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
             Text(resources.getString(R.string.ui_treino_em_andamento), style = MaterialTheme.typography.titleMedium)
-            Text(resources.getString(R.string.ui_1_s_iniciado_as_2_s, draft.workoutName, draft.startedAt.formatTime()))
-            Row(horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
+            Text(resources.getString(R.string.ui_1_s_iniciado_as_2_s, draft.workoutName, draft.startedAt.formatTime()),
+                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.small), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.extraSmall)) {
                 Button(onClick = onResume, enabled = enabled) { Text(resources.getString(R.string.ui_retomar)) }
                 TextButton(onClick = onDiscard, enabled = enabled,
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)) {
@@ -156,7 +158,7 @@ private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, on
 @Composable
 private fun NoActivePlanCard(onOpenPlans: () -> Unit) {
     val resources = LocalResources.current
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth(), colors = com.loggym.ui.components.LogGymCardDefaults.colors()) {
         Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
             Text(resources.getString(R.string.ui_nenhum_plano_ativo), style = MaterialTheme.typography.titleMedium)
             Text(resources.getString(R.string.ui_selecione_ou_crie_um_plano_para_comecar_a_treinar))
@@ -168,7 +170,7 @@ private fun NoActivePlanCard(onOpenPlans: () -> Unit) {
 @Composable
 private fun WorkoutCard(workout: Workout, canStart: Boolean, onStart: () -> Unit) {
     val resources = LocalResources.current
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth(), colors = com.loggym.ui.components.LogGymCardDefaults.colors()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -178,7 +180,7 @@ private fun WorkoutCard(workout: Workout, canStart: Boolean, onStart: () -> Unit
         ) {
             Column(Modifier.weight(1f)) {
                 Text(workout.name, style = MaterialTheme.typography.titleMedium)
-                Text(resources.getQuantityString(R.plurals.exercise_count, workout.exercises.size, workout.exercises.size), style = MaterialTheme.typography.bodySmall)
+                Text(resources.getQuantityString(R.plurals.exercise_count, workout.exercises.size, workout.exercises.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Button(onClick = onStart, enabled = canStart && workout.exercises.isNotEmpty()) {
                 Text(resources.getString(R.string.ui_iniciar))

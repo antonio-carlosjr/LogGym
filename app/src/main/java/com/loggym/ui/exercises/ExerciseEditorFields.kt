@@ -44,7 +44,7 @@ internal fun ExerciseEditorFields(editor: ExerciseDialog.Editor,
             },
             modifier = Modifier.fillMaxWidth(),
         )
-        Text(resources.getString(R.string.ui_tipo_de_registro_fixo_apos_criar))
+        Text(resources.getString(R.string.ui_tipo_de_registro_fixo_apos_criar), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         TrackingType.entries.forEach { type ->
             FilterChip(
                 selected = editor.trackingType == type,

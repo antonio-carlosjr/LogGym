@@ -165,15 +165,12 @@ fun PlansScreen(
 private fun PlanCard(plan: PlanSummary, onOpen: () -> Unit, onActivate: () -> Unit, onDelete: () -> Unit) {
     val resources = LocalResources.current
     var menuOpen by remember { mutableStateOf(false) }
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    ElevatedCard(modifier = Modifier.fillMaxWidth(), colors = com.loggym.ui.components.LogGymCardDefaults.colors(plan.isActive),
+        elevation = com.loggym.ui.components.LogGymCardDefaults.elevation()) {
         ListItem(
             headlineContent = { Text(plan.name) },
             supportingContent = { if (plan.isActive) Text(resources.getString(R.string.ui_plano_ativo)) },
-            colors = if (plan.isActive) {
-                ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-            } else {
-                ListItemDefaults.colors()
-            },
+            colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
             trailingContent = {
                 IconButton(onClick = { menuOpen = true }) {
                     Icon(Icons.Filled.MoreVert, contentDescription = resources.getString(R.string.ui_acoes_do_plano_1_s, plan.name))
