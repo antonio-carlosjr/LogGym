@@ -45,6 +45,7 @@ fun OnboardingScreen(
         ) {
             if (failed) item { Text(stringResource(R.string.operation_failed), color = MaterialTheme.colorScheme.error) }
             item {
+                com.loggym.ui.components.LogGymLogo(Modifier.padding(bottom = 12.dp))
                 Text(resources.getString(R.string.ui_bem_vindo_ao_loggym), style = MaterialTheme.typography.headlineMedium)
                 Text(
                     resources.getString(R.string.ui_escolha_um_plano_pronto_para_comecar_voce_podera_personaliza_lo_depois),
@@ -62,6 +63,8 @@ fun OnboardingScreen(
                 ElevatedCard(
                     onClick = { viewModel.selectTemplate(template.key, onPlanSelected) },
                     enabled = !isWorking,
+                    colors = com.loggym.ui.components.LogGymCardDefaults.colors(),
+                    elevation = com.loggym.ui.components.LogGymCardDefaults.elevation(),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
