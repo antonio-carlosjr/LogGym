@@ -1,6 +1,6 @@
 # Rastreabilidade funcional do LogGym
 
-Estado da implementação até a Sprint 7. Os links de testes indicam cobertura por cenário/grupo, não necessariamente um teste exclusivo para cada RF. Resultados e limites estão nos registros S3/S4/S5 e em [S6-IMPLEMENTACAO](S6-IMPLEMENTACAO.md). Homologação individual final S6, incluindo refinamentos visuais, confirmada no contexto do planejamento S7. Homologação S7 permanece separada e pendente, sem presumir verificações humanas.
+Estado da implementação até a Sprint 7. Os links de testes indicam cobertura por cenário/grupo, não necessariamente um teste exclusivo para cada RF. Resultados e limites estão nos registros S3/S4/S5 e em [S6-IMPLEMENTACAO](S6-IMPLEMENTACAO.md). Homologação individual final S6, incluindo refinamentos visuais, confirmada no contexto do planejamento S7. Homologação funcional individual S7 aprovada em 27/10/2026, conforme confirmação do responsável de que todos os testes manuais estão validados, incluindo o refinamento do cadastro. Integração concluída pelo PR #16 com CI pós-merge aprovada; evidências em [S7-IMPLEMENTACAO](S7-IMPLEMENTACAO.md).
 
 Fotos (RF-135), distância (parte de RF-136) e kg/lb (RF-139) permanecem pendentes. RF-53/RF-142 incorporam a S4; RF-80 tem padrão manual com automação opcional conforme RF-162. RF-148 preserva chaves/infraestrutura; mudanças de catálogo futuras exigem migração/testes próprios. Backup público vigente v2; v1 externo é rejeitado, sem remover recuperação privada de undo S5.
 
@@ -181,4 +181,4 @@ Na S6, RF-154/156/157/159 incluem a preferência no formato público v2 e no rol
 | RF-165 | Tokens, superfícies e estados acessíveis | LogGymSpacing, LogGymTheme, StatusMessages e telas | regressão Compose; roteiro humano S7 separado |
 | RF-166 | Movimento curto e escala do sistema | LogGymNavHost, SessionSetRow | Sprint7NavigationTest, Sprint7SetLayoutTest com escala zero; roteiro humano S7 |
 
-Resultados reais e limitações em [S7-IMPLEMENTACAO](S7-IMPLEMENTACAO.md); [homologação S7](HOMOLOGACAO-S7.md) não presumida. S6 individual final aprovada conforme contexto fornecido no planejamento S7.
+Resultados reais e limitações em [S7-IMPLEMENTACAO](S7-IMPLEMENTACAO.md); [homologação individual S7](HOMOLOGACAO-S7.md) confirmada em 27/10/2026. Aprovação coletiva e pendências de release não são consideradas concluídas. S6 individual final aprovada conforme contexto fornecido no planejamento S7.

@@ -120,10 +120,12 @@ Ver [implementação](S6-IMPLEMENTACAO.md), [decisão técnica](decisoes/S6-exec
 [UX-NAV-01](BACKLOG-UX.md#ux-nav-01--navegação-principal-inferior) fica candidata à **Sprint 7**, fora da S6/reserva, sem execução autorizada. Referência revisada: 13 pontos (anterior: 11). Decisões confirmadas: cinco abas e Voltar das raízes para Início; integrar estados/insets e testar invalidação das pilhas salvas após restauração antes de executar.
 
 
-## Sprint 7 — navegação e usabilidade autorizadas
+## Sprint 7 — concluída e homologada individualmente
 
 Plano B aprovado em 25/10/2026: 33 pontos e 6 de reserva (referência 39). S7-01 contratos 3; S7-02 navegação 5; S7-03 estado/gerações 5; S7-04 linhas 5; S7-05 adaptação/acessibilidade 3; S7-06 padronização 5; S7-07 microinterações 2; S7-08 regressão/documentação 5. Dev 1: 10; Dev 2: 10; Dev 3: 13 — responsabilidades técnicas, não disponibilidade simultânea.
 
-Cinco raízes com rótulo Ajustes/título Configurações, séries em linhas e remoção direta. Sem alterações de dados/formato. [Contratos](decisoes/S7-usabilidade.md), [resultados](S7-IMPLEMENTACAO.md) e [homologação pendente](HOMOLOGACAO-S7.md). A candidatura UX-NAV-01 anterior foi incorporada a este compromisso. S6 integrada/homologada individualmente, inclusive refinamento final, conforme contexto do responsável; registros históricos preservados.
+Cinco raízes com rótulo Ajustes/título Configurações, séries em linhas e remoção direta. Sem alterações de dados/formato. [Contratos](decisoes/S7-usabilidade.md), [resultados](S7-IMPLEMENTACAO.md) e [homologação individual aprovada](HOMOLOGACAO-S7.md). A candidatura UX-NAV-01 anterior foi incorporada a este compromisso. S6 integrada/homologada individualmente, inclusive refinamento final, conforme contexto do responsável; registros históricos preservados.
 
 Reserva para correções; não incorporar estatísticas, kg/lb, distância, fotos ou preferências por exercício. Codex implementa/testa/revisa e entrega PR; responsável homologa e faz merge manualmente.
+
+Encerramento S7 em 27/10/2026: tarefas S7-01 a S7-08 e refinamento do cadastro concluídos, testes manuais aprovados pelo responsável e integração pelo PR #16 realizada, com CI pós-merge verde. Hash, evidências e limites em [S7-IMPLEMENTACAO](S7-IMPLEMENTACAO.md) e [HOMOLOGACAO-S7](HOMOLOGACAO-S7.md). Não inclui aceite coletivo ou conclusão das pendências de release.
