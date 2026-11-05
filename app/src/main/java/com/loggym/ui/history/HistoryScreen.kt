@@ -32,12 +32,13 @@ fun HistoryScreen(onBack: () -> Unit, onOpenSession: (Long) -> Unit, viewModel: 
                 state.sessions.isEmpty() -> item { EmptyState(stringResource(R.string.history_empty)) }
             }
             items(state.sessions, key = { it.id }) { session ->
-                ElevatedCard(onClick = { onOpenSession(session.id) }, modifier = Modifier.fillMaxWidth()) {
+                ElevatedCard(onClick = { onOpenSession(session.id) }, modifier = Modifier.fillMaxWidth(),
+                    colors = com.loggym.ui.components.LogGymCardDefaults.colors(), elevation = com.loggym.ui.components.LogGymCardDefaults.elevation()) {
                     Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.extraSmall)) {
                         Text(session.workoutName, style = MaterialTheme.typography.titleMedium)
-                        Text(session.planName)
-                        Text(session.startedAt.formatSessionDate())
-                        Text(historyDuration(sessionDurationSeconds(session.startedAt, session.finishedAt)))
+                        Text(session.planName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(session.startedAt.formatSessionDate(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(historyDuration(sessionDurationSeconds(session.startedAt, session.finishedAt)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }

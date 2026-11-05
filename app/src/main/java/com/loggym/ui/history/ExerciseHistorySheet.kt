@@ -41,7 +41,7 @@ fun ExerciseHistorySheet(name: String, state: ExerciseHistoryUiState, onClose: (
                         .format(entry.session.startedAt), style = MaterialTheme.typography.titleMedium)
                     val context = listOf(entry.session.planName, entry.session.workoutName)
                         .map { it.trim() }.filter { it.isNotEmpty() }.joinToString(" | ")
-                    if (context.isNotEmpty()) Text(context, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (context.isNotEmpty()) Text(context, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 entry.occurrences.forEachIndexed { index, occurrence ->
                     item(key = "occurrence-${occurrence.id}") {
@@ -50,7 +50,7 @@ fun ExerciseHistorySheet(name: String, state: ExerciseHistoryUiState, onClose: (
                         Text(stringResource(R.string.session_prescription, occurrence.target.summary(), occurrence.target.rest.seconds))
                     }
                     occurrence.sets.forEachIndexed { number, set ->
-                        item(key = "set-${set.id}") { Card(Modifier.fillMaxWidth()) {
+                        item(key = "set-${set.id}") { Card(Modifier.fillMaxWidth(), colors = com.loggym.ui.components.LogGymCardDefaults.colors()) {
                             Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.extraSmall)) {
                                 HistorySetContent(number + 1, set, occurrence.trackingType)
                             }

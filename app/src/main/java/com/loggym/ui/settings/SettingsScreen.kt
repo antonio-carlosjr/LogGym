@@ -68,13 +68,13 @@ fun SettingsScreen(onBack: () -> Unit, showBack: Boolean = true, viewModel: Sett
                     Text(stringResource(R.string.prefill_label), Modifier.weight(1f))
                     Switch(checked = settings.prefillEnabled, onCheckedChange = null, enabled = !blocked)
                 }
-                Text(stringResource(R.string.prefill_help), style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.prefill_help), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(settings.autoCompleteEnabled,
                     enabled = !blocked, role = Role.Switch, onValueChange = viewModel::setAutoComplete), verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.auto_complete_label), Modifier.weight(1f))
                     Switch(checked = settings.autoCompleteEnabled, onCheckedChange = null, enabled = !blocked)
                 }
-                Text(stringResource(R.string.auto_complete_help), style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.auto_complete_help), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 BackupSection(backup, !busy, viewModel::export, viewModel::writeExport, viewModel::importBackup,
                     viewModel::confirmImport, viewModel::cancelBackup, onNavigationLock = { backupLocked = it })
             }

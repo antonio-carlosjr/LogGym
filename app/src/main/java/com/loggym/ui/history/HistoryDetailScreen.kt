@@ -31,9 +31,9 @@ fun HistoryDetailScreen(onBack: () -> Unit, viewModel: HistoryDetailViewModel = 
             state.session?.let { session ->
                 item {
                     Text(session.workoutName, style = MaterialTheme.typography.headlineSmall)
-                    Text(session.planName)
-                    Text(session.startedAt.formatSessionDate())
-                    Text(historyDuration(sessionDurationSeconds(session.startedAt, session.finishedAt)))
+                    Text(session.planName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(session.startedAt.formatSessionDate(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(historyDuration(sessionDurationSeconds(session.startedAt, session.finishedAt)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(stringResource(R.string.history_read_only), style = MaterialTheme.typography.labelMedium)
                 }
                 session.exercises.forEach { exercise ->
@@ -43,7 +43,7 @@ fun HistoryDetailScreen(onBack: () -> Unit, viewModel: HistoryDetailViewModel = 
                     }
                     exercise.sets.forEachIndexed { index, set ->
                         item(key = "set-${set.id}") {
-                            Card(Modifier.fillMaxWidth()) {
+                            Card(Modifier.fillMaxWidth(), colors = com.loggym.ui.components.LogGymCardDefaults.colors()) {
                                 Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.extraSmall)) {
                                     HistorySetContent(index + 1, set, exercise.trackingType)
                                 }

@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="200dp" android:height="44.609665dp" android:viewportWidth="538" android:viewportHeight="120">
+  <path android:fillColor="#AAB7EB" android:pathData="M 17,37 H 22 Q 27,37 27,42 V 78 Q 27,83 22,83 H 17 Q 12,83 12,78 V 42 Q 12,37 17,37 Z M 42,20 H 50 Q 57,20 57,27 V 93 Q 57,100 50,100 H 42 Q 35,100 35,93 V 27 Q 35,20 42,20 Z M 70,45 H 142 L 133,60 L 142,75 H 70 Q 64,75 64,69 V 51 Q 64,45 70,45 Z M 147,45 L 168,60 L 147,75 L 138,60 Z M 181,20 H 189 Q 196,20 196,27 V 93 Q 196,100 189,100 H 181 Q 174,100 174,93 V 27 Q 174,20 181,20 Z M 209,37 H 214 Q 219,37 219,42 V 78 Q 219,83 214,83 H 209 Q 204,83 204,78 V 42 Q 204,37 209,37 Z" />
+  <group android:translateX="250" android:translateY="83" android:scaleX="0.03417969" android:scaleY="-0.03417969">
+    <group android:translateX="0" android:translateY="0">
+      <path android:fillColor="#EEEDF6" android:pathData="M111 0H1096V264H419V1490H111Z" />
+    </group>
+    <group android:translateX="1125" android:translateY="0">
+      <path android:fillColor="#EEEDF6" android:pathData="M594 -24C915 -24 1131 196 1131 527C1131 858 915 1080 594 1080C274 1080 58 858 58 527C58 196 274 -24 594 -24ZM594 215C451 215 355 331 355 527C355 724 452 841 594 841C737 841 834 724 834 527C834 331 738 215 594 215Z" />
+    </group>
+    <group android:translateX="2299" android:translateY="0">
+      <path android:fillColor="#EEEDF6" android:pathData="M603 -432C909 -432 1119 -294 1119 41V1056H828V903H827C760 1020 650 1078 513 1078C243 1078 58 853 58 536C58 221 239 -1 515 -1C653 -1 764 55 827 179H828V17C828 -135 747 -215 603 -215C493 -215 415 -170 394 -90H110C140 -295 303 -432 603 -432ZM591 235C448 235 355 346 355 540C355 734 448 844 591 844C740 844 839 724 839 540C839 355 740 235 591 235Z" />
+    </group>
+    <group android:translateX="3508" android:translateY="0">
+      <path android:fillColor="#EEEDF6" android:pathData="M772 -24C1158 -24 1432 232 1432 602V792H806V558H1131C1128 373 985 248 780 248C526 248 373 438 373 744C373 1051 525 1242 776 1242C954 1242 1077 1143 1110 991H1422C1384 1303 1109 1514 767 1514C365 1514 63 1220 63 744C63 284 350 -24 772 -24Z" />
+    </group>
+    <group android:translateX="5000" android:translateY="0">
+      <path android:fillColor="#EEEDF6" android:pathData="M130 -418H325C489 -418 591 -339 658 -163L1123 1056H817L639 534C614 459 591 382 568 306C546 382 522 458 498 534L321 1056H12L418 4L389 -73C361 -154 334 -185 264 -185H130Z" />
+    </group>
+    <group android:translateX="6119" android:translateY="0">
+      <path android:fillColor="#EEEDF6" android:pathData="M104 0H399V623C399 759 483 835 588 835C691 835 763 764 763 654V0H1047V636C1047 754 1118 835 1232 835C1333 835 1411 773 1411 646V0H1705V700C1705 942 1554 1078 1351 1078C1198 1078 1068 1001 1013 872C969 1001 850 1078 708 1078C574 1078 451 1009 388 866V1056H104Z" />
+    </group>
+  </group>
+</vector>

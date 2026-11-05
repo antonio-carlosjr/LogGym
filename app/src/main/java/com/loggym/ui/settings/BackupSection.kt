@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -49,7 +50,7 @@ fun BackupSection(state: BackupState, enabled: Boolean, export: (BackupMode) -> 
     BackHandler(locked) { if (!state.busy && !importPicker && state.step != BackupStep.DESTINATION) cancel() }
     HorizontalDivider()
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(stringResource(R.string.backup_title), Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.backup_title), Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.titleMedium)
         IconButton(onClick = { showInfo = true }) {
             Icon(Icons.Filled.Info, contentDescription = stringResource(R.string.backup_info))
         }
@@ -58,7 +59,10 @@ fun BackupSection(state: BackupState, enabled: Boolean, export: (BackupMode) -> 
     OutlinedButton(onClick = { importPicker = true; input.launch(arrayOf("*/*")) }, enabled = enabled && !locked) { Text(stringResource(R.string.backup_import)) }
     val feedback = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
     if (state.busy) { LinearProgressIndicator(Modifier.fillMaxWidth()); Text(stringResource(R.string.backup_working), feedback) }
-    if (state.step == BackupStep.SUCCESS) Text(stringResource(R.string.backup_success), feedback)
+    if (state.step == BackupStep.SUCCESS) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.backup_success), feedback)
+    }
     if (state.step == BackupStep.ERROR) Text(stringResource(when (state.error) {
         BackupFailure.ROLLED_BACK -> R.string.backup_rolled_back
         BackupFailure.INCOMPATIBLE_VERSION -> R.string.backup_incompatible_version

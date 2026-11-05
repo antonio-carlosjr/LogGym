@@ -214,10 +214,32 @@ Responsabilidades técnicas, sem pressupor três profissionais simultâneos ou v
 UX-NAV-01 é candidata à S7 (13 pontos; referência anterior 11), com cinco abas e Voltar das raízes para Início. Não implementá-la nem usar a reserva automaticamente. Compactação, preferências individuais, fotos, distância e kg/lb permanecem separados.
 
 
-## Sprint 7 — navegação e usabilidade autorizadas
+## Sprint 7 — concluída e homologada individualmente
 
 Plano B aprovado em 25/10/2026: 33 pontos e 6 de reserva (referência 39). S7-01 contratos 3; S7-02 navegação 5; S7-03 estado/gerações 5; S7-04 linhas 5; S7-05 adaptação/acessibilidade 3; S7-06 padronização 5; S7-07 microinterações 2; S7-08 regressão/documentação 5. Dev 1: 10; Dev 2: 10; Dev 3: 13 — responsabilidades técnicas, não disponibilidade simultânea.
 
-Cinco raízes com rótulo Ajustes/título Configurações, séries em linhas e remoção direta. Sem alterações de dados/formato. [Contratos](decisoes/S7-usabilidade.md), [resultados](S7-IMPLEMENTACAO.md) e [homologação pendente](HOMOLOGACAO-S7.md). A candidatura UX-NAV-01 anterior foi incorporada a este compromisso. S6 integrada/homologada individualmente, inclusive refinamento final, conforme contexto do responsável; registros históricos preservados.
+Cinco raízes com rótulo Ajustes/título Configurações, séries em linhas e remoção direta. Sem alterações de dados/formato. [Contratos](decisoes/S7-usabilidade.md), [resultados](S7-IMPLEMENTACAO.md) e [homologação individual aprovada](HOMOLOGACAO-S7.md). A candidatura UX-NAV-01 anterior foi incorporada a este compromisso. S6 integrada/homologada individualmente, inclusive refinamento final, conforme contexto do responsável; registros históricos preservados.
 
 Reserva para correções; não incorporar estatísticas, kg/lb, distância, fotos ou preferências por exercício. Codex implementa/testa/revisa e entrega PR; responsável homologa e faz merge manualmente.
+
+Encerramento S7 em 27/10/2026: tarefas S7-01 a S7-08 e refinamento do cadastro concluídos, testes manuais aprovados pelo responsável e integração pelo PR #16 realizada, com CI pós-merge verde. Hash, evidências e limites em [S7-IMPLEMENTACAO](S7-IMPLEMENTACAO.md) e [HOMOLOGACAO-S7](HOMOLOGACAO-S7.md). Não inclui aceite coletivo ou conclusão das pendências de release.
+
+
+## Sprint 8 — identidade A5 e consistência visual
+
+Alternativa B aprovada e implementação autorizada em 27/10/2026: **32 pontos + 7 de reserva**. Dev 1/2/3 são responsabilidades técnicas.
+
+| Tarefa | Entrega | Pontos | Área |
+| --- | --- | ---: | --- |
+| S8-01 | Contrato, regularizações e capturas comparativas | 2 | Dev 3 |
+| S8-02 | Tema A5, fundo raiz, barras e estados | 5 | Dev 1: 3; Dev 3: 2 |
+| S8-03 | Vetores, launcher e monochrome | 5 | Dev 1 |
+| S8-04 | Marca em onboarding/Home | 2 | Dev 2 |
+| S8-05 | Home, planos e exercícios | 5 | Dev 2: 3; Dev 3: 2 |
+| S8-06 | Execução e históricos | 5 | Dev 2: 3; Dev 3: 2 |
+| S8-07 | Configurações/diálogos/feedback | 3 | Dev 3 |
+| S8-08 | Regressão, acessibilidade, evidências e entrega | 5 | Dev 1: 3; Dev 2: 2 |
+
+Área total: Dev 1: 11; Dev 2: 10; Dev 3: 11. Ordem: regularização → baseline → tema/recursos → marca → telas → regressão/PR. Reserva para correções, sem novas funcionalidades/animações. Preservar S7 e originais A5 em commits separados. Mudança de escala do ícone exige aprovação prévia. Sem mudanças em Room/DataStore/backup/domínio. Estatísticas antes candidatas à S8 são adiadas, sem apagar a proposta histórica.
+
+[Contrato](decisoes/S8-identidade-a5.md), [implementação/evidências](S8-IMPLEMENTACAO.md) e [homologação humana pendente](HOMOLOGACAO-S8.md). Responsável homologa e faz merge manualmente; sem auto-merge/release.

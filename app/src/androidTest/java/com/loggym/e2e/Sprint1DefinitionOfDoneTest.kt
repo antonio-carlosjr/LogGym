@@ -1,5 +1,10 @@
 package com.loggym.e2e
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.isEnabled
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasSetTextAction
@@ -69,7 +74,10 @@ class Sprint1DefinitionOfDoneTest {
         click("Fechar")
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
         // Primeiro Voltar pode apenas fechar o IME da busca; a aba é o retorno explícito à raiz.
-        composeRule.onNodeWithTag("tab-home").performClick().assertIsSelected()
+        composeRule.waitUntil(15_000) {
+            composeRule.onAllNodes(hasTestTag("tab-home") and isEnabled()).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("tab-home").assertIsDisplayed().performClick().assertIsSelected()
 
         // Sem plano ativo, a home direciona para planos (RF-07). Plano criado do zero (RF-23, RF-24).
         click("Ir para planos")
@@ -128,7 +136,11 @@ class Sprint1DefinitionOfDoneTest {
 
     private fun click(text: String) {
         waitFor(text)
-        composeRule.onAllNodes(matching(text)).onFirst().performClick()
+        val target = matching(text) and hasClickAction() and isEnabled() and !hasSetTextAction()
+        composeRule.waitUntil(15_000) { composeRule.onAllNodes(target).fetchSemanticsNodes().isNotEmpty() }
+        val node = composeRule.onAllNodes(target).onFirst()
+        runCatching { node.performScrollTo() }
+        node.assertIsDisplayed().performClick()
         composeRule.waitForIdle()
     }
 

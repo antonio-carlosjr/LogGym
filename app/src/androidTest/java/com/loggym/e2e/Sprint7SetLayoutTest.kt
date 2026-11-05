@@ -40,7 +40,7 @@ class Sprint7SetLayoutTest {
         compose.setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, scale.value)) {
-                LogGymTheme(dynamicColor = false) {
+                LogGymTheme() {
                     var weight by remember { mutableStateOf("22,5") }
                     var reps by remember { mutableStateOf("8") }
                     Box(Modifier.width(width.value)) {

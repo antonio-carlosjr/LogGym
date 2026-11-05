@@ -14,6 +14,16 @@ Implementação do plano B aprovado em 25/10/2026: 33 pontos e 6 de reserva. Bas
 | S7-08 | 5 | Dev 1 | Regressão, rastreabilidade e documentação |
 | Total | **33** | Dev 1: 10; Dev 2: 10; Dev 3: 13 | Reserva: 6 |
 
+## Estado final — 27/10/2026
+
+**S7-01 a S7-08 concluídas**, incluindo o refinamento do cadastro compartilhado. Homologação funcional individual aprovada pelo responsável, que confirmou todos os testes manuais e o reteste do cadastro; [registro](HOMOLOGACAO-S7.md).
+
+- Integração manual pelo responsável no [PR #16](https://github.com/antonio-carlosjr/LogGym/pull/16), em 26/10/2026 (America/Sao_Paulo), merge `01268ba2cf18c851fed698e58f0a3774b2ee850f`; branch remota de desenvolvimento excluída.
+- [CI pós-merge aprovada](https://github.com/antonio-carlosjr/LogGym/actions/runs/40427237509) no merge entregue: build/JVM/lint e instrumentados. Referência final das suítes: **193 JVM e 73 instrumentados**; lint sem erros e cinco avisos existentes de dependências.
+- Aprovação coletiva não confirmada; assinatura definitiva/custódia, ensaio e release não são considerados concluídos. Nenhuma publicação faz parte deste encerramento.
+
+As seções seguintes preservam o registro cronológico da implementação. Indicações de homologação/integração pendentes nessas etapas são históricas e estão superadas pelo estado final acima; resultados de falhas e revalidações não foram apagados.
+
 ## Componentes e garantias
 
 - `TopLevelDestination`, `RootNavigationBar` e `LogGymNavHost`: Início, Planos, Exercícios, Histórico e Ajustes. Título Configurações preservado. Seleção pela rota, reseleção sem efeito, raízes salvas/restauradas. Voltar secundário retorna ao Início. Barra oculta no IME e nos fluxos internos.
