@@ -228,8 +228,8 @@
     <string name="nav_home">Início</string>
     <string name="nav_settings">Ajustes</string>
     <string name="loading">Carregando…</string>
-    <string name="set_column_weight">kg</string>
-    <string name="set_column_reps">reps</string>
+    <string name="set_column_weight">KG</string>
+    <string name="set_column_reps">REPS</string>
     <string name="set_column_duration">tempo (s)</string>
     <string name="set_options">Opções da série %1$d</string>
     <string name="set_weight_field">Carga da série %1$d, em kg</string>
