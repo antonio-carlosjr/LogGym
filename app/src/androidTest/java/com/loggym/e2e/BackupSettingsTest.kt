@@ -54,7 +54,7 @@ class BackupSettingsTest {
     }
     @Test fun exportOffersTwoModesThenUsesCreateDocumentAndAcceptsCancellation() {
         compose.onNodeWithText("Exportar backup").performClick()
-        compose.onNodeWithText("Completo: inclui planos, exercícios, configurações, histórico e treino em andamento.\n\nSem histórico: inclui planos, exercícios e configurações, sem sessões.").assertExists()
+        compose.onNodeWithText("Completo: tudo, inclusive histórico e treino em andamento.\n\nSem histórico: planos, exercícios e configurações.").assertExists()
         compose.onNodeWithText("Este arquivo não está criptografado. Quem tiver acesso a ele poderá ler seus dados.").assertExists()
         compose.onNodeWithText("Sem histórico").performClick()
         assertEquals(BackupMode.WITHOUT_HISTORY, mode)
@@ -66,7 +66,7 @@ class BackupSettingsTest {
         assertEquals("token" to null, delivered)
     }
     @Test fun informationIsAvailableOnDemandAndDoesNotStartAnOperation() {
-        val explanation = hasText("Completo: inclui", substring = true)
+        val explanation = hasText("Completo: tudo", substring = true)
         val warning = "Este arquivo não está criptografado. Quem tiver acesso a ele poderá ler seus dados."
         compose.onNode(explanation).assertDoesNotExist()
         compose.onNodeWithText(warning).assertDoesNotExist()

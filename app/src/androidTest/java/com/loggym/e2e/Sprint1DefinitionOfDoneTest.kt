@@ -103,7 +103,6 @@ class Sprint1DefinitionOfDoneTest {
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
         waitFor("Usar um plano pronto")
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
-        waitFor("Escolha a divisão de hoje")
         waitFor("Meu ABC")
         click("Iniciar")
 

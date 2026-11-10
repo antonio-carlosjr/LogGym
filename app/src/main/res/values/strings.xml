@@ -5,13 +5,12 @@
     <string name="exercise_history_empty">Nenhum treino anterior para este exercício.</string>
     <string name="exercise_history_more">Carregar mais</string>
     <string name="exercise_history_occurrence">Ocorrência nesta sessão: %1$d</string>
-    <string name="exercise_history_unavailable">Histórico indisponível: exercício sem identidade de origem.</string>
     <string name="auto_complete_label">Concluir séries automaticamente</string>
-    <string name="auto_complete_help">Após editar um valor válido, use Concluído no teclado ou entre nos campos de outra série. Valores apenas pré-preenchidos não concluem séries.</string>
+    <string name="auto_complete_help">Conclui a série ao tocar em Concluído no teclado ou passar para outra série.</string>
     <string name="auto_complete_read_error">Não foi possível ler a preferência de conclusão automática. A marcação manual continua disponível.</string>
     <string name="backup_incompatible_version">Versão de backup incompatível. Gere um novo arquivo com a versão atual do LogGym.</string>
     <string name="backup_title">Backup e restauração</string>
-    <string name="backup_help">Completo: inclui planos, exercícios, configurações, histórico e treino em andamento.\n\nSem histórico: inclui planos, exercícios e configurações, sem sessões.</string>
+    <string name="backup_help">Completo: tudo, inclusive histórico e treino em andamento.\n\nSem histórico: planos, exercícios e configurações.</string>
     <string name="backup_info">Sobre backup e restauração</string>
     <string name="backup_understood">Entendi</string>
     <string name="backup_plaintext">Este arquivo não está criptografado. Quem tiver acesso a ele poderá ler seus dados.</string>
@@ -23,7 +22,7 @@
     <string name="backup_restoring">Restaurando dados. Aguarde a conclusão.</string>
     <string name="backup_recovering">Verificando e recuperando a integridade dos dados. Aguarde.</string>
     <string name="backup_success">Operação concluída com sucesso.</string>
-    <string name="backup_failed">Não foi possível concluir a operação. Confira o arquivo, os valores digitados no treino e o armazenamento e tente novamente.</string>
+    <string name="backup_failed">Não foi possível concluir. Confira o arquivo, o armazenamento e os valores do treino.</string>
     <string name="backup_rolled_back">A restauração falhou. Os dados anteriores foram preservados.</string>
     <string name="backup_restore_confirm">Restaurar backup?</string>
     <string name="backup_summary">Exercícios personalizados: %1$d. Planos: %2$d. Divisões: %3$d. Treinos concluídos: %4$d. Séries: %5$d.</string>
@@ -103,21 +102,19 @@
     <string name="ui_salvar">Salvar</string>
     <string name="ui_cancelar">Cancelar</string>
     <string name="ui_excluir_1_s">Excluir \"%1$s\"?</string>
-    <string name="ui_1_sos_treinos_ja_registrados_no_historico_nao_mudam">%1$sOs treinos já registrados no histórico não mudam.</string>
-    <string name="ui_escolha_a_divisao_de_hoje">Escolha a divisão de hoje</string>
+    <string name="ui_1_sos_treinos_ja_registrados_no_historico_nao_mudam">%1$sO histórico não muda.</string>
     <string name="ui_planos">Planos</string>
     <string name="ui_descartar_treino">Descartar treino?</string>
     <string name="ui_o_treino_em_andamento_sera_apagado_e_nao_aparecera_no_historico">O treino em andamento será apagado e não aparecerá no histórico.</string>
     <string name="ui_descartar">Descartar</string>
     <string name="ui_treino_em_andamento">Treino em andamento</string>
-    <string name="ui_1_s_iniciado_as_2_s">%1$s \u00b7 iniciado às %2$s</string>
     <string name="ui_retomar">Retomar</string>
     <string name="ui_nenhum_plano_ativo">Nenhum plano ativo</string>
-    <string name="ui_selecione_ou_crie_um_plano_para_comecar_a_treinar">Selecione ou crie um plano para começar a treinar.</string>
+    <string name="ui_selecione_ou_crie_um_plano_para_comecar_a_treinar">Escolha ou crie um plano para treinar.</string>
     <string name="ui_ir_para_planos">Ir para planos</string>
     <string name="ui_iniciar">Iniciar</string>
     <string name="ui_bem_vindo_ao_loggym">Bem-vindo ao LogGym</string>
-    <string name="ui_escolha_um_plano_pronto_para_comecar_voce_podera_personaliza_lo_depois">Escolha um plano pronto para começar. Você poderá personalizá-lo depois.</string>
+    <string name="ui_escolha_um_plano_pronto_para_comecar_voce_podera_personaliza_lo_depois">Escolha um plano pronto. Dá para personalizar depois.</string>
     <string name="ui_o_loggym_nao_substitui_a_orientacao_de_um_profissional_de_educacao_fisica_o">O LogGym não substitui a orientação de um profissional de educação física ou de saúde.</string>
     <string name="ui_criar_plano_personalizado">Criar plano personalizado</string>
     <string name="ui_pular_por_enquanto">Pular por enquanto</string>
@@ -126,10 +123,10 @@
     <string name="ui_nova_divisao">Nova divisão</string>
     <string name="ui_renomear_divisao">Renomear divisão</string>
     <string name="ui_nome_da_divisao_ex_push_treino_a">Nome da divisão (ex.: Push, Treino A)</string>
-    <string name="ui_a_divisao_e_a_configuracao_dos_exercicios_dela_serao_removidas_o_historico_">A divisão e a configuração dos exercícios dela serão removidas. O histórico não muda.</string>
+    <string name="ui_a_divisao_e_a_configuracao_dos_exercicios_dela_serao_removidas_o_historico_">A divisão e seus exercícios serão removidos. O histórico não muda.</string>
     <string name="ui_plano_ativo">Plano ativo</string>
     <string name="ui_ativar_este_plano">Ativar este plano</string>
-    <string name="ui_este_plano_ainda_nao_tem_divisoes_adicione_a_primeira_como_push_ou_treino_a">Este plano ainda não tem divisões. Adicione a primeira, como \"Push\" ou \"Treino A\".</string>
+    <string name="ui_este_plano_ainda_nao_tem_divisoes_adicione_a_primeira_como_push_ou_treino_a">Sem divisões. Adicione a primeira, como \"Treino A\".</string>
     <string name="ui_adicionar_divisao">Adicionar divisão</string>
     <string name="ui_mover_1_s_para_cima">Mover %1$s para cima</string>
     <string name="ui_mover_1_s_para_baixo">Mover %1$s para baixo</string>
@@ -152,12 +149,12 @@
     <string name="ui_a_repeticao_minima_nao_pode_ser_maior_que_a_maxima">A repetição mínima não pode ser maior que a máxima.</string>
     <string name="ui_novo_plano">Novo plano</string>
     <string name="ui_usar_um_plano_pronto">Usar um plano pronto</string>
-    <string name="ui_voce_ainda_nao_tem_planos_crie_um_do_zero_ou_use_um_plano_pronto">Você ainda não tem planos. Crie um do zero ou use um plano pronto.</string>
+    <string name="ui_voce_ainda_nao_tem_planos_crie_um_do_zero_ou_use_um_plano_pronto">Nenhum plano ainda. Crie um ou use um pronto.</string>
     <string name="ui_plano_criado">Plano criado</string>
-    <string name="ui_ativar_agora_o_plano_ativo_e_o_usado_para_iniciar_treinos">Ativar agora? O plano ativo é o usado para iniciar treinos.</string>
+    <string name="ui_ativar_agora_o_plano_ativo_e_o_usado_para_iniciar_treinos">Ativar agora? Treinos são iniciados pelo plano ativo.</string>
     <string name="ui_ativar">Ativar</string>
     <string name="ui_agora_nao">Agora não</string>
-    <string name="ui_este_e_o_plano_ativo_voce_ficara_sem_plano_ativo_ate_escolher_outro">Este é o plano ativo: você ficará sem plano ativo até escolher outro.\u0020</string>
+    <string name="ui_este_e_o_plano_ativo_voce_ficara_sem_plano_ativo_ate_escolher_outro">Este é o plano ativo: ficará sem plano ativo até escolher outro.\u0020</string>
     <string name="ui_acoes_do_plano_1_s">Ações do plano %1$s</string>
     <string name="ui_criar">Criar</string>
     <string name="ui_planos_prontos">Planos prontos</string>
@@ -165,13 +162,9 @@
     <string name="ui_voltar_e_salvar">Voltar e salvar</string>
     <string name="ui_salvando">Salvando…</string>
     <string name="ui_falha_ao_salvar">Falha ao salvar</string>
-    <string name="ui_alteracoes_ainda_nao_salvas">Alterações ainda não salvas</string>
-    <string name="ui_alteracoes_salvas">Alterações salvas</string>
     <string name="ui_finalizar_treino">Finalizar treino</string>
     <string name="ui_nenhum_treino_em_andamento">Nenhum treino em andamento</string>
     <string name="ui_voltar_a_home">Voltar à home</string>
-    <string name="ui_carga_em_kg_registre_o_peso_de_um_halter_lado_conforme_o_equipamento">Carga em kg: registre o peso de um halter/lado, conforme o equipamento.</string>
-    <string name="ui_serie_1_s">Série %1$d</string>
     <string name="ui_concluir_serie_1_s_de_2_s">Concluir série %1$d de %2$s</string>
     <string name="ui_duracao_s">Duração (s)</string>
     <string name="ui_carga_kg">Carga (kg)</string>
@@ -194,7 +187,7 @@
     <string name="wrong_workout_warning">Esta divisão não pertence ao plano ativo.</string>
     <string name="session_start_error">Não foi possível iniciar. Tente novamente.</string>
     <string name="session_discard_error">Não foi possível descartar. Tente novamente.</string>
-    <string name="operation_failed">Não foi possível concluir a ação. Tente novamente; os dados do formulário foram preservados.</string>
+    <string name="operation_failed">Não foi possível concluir. Tente novamente.</string>
     <string name="load_failed">Não foi possível carregar os dados. Tente novamente.</string>
     <string name="dismiss_error">Fechar aviso</string>
     <plurals name="pending_sets">
@@ -208,10 +201,6 @@
     <plurals name="exercise_count">
         <item quantity="one">%1$d exercício</item>
         <item quantity="other">%1$d exercícios</item>
-    </plurals>
-    <plurals name="completed_sets">
-        <item quantity="one">%1$d de %2$d série concluída</item>
-        <item quantity="other">%1$d de %2$d séries concluídas</item>
     </plurals>
     <plurals name="plan_usages">
         <item quantity="one">Ele está em %1$d divisão de plano e será removido dela.\u0020</item>
@@ -230,10 +219,10 @@
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Escuro</string>
     <string name="prefill_label">Usar valores do último treino</string>
-    <string name="prefill_help">Aplica-se somente ao iniciar um novo treino. Não altera treinos em andamento.</string>
+    <string name="prefill_help">Vale para os próximos treinos.</string>
     <string name="create_exercise">Cadastrar exercício</string>
     <string name="clear_exercise_named">Limpar séries de %1$s</string>
-    <string name="clear_exercise_help">Os valores e as marcações deste exercício serão apagados. As séries e o descanso atual serão mantidos. O plano e o histórico não serão alterados.</string>
+    <string name="clear_exercise_help">Apaga valores e marcações deste exercício. O histórico não muda.</string>
     <string name="clear_action">Limpar</string>
     <string name="exercise_cleared">Séries do exercício limpas.</string>
     <string name="nav_home">Início</string>
@@ -253,4 +242,5 @@
     <string name="add_set_short">Série</string>
     <string name="clear_exercise_menu">Limpar exercício</string>
     <string name="discard_session_menu">Descartar treino</string>
+    <string name="home_draft_progress">Iniciado às %1$s · %2$d/%3$d séries</string>
 </resources>

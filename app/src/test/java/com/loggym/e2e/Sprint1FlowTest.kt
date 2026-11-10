@@ -85,7 +85,6 @@ class Sprint1FlowTest {
             composeRule.onAllNodes(hasTestTag("tab-home") and isEnabled()).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
-        waitForText("Escolha a divisão de hoje")
         waitForText("Full Body C")
         click("Iniciar")
         waitForText("Voltar e salvar")

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,6 +21,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -91,10 +92,8 @@ fun HomeScreen(
             }
             if (plan != null) {
                 item(key = "plan-header") {
-                    Column {
-                        Text(plan.name, style = MaterialTheme.typography.titleLarge)
-                        Text(resources.getString(R.string.ui_escolha_a_divisao_de_hoje), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+                    Text(plan.name, style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(top = LogGymSpacing.small))
                 }
                 items(plan.workouts, key = { it.id }) { workout ->
                     WorkoutCard(
@@ -132,21 +131,26 @@ fun HomeScreen(
 @Composable
 private fun DraftCard(draft: Session, enabled: Boolean, onResume: () -> Unit, onDiscard: () -> Unit) {
     val resources = LocalResources.current
+    val done = draft.completedSetCount
+    val total = done + draft.pendingSetCount
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            contentColor = MaterialTheme.colorScheme.onSurface,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         ),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(LogGymSpacing.screen), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.small)) {
-            Text(resources.getString(R.string.ui_treino_em_andamento), style = MaterialTheme.typography.titleMedium)
-            Text(resources.getString(R.string.ui_1_s_iniciado_as_2_s, draft.workoutName, draft.startedAt.formatTime()),
-                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.small), verticalArrangement = Arrangement.spacedBy(LogGymSpacing.extraSmall)) {
-                Button(onClick = onResume, enabled = enabled) { Text(resources.getString(R.string.ui_retomar)) }
+            Text(resources.getString(R.string.ui_treino_em_andamento), style = MaterialTheme.typography.labelLarge)
+            Text(draft.workoutName, style = MaterialTheme.typography.titleLarge)
+            Text(resources.getString(R.string.home_draft_progress, draft.startedAt.formatTime(), done, total),
+                style = MaterialTheme.typography.bodyMedium)
+            if (total > 0) LinearProgressIndicator(progress = { done.toFloat() / total },
+                modifier = Modifier.fillMaxWidth(), drawStopIndicator = {})
+            Row(horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.small), verticalAlignment = Alignment.CenterVertically) {
+                Button(onClick = onResume, enabled = enabled, modifier = Modifier.weight(1f)) { Text(resources.getString(R.string.ui_retomar)) }
                 TextButton(onClick = onDiscard, enabled = enabled,
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)) {
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimaryContainer)) {
                     Text(resources.getString(R.string.ui_descartar))
                 }
             }
@@ -174,13 +178,16 @@ private fun WorkoutCard(workout: Workout, canStart: Boolean, onStart: () -> Unit
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(LogGymSpacing.screen),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(LogGymSpacing.medium),
         ) {
             Column(Modifier.weight(1f)) {
                 Text(workout.name, style = MaterialTheme.typography.titleMedium)
-                Text(resources.getQuantityString(R.plurals.exercise_count, workout.exercises.size, workout.exercises.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                val names = workout.exercises.sortedBy { it.position }.joinToString(" · ") { it.exercise.name }
+                Text(names.ifEmpty { resources.getQuantityString(R.plurals.exercise_count, 0, 0) },
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Button(onClick = onStart, enabled = canStart && workout.exercises.isNotEmpty()) {
                 Text(resources.getString(R.string.ui_iniciar))
