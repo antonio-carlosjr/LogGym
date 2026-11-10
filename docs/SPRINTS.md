@@ -149,3 +149,7 @@ Alternativa B aprovada e implementação autorizada em 27/10/2026: **32 pontos +
 Área total: Dev 1: 11; Dev 2: 10; Dev 3: 11. Ordem: regularização → baseline → tema/recursos → marca → telas → regressão/PR. Reserva para correções, sem novas funcionalidades/animações. Preservar S7 e originais A5 em commits separados. Mudança de escala do ícone exige aprovação prévia. Sem mudanças em Room/DataStore/backup/domínio. Estatísticas antes candidatas à S8 são adiadas, sem apagar a proposta histórica.
 
 [Contrato](decisoes/S8-identidade-a5.md), [implementação/evidências](S8-IMPLEMENTACAO.md) e [homologação humana pendente](HOMOLOGACAO-S8.md). Responsável homologa e faz merge manualmente; sem auto-merge/release.
+
+## Sprint 9 — refinamento de UX e registro rápido no treino
+
+Solicitada pelo responsável em 10/11/2026; pontuação a definir. Prioridade: registro de carga/repetições em tabela compacta na execução, limpeza de textos redundantes e ajustes pontuais de hierarquia nas demais telas. Sem mudanças de dados, domínio ou protocolos. [Contrato](decisoes/S9-ux.md). Responsável homologa e faz merge manualmente; sem auto-merge/release.

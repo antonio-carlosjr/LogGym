@@ -88,7 +88,7 @@ class Sprint6FlowTest {
         field("Duração (s)", 0).performImeAction()
         awaitCount(3)
         val beforeClear = draft()
-        click("Limpar séries de Halter S6"); click("Limpar")
+        click("Mais opções de Halter S6"); click("Limpar exercício"); click("Limpar")
         compose.waitUntil(10000) { draft().exercises[0].sets.none { it.isCompleted } }
         assertEquals(beforeClear.restTimer, draft().restTimer)
         assertEquals(beforeClear.exercises[1], draft().exercises[1])

@@ -90,8 +90,8 @@ class TimedExerciseFlowTest {
         click("Salvar")
         compose.waitUntil(10_000) { runBlocking { plans.observePlan(plan).first()!!.workouts.single().exercises.isNotEmpty() } }
         compose.onNodeWithContentDescription("Voltar").performClick()
-        compose.waitUntil(10_000) { compose.onAllNodesWithText("Duração (s)").fetchSemanticsNodes().isNotEmpty() }
-        compose.onAllNodesWithText("Duração (s)").onFirst().performTextInput("40")
+        compose.waitUntil(10_000) { compose.onAllNodesWithContentDescription("Duração da série 1, em segundos").fetchSemanticsNodes().isNotEmpty() }
+        compose.onAllNodesWithContentDescription("Duração da série 1, em segundos").onFirst().performTextInput("40")
         click("Concluir série 1 de Prancha S2")
         compose.waitUntil(10_000) { runBlocking { sessions.observeDraft().first()?.completedSetCount == 1 } }
         click("Finalizar treino")

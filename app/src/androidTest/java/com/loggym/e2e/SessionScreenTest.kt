@@ -80,7 +80,7 @@ class SessionScreenTest {
         db.close()
     }
     private fun waitForScreen() = compose.waitUntil(10_000) {
-        compose.onAllNodesWithText("Duração (s)").fetchSemanticsNodes().isNotEmpty()
+        compose.onAllNodesWithContentDescription("Duração da série 1, em segundos").fetchSemanticsNodes().isNotEmpty()
     }
     private fun click(text: String) { compose.onNodeWithText(text).performClick() }
     private fun scrollToSet(index: Int) {
@@ -100,9 +100,9 @@ class SessionScreenTest {
 
     @Test fun timedSetAndIncompleteSetFinishWithWarningAndNullPreserved() {
         waitForScreen()
-        compose.onAllNodesWithText("Duração (s)")[0].performTextInput("45")
+        compose.onAllNodesWithContentDescription("Duração da série 1, em segundos")[0].performTextInput("45")
         completeSet(1)
-        compose.onAllNodesWithText("Duração (s)").onFirst().assertIsNotEnabled()
+        compose.onAllNodesWithContentDescription("Duração da série 1, em segundos").onFirst().assertIsNotEnabled()
         completeSet(2)
         val warning = hasText("Série marcada com campos incompletos.") and hasAnyAncestor(hasScrollAction())
         compose.onNode(hasScrollAction()).performScrollToNode(warning)
@@ -122,18 +122,20 @@ class SessionScreenTest {
     }
     @Test fun backFlushesAndResumeRestoresDraftThenDiscardRequiresConfirmation() {
         waitForScreen()
-        compose.onAllNodesWithText("Duração (s)")[0].performTextInput("60")
+        compose.onAllNodesWithContentDescription("Duração da série 1, em segundos")[0].performTextInput("60")
         compose.onNodeWithContentDescription("Voltar e salvar").performClick()
         compose.waitUntil(10_000) { left }
         assertEquals(60, runBlocking { sessions.observeDraft().first()!!.exercises.single().sets[0].durationSeconds })
         click("Retomar teste")
         waitForScreen()
         compose.onNodeWithText("60").assertExists()
-        click("Descartar")
+        compose.onNodeWithContentDescription("Mais opções do treino").performClick()
+        click("Descartar treino")
         click("Cancelar")
         assertNotNull(runBlocking { sessions.observeDraft().first() })
+        compose.onNodeWithContentDescription("Mais opções do treino").performClick()
+        click("Descartar treino")
         click("Descartar")
-        compose.onAllNodesWithText("Descartar").onLast().performClick()
         compose.waitUntil(10_000) { runBlocking { sessions.observeDraft().first() == null } }
         assertTrue(runBlocking { sessions.observeHistory().first().isEmpty() })
     }

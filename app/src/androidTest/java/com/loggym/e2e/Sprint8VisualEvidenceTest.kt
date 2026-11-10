@@ -75,7 +75,7 @@ class Sprint8VisualEvidenceTest {
         scrollTo("Backup e restauração"); capture("10-backup")
         click("Sobre backup e restauração"); capture("11-backup-info"); click("Entendi")
         click("Exportar backup"); capture("12-export-dialog"); back()
-        tab("home"); click("Retomar"); waitFor("Carga (kg)")
+        tab("home"); click("Retomar"); waitFor("Carga da série 1, em kg")
         val draft = runBlocking { sessions.observeDraft().first()!! }
         runBlocking { sessions.saveSetAndSetCompleted(draft.exercises[0].sets[0].id, SetValues(0.0, 0), false)
             sessions.saveSetAndSetCompleted(draft.exercises[0].sets[0].id, SetValues(0.0, 0), true) }

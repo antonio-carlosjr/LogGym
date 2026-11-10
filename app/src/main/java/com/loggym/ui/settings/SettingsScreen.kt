@@ -65,19 +65,25 @@ fun SettingsScreen(onBack: () -> Unit, showBack: Boolean = true, viewModel: Sett
                 com.loggym.ui.components.SectionHeading(stringResource(R.string.settings_training))
                 Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(settings.prefillEnabled,
                     enabled = !blocked, role = Role.Switch, onValueChange = viewModel::setPrefill), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.prefill_label), Modifier.weight(1f))
+                    SwitchLabel(stringResource(R.string.prefill_label), stringResource(R.string.prefill_help), Modifier.weight(1f))
                     Switch(checked = settings.prefillEnabled, onCheckedChange = null, enabled = !blocked)
                 }
-                Text(stringResource(R.string.prefill_help), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(settings.autoCompleteEnabled,
                     enabled = !blocked, role = Role.Switch, onValueChange = viewModel::setAutoComplete), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.auto_complete_label), Modifier.weight(1f))
+                    SwitchLabel(stringResource(R.string.auto_complete_label), stringResource(R.string.auto_complete_help), Modifier.weight(1f))
                     Switch(checked = settings.autoCompleteEnabled, onCheckedChange = null, enabled = !blocked)
                 }
-                Text(stringResource(R.string.auto_complete_help), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 BackupSection(backup, !busy, viewModel::export, viewModel::writeExport, viewModel::importBackup,
                     viewModel::confirmImport, viewModel::cancelBackup, onNavigationLock = { backupLocked = it })
             }
         }
+    }
+}
+
+@Composable
+private fun SwitchLabel(title: String, help: String, modifier: Modifier = Modifier) {
+    Column(modifier.padding(vertical = LogGymSpacing.small, horizontal = 0.dp).padding(end = LogGymSpacing.medium)) {
+        Text(title, style = MaterialTheme.typography.bodyLarge)
+        Text(help, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

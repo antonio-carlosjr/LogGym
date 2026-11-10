@@ -72,3 +72,7 @@ UX-NAV-01 foi entregue na S7, integrada pelo PR #16 e homologada individualmente
 ## Priorização S8 — 27/10/2026
 
 A S8 foi destinada à identidade A5 e consistência visual (32 pontos/7 de reserva). Estatísticas, antes candidatas à S8, ficam para sprint posterior dentro de Histórico, sem sexta aba e sem execução autorizada. Novas animações de adição/remoção/deslocamento, biblioteca extensa de componentes e matriz ampliada de tablets não entram na reserva. Fotos, distância, kg/lb e preferências individuais continuam separados. [Escopo aprovado](decisoes/S8-identidade-a5.md).
+
+## S9 — registro rápido e limpeza visual — 10/11/2026
+
+Solicitação do responsável: melhorar a entrada de cargas/repetições na execução e reduzir textos desnecessários. Escolhida a tabela compacta. [Escopo e limites](decisoes/S9-ux.md).

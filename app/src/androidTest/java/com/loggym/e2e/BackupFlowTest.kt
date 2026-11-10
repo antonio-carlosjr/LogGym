@@ -40,8 +40,8 @@ class BackupFlowTest {
             plans.addExerciseToWorkout(workout, exercise, ExerciseTarget.Repetitions(2, 8, 12, Duration.ofSeconds(37)))
         }
         click("Iniciar")
-        compose.onAllNodesWithText("Carga (kg)").onFirst().performTextInput("22,5")
-        compose.onAllNodesWithText("Repetições").onFirst().performTextInput("0")
+        compose.onAllNodesWithContentDescription("Carga da série 1, em kg").onFirst().performTextInput("22,5")
+        compose.onAllNodesWithContentDescription("Repetições da série 1").onFirst().performTextInput("0")
         compose.runOnIdle { backup.prepareExport(BackupMode.FULL) }
         compose.activityRule.scenario.recreate()
         waitStep(BackupStep.DESTINATION)
