@@ -19,3 +19,9 @@ Sem mudanças em Room v3, DataStore, backup v2, domínio, protocolo de persistê
 ## Verificação
 
 Build, JVM, lint e instrumentados conforme README/CI, com testes atualizados para localizar campos por tag/descrição. Homologação funcional e merge manuais pelo responsável; sem auto-merge ou release.
+
+## Resultado da implementação (10/11/2026)
+
+- Entregue: tabela compacta e cabeçalho de colunas na execução, menus de opções (série, exercício, treino), teclado encadeado, topo com progresso, rodapé silencioso, textos enxugados, card de treino em andamento e divisões com lista de exercícios na Home, ajuda das preferências como subtítulo.
+- Não alterado: Planos já usavam menu de opções. Histórico mantém o formato "Carga: x kg", contrato dos testes de S3/S6; tabela no histórico e chips de filtro na biblioteca ficam como candidatos.
+- Verificação local (Windows, AVD Medium_Phone API 37): `assembleDebug testDebugUnitTest lintDebug` aprovados; `connectedDebugAndroidTest` 77 testes, 1 falha inicial (S4 buscava o antigo botão Limpar) corrigida e reexecutada com sucesso. Capturas antes/depois não geradas; homologação visual pendente com o responsável.
