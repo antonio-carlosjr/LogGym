@@ -56,14 +56,14 @@ class Sprint4FlowTest {
         click("Usar padrão (3 × 30 s, 1:30)")
         compose.onNodeWithText("Segundos").performTextReplacement("37")
         click("Salvar"); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK); click("Iniciar")
-        waitFor("Carga (kg)")
-        compose.onAllNodesWithText("Carga (kg)").onFirst().performTextInput("0")
-        compose.onAllNodesWithText("Repetições").onFirst().performTextInput("0")
+        waitFor("Carga da série 1, em kg")
+        compose.onAllNodesWithContentDescription("Carga da série 1, em kg").onFirst().performTextInput("0")
+        compose.onAllNodesWithContentDescription("Repetições da série 1").onFirst().performTextInput("0")
         runBlocking { preferences.setThemeMode(ThemeMode.DARK) }
         compose.onAllNodesWithText("0").assertCountEquals(2)
         click("Concluir série 1 de Agachamento livre")
-        waitFor("Duração (s)")
-        compose.onAllNodesWithText("Duração (s)").onFirst().performTextInput("45")
+        waitFor("Duração da série 1, em segundos")
+        compose.onAllNodesWithContentDescription("Duração da série 1, em segundos").onFirst().performTextInput("45")
         click("Concluir série 1 de Prancha S4")
         compose.waitUntil(10_000) {
             runBlocking { sessions.observeDraft().first()?.exercises?.sumOf { ex -> ex.sets.count { it.isCompleted } } == 2 }

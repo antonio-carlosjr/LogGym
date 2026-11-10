@@ -49,7 +49,7 @@
     <string name="history_set_duration_missing">Duração: não informada</string>
     <string name="history_set_weight_missing">Carga: não informada</string>
     <string name="history_set_reps_missing">Repetições: não informadas</string>
-    <string name="session_prescription">%1$s · descanso %2$d s</string>
+    <string name="session_prescription">%1$s · descanso %2$s</string>
     <string name="set_number">Série %1$d</string>
     <string name="set_completed">Concluída</string>
     <string name="set_pending">Pendente</string>
@@ -239,4 +239,18 @@
     <string name="nav_home">Início</string>
     <string name="nav_settings">Ajustes</string>
     <string name="loading">Carregando…</string>
+    <string name="set_column_weight">kg</string>
+    <string name="set_column_reps">reps</string>
+    <string name="set_column_duration">tempo (s)</string>
+    <string name="set_options">Opções da série %1$d</string>
+    <string name="set_weight_field">Carga da série %1$d, em kg</string>
+    <string name="set_reps_field">Repetições da série %1$d</string>
+    <string name="set_duration_field">Duração da série %1$d, em segundos</string>
+    <string name="exercise_options">Mais opções de %1$s</string>
+    <string name="session_options">Mais opções do treino</string>
+    <string name="session_progress">%1$d/%2$d séries</string>
+    <string name="session_save_retry">Falha ao salvar · Tentar de novo</string>
+    <string name="add_set_short">Série</string>
+    <string name="clear_exercise_menu">Limpar exercício</string>
+    <string name="discard_session_menu">Descartar treino</string>
 </resources>

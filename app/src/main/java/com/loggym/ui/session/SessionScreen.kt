@@ -5,10 +5,15 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.style.TextOverflow
+import com.loggym.ui.components.CompactNumberField
+import com.loggym.ui.util.formatRest
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -73,14 +78,41 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
         state.message?.let { snackbar.showSnackbar(resources.getString(it)); viewModel.messageShown() }
     }
     BackHandler(enabled = !state.exitReady) { viewModel.back() }
+    var sessionMenu by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             Column {
-            TopAppBar(title = { Text(state.session?.workoutName ?: resources.getString(R.string.ui_treino)) }, navigationIcon = {
+            TopAppBar(title = {
+                Column {
+                    Text(state.session?.workoutName ?: resources.getString(R.string.ui_treino),
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    state.session?.let { session ->
+                        val total = session.completedSetCount + session.pendingSetCount
+                        Text("${session.planName} · " + resources.getString(R.string.session_progress, session.completedSetCount, total),
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+            }, navigationIcon = {
                 IconButton(onClick = viewModel::back, enabled = !state.busy) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = resources.getString(R.string.ui_voltar_e_salvar))
                 }
+            }, actions = {
+                if (state.session != null) Box {
+                    IconButton(onClick = { sessionMenu = true }, enabled = !state.busy) {
+                        Icon(Icons.Filled.MoreVert, resources.getString(R.string.session_options))
+                    }
+                    DropdownMenu(expanded = sessionMenu, onDismissRequest = { sessionMenu = false }) {
+                        DropdownMenuItem(text = { Text(resources.getString(R.string.discard_session_menu)) },
+                            onClick = { sessionMenu = false; viewModel.requestDiscard() })
+                    }
+                }
             })
+            state.session?.let { session ->
+                val total = session.completedSetCount + session.pendingSetCount
+                if (total > 0) LinearProgressIndicator(progress = { session.completedSetCount.toFloat() / total },
+                    modifier = Modifier.fillMaxWidth().clearAndSetSemantics {}, drawStopIndicator = {})
+            }
             state.remainingSeconds?.let { seconds ->
                 RestBanner(seconds, !state.busy, viewModel::skipRest)
             }
@@ -90,24 +122,23 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
         bottomBar = {
             if (state.session != null) Surface(tonalElevation = 3.dp) {
                 Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 16.dp, vertical = 8.dp)) {
-                    Text(when {
-                        state.saving -> resources.getString(R.string.ui_salvando)
-                        state.error != null -> resources.getString(R.string.ui_falha_ao_salvar)
-                        state.dirty -> resources.getString(R.string.ui_alteracoes_ainda_nao_salvas)
-                        else -> resources.getString(R.string.ui_alteracoes_salvas)
-                    }, style = MaterialTheme.typography.labelSmall)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = viewModel::requestDiscard, enabled = !state.busy,
-                            modifier = Modifier.weight(1f)) { Text(resources.getString(R.string.ui_descartar)) }
-                        Button(onClick = viewModel::requestFinish, enabled = !state.busy,
-                            modifier = Modifier.weight(1f)) { Text(resources.getString(R.string.ui_finalizar_treino)) }
+                    // Estado só aparece quando exige atenção; o salvamento normal é silencioso.
+                    when {
+                        state.error != null -> TextButton(onClick = viewModel::retry, enabled = !state.busy,
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
+                            Text(resources.getString(R.string.session_save_retry))
+                        }
+                        state.saving -> Text(resources.getString(R.string.ui_salvando), style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
+                    Button(onClick = viewModel::requestFinish, enabled = !state.busy,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(resources.getString(R.string.ui_finalizar_treino)) }
                 }
             }
         },
     ) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
-            contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+            contentPadding = PaddingValues(12.dp), verticalArrangement = Arrangement.spacedBy(0.dp)) {
             if (state.isLoading) item { CircularProgressIndicator() }
             state.error?.let { error -> item {
                 Text(resources.getString(error), color = MaterialTheme.colorScheme.error)
@@ -123,64 +154,82 @@ fun SessionScreen(onBack: () -> Unit, viewModel: SessionViewModel = hiltViewMode
                 TextButton(onClick = viewModel::back, enabled = !state.busy) { Text(resources.getString(R.string.ui_voltar_a_home)) }
             }
             if (session != null) {
-                item {
-                    Text(session.planName, style = MaterialTheme.typography.titleMedium)
-                    Text(resources.getQuantityString(R.plurals.completed_sets, session.completedSetCount + session.pendingSetCount, session.completedSetCount, session.completedSetCount + session.pendingSetCount))
-                    if (session.exercises.any { it.trackingType == TrackingType.WEIGHT_REPS })
-                        Text(resources.getString(R.string.ui_carga_em_kg_registre_o_peso_de_um_halter_lado_conforme_o_equipamento),
-                            style = MaterialTheme.typography.bodySmall)
-                    Spacer(Modifier.height(12.dp))
-                }
-                session.exercises.forEach { exercise ->
+                session.exercises.forEachIndexed { exerciseIndex, exercise ->
                     item(key = "exercise-${exercise.id}") {
-                        Surface(Modifier.fillMaxWidth().padding(top = 12.dp).testTag("exercise-header-${exercise.id}"),
+                        var exerciseMenu by remember { mutableStateOf(false) }
+                        Surface(Modifier.fillMaxWidth().padding(top = if (exerciseIndex == 0) 0.dp else 12.dp)
+                            .testTag("exercise-header-${exercise.id}"),
                             color = MaterialTheme.colorScheme.surfaceContainerLow,
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)) {
-                        Column(Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(exercise.name, Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.titleMedium)
-                            IconButton(onClick = {
+                            shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)) {
+                        Column(Modifier.padding(top = 8.dp)) {
+                        Row(Modifier.padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(exercise.name, Modifier.semantics { heading() }, style = MaterialTheme.typography.titleMedium)
+                                Text(resources.getString(R.string.session_prescription, exercise.target.summary(),
+                                    formatRest(exercise.target.rest.seconds)),
+                                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            if (exercise.exerciseId != null) IconButton(onClick = {
                                 viewModel.setHistoryOpen(true)
                                 focus.clearFocus(); keyboard?.hide(); historyId = exercise.id
-                            }, enabled = !state.busy && exercise.exerciseId != null) {
+                            }, enabled = !state.busy) {
                                 Icon(painterResource(R.drawable.ic_history), stringResource(R.string.exercise_history_open, exercise.name))
                             }
-                            IconButton(onClick = { viewModel.requestClearExercise(exercise.id) }, enabled = !state.busy) {
-                                Icon(painterResource(R.drawable.ic_eraser), stringResource(R.string.clear_exercise_named, exercise.name))
+                            Box {
+                                IconButton(onClick = { exerciseMenu = true }, enabled = !state.busy) {
+                                    Icon(Icons.Filled.MoreVert, stringResource(R.string.exercise_options, exercise.name))
+                                }
+                                DropdownMenu(expanded = exerciseMenu, onDismissRequest = { exerciseMenu = false }) {
+                                    DropdownMenuItem(text = { Text(stringResource(R.string.clear_exercise_menu)) },
+                                        leadingIcon = { Icon(painterResource(R.drawable.ic_eraser), null) },
+                                        onClick = { exerciseMenu = false; viewModel.requestClearExercise(exercise.id) })
+                                }
                             }
                         }
-                        if (exercise.exerciseId == null) Text(stringResource(R.string.exercise_history_unavailable))
-                        Text(resources.getString(R.string.session_prescription, exercise.target.summary(), exercise.target.rest.seconds))
+                        Spacer(Modifier.height(4.dp))
+                        SetTableHeader(exercise.trackingType == TrackingType.TIME)
                         }
                         }
                     }
+                    val lastPendingId = exercise.sets.lastOrNull { !it.isCompleted }?.id
                     items(exercise.sets, key = { "set-${it.id}" }) { set ->
                         val index = exercise.sets.indexOfFirst { it.id == set.id } + 1
                         val entry = state.entries[set.id] ?: SetEntry.from(set)
                         val enabled = !set.isCompleted && !state.busy && set.id !in state.autoCompleting
                         val focused = Modifier.onFocusChanged { if (it.isFocused) viewModel.fieldFocused(set.id) }
                         val done = { viewModel.finishEditing(set.id); focus.clearFocus(); keyboard?.hide(); Unit }
+                        val next = { focus.moveFocus(FocusDirection.Next); Unit }
+                        // Último campo pendente do exercício usa Concluído; os demais seguem para a próxima série.
+                        val isLast = set.id == lastPendingId
+                        val lastAction = if (isLast) ImeAction.Done else ImeAction.Next
+                        val lastHandler = if (isLast) done else next
                         SessionSetRow(exercise, set, index, entry, state.busy, set.id in state.autoCompleting,
                             onToggle = { viewModel.toggle(set.id) }, onRemove = { viewModel.remove(set.id) }) {
                             if (exercise.trackingType == TrackingType.TIME) {
-                                EntryField(resources.getString(R.string.ui_duracao_s), entry.duration, enabled, entry.error != null, KeyboardType.Number,
-                                    modifier = focused.testTag("set-${set.id}-duration"), onDone = done) {
-                                    value -> viewModel.edit(set.id) { it.copy(duration = value) }
-                                }
+                                CompactNumberField(entry.duration, { value -> viewModel.edit(set.id) { it.copy(duration = value) } },
+                                    stringResource(R.string.set_duration_field, index), focused.testTag("set-${set.id}-duration"),
+                                    enabled, entry.error != null, KeyboardType.Number, lastAction, lastHandler)
                             } else {
-                                EntryField(resources.getString(R.string.ui_carga_kg), entry.weight, enabled, entry.error != null, KeyboardType.Decimal,
-                                    focused.testTag("set-${set.id}-weight"), imeAction = ImeAction.Next,
-                                    onNext = { focus.moveFocus(FocusDirection.Next) }) { value -> viewModel.edit(set.id) { it.copy(weight = value) } }
-                                EntryField(resources.getString(R.string.ui_repeticoes), entry.reps, enabled, entry.error != null, KeyboardType.Number,
-                                    focused.testTag("set-${set.id}-reps"), onDone = done) { value -> viewModel.edit(set.id) { it.copy(reps = value) } }
+                                CompactNumberField(entry.weight, { value -> viewModel.edit(set.id) { it.copy(weight = value) } },
+                                    stringResource(R.string.set_weight_field, index), focused.testTag("set-${set.id}-weight"),
+                                    enabled, entry.error != null, KeyboardType.Decimal, ImeAction.Next, next)
+                                CompactNumberField(entry.reps, { value -> viewModel.edit(set.id) { it.copy(reps = value) } },
+                                    stringResource(R.string.set_reps_field, index), focused.testTag("set-${set.id}-reps"),
+                                    enabled, entry.error != null, KeyboardType.Number, lastAction, lastHandler)
                             }
                         }
                     }
                     item(key = "add-${exercise.id}") {
                         Surface(Modifier.fillMaxWidth().testTag("exercise-footer-${exercise.id}"),
                             color = MaterialTheme.colorScheme.surfaceContainerLow,
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)) {
-                            TextButton(onClick = { viewModel.add(exercise.id) }, enabled = !state.busy) { Text(resources.getString(R.string.ui_adicionar_serie)) }
+                            shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)) {
+                            Row(Modifier.padding(horizontal = 4.dp)) {
+                                TextButton(onClick = { viewModel.add(exercise.id) }, enabled = !state.busy) {
+                                    Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(resources.getString(R.string.ui_adicionar_serie))
+                                }
+                            }
                         }
                     }
                 }
@@ -252,21 +301,4 @@ private fun RestBanner(seconds: Long, enabled: Boolean, onSkip: () -> Unit) {
             }
         }
     }
-}
-
-@Composable
-private fun EntryField(label: String, value: String, enabled: Boolean, isError: Boolean,
-    keyboardType: KeyboardType, modifier: Modifier = Modifier, imeAction: ImeAction = ImeAction.Done,
-    onDone: () -> Unit = {}, onNext: () -> Unit = {}, onChange: (String) -> Unit) {
-    val resources = LocalResources.current
-    OutlinedTextField(value = value, onValueChange = onChange, enabled = enabled, isError = isError,
-        label = { Text(label) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
-        keyboardActions = KeyboardActions(onDone = { onDone() }, onNext = { onNext() }),
-        colors = OutlinedTextFieldDefaults.colors(
-            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        ),
-        modifier = modifier.fillMaxWidth())
 }

@@ -63,10 +63,11 @@ class Sprint7SetLayoutTest {
         compose.runOnIdle { assertEquals(1, focused); assertFalse(completed.value) }
         compose.onNodeWithContentDescription("Concluir série 1 de Supino")
             .assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp).performClick().assertIsOn()
-        compose.onNodeWithContentDescription("Remover série 1").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Opções da série 1").assertIsNotEnabled()
         compose.onNodeWithContentDescription("Concluir série 1 de Supino").performClick()
-        compose.onNodeWithContentDescription("Remover série 1")
-            .assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp).performClick()
+        compose.onNodeWithContentDescription("Opções da série 1")
+            .assertHeightIsAtLeast(48.dp).performClick()
+        compose.onNodeWithText("Remover série 1").performClick()
         compose.runOnIdle { assertEquals(1, removed) }
     }
 }

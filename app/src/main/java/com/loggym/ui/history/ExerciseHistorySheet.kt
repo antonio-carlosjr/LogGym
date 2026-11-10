@@ -47,7 +47,7 @@ fun ExerciseHistorySheet(name: String, state: ExerciseHistoryUiState, onClose: (
                     item(key = "occurrence-${occurrence.id}") {
                         Text(occurrence.name, style = MaterialTheme.typography.titleMedium)
                         if (entry.occurrences.size > 1) Text(stringResource(R.string.exercise_history_occurrence, index + 1))
-                        Text(stringResource(R.string.session_prescription, occurrence.target.summary(), occurrence.target.rest.seconds))
+                        Text(stringResource(R.string.session_prescription, occurrence.target.summary(), com.loggym.ui.util.formatRest(occurrence.target.rest.seconds)))
                     }
                     occurrence.sets.forEachIndexed { number, set ->
                         item(key = "set-${set.id}") { Card(Modifier.fillMaxWidth(), colors = com.loggym.ui.components.LogGymCardDefaults.colors()) {

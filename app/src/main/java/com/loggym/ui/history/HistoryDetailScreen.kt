@@ -39,7 +39,7 @@ fun HistoryDetailScreen(onBack: () -> Unit, viewModel: HistoryDetailViewModel = 
                 session.exercises.forEach { exercise ->
                     item(key = "exercise-${exercise.id}") {
                         Text(exercise.name, Modifier.semantics { heading() }, style = MaterialTheme.typography.titleLarge)
-                        Text(stringResource(R.string.session_prescription, exercise.target.summary(), exercise.target.rest.seconds))
+                        Text(stringResource(R.string.session_prescription, exercise.target.summary(), com.loggym.ui.util.formatRest(exercise.target.rest.seconds)))
                     }
                     exercise.sets.forEachIndexed { index, set ->
                         item(key = "set-${set.id}") {
