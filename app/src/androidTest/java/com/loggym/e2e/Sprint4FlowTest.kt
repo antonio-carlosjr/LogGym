@@ -69,9 +69,9 @@ class Sprint4FlowTest {
             runBlocking { sessions.observeDraft().first()?.exercises?.sumOf { ex -> ex.sets.count { it.isCompleted } } == 2 }
         }
         val before = runBlocking { sessions.observeDraft().first()!! }
-        click("Limpar séries de Agachamento livre"); click("Cancelar")
+        click("Mais opções de Agachamento livre"); click("Limpar exercício"); click("Cancelar")
         assertEquals(before.exercises[0].sets, runBlocking { sessions.observeDraft().first()!!.exercises[0].sets })
-        click("Limpar séries de Agachamento livre"); click("Limpar")
+        click("Mais opções de Agachamento livre"); click("Limpar exercício"); click("Limpar")
         compose.waitUntil(10_000) { runBlocking { sessions.observeDraft().first()!!.exercises[0].sets.none { it.isCompleted } } }
         val cleared = runBlocking { sessions.observeDraft().first()!! }
         assertEquals(before.restTimer, cleared.restTimer)
